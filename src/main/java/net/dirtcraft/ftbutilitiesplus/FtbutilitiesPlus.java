@@ -1,12 +1,11 @@
 package net.dirtcraft.ftbutilitiesplus;
 
-import com.feed_the_beast.ftbutilities.handlers.FTBUtilitiesPlayerEventHandler;
 import com.google.inject.Inject;
 import net.dirtcraft.ftbutilitiesplus.command.Debug;
 import net.dirtcraft.ftbutilitiesplus.data.PlayerData;
-import net.dirtcraft.ftbutilitiesplus.handlers.GPHandler;
-import net.dirtcraft.ftbutilitiesplus.handlers.PlayerEventHandler;
-import net.minecraftforge.common.MinecraftForge;
+import net.dirtcraft.ftbutilitiesplus.handlers.NucleusHandler;
+import net.dirtcraft.ftbutilitiesplus.handlers.gp.BlockEventHandler;
+import net.dirtcraft.ftbutilitiesplus.handlers.gp.PlayerEventHandler;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.spec.CommandSpec;
@@ -40,9 +39,10 @@ public class FtbutilitiesPlus {
                 .child(debug, "debug")
                 .build();
 
-        Sponge.getEventManager().registerListeners(this, new GPHandler());
+        Sponge.getEventManager().registerListeners(this, new NucleusHandler());
+        Sponge.getEventManager().registerListeners(this, new BlockEventHandler());
         Sponge.getEventManager().registerListeners(this, new PlayerEventHandler());
-        Sponge.getEventManager().registerListeners(this, new PlayerData());
+        Sponge.getEventManager().registerListeners(this, new PlayerData.Listener());
         Sponge.getCommandManager().register(this, main, "ftbupp");
     }
 }

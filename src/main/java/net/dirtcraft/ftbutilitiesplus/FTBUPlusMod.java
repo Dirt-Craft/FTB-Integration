@@ -19,8 +19,5 @@ public class FTBUPlusMod {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        for (int i = 0; i < 60; i++) {
-            System.out.println(PermissionAPI.getPermissionHandler().getClass());
-        }
     }
 }

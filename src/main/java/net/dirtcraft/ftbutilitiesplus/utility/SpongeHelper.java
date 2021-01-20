@@ -8,6 +8,8 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.bridge.world.LocationBridge;
 
+import javax.annotation.Nullable;
+
 public class SpongeHelper {
     public static GameProfile getGameProfile(User user){
         return new GameProfile(user.getUniqueId(), user.getName());
@@ -18,7 +20,7 @@ public class SpongeHelper {
         return ((LocationBridge) (Object) location).bridge$getBlockPos();
     }
 
-    public static net.minecraft.world.World getWorld(Location<World> location){
+    public static @Nullable net.minecraft.world.World getWorld(Location<World> location){
         return (net.minecraft.world.World) location.getExtent();
     }
 
