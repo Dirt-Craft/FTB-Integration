@@ -25,8 +25,11 @@
 
 package net.dirtcraft.ftbutilitiesplus.utility;
 
+import net.minecraft.entity.IEntityOwnable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Event;
@@ -34,7 +37,11 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.world.ExplosionEvent;
+import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.bridge.OwnershipTrackedBridge;
+
+import java.util.UUID;
 
 public class CauseContextHelper {
 
@@ -76,6 +83,9 @@ public class CauseContextHelper {
             }
         }
 
+        Entity e = cause.first(Entity.class).orElse(null);
+        if (user == null && e instanceof IEntityOwnable) user = fromEntity((IEntityOwnable) e);
+
         if (user == null) {
             // fall back to fakeplayer if we still don't have a user
             user = fakePlayer;
@@ -89,5 +99,15 @@ public class CauseContextHelper {
         }
 
         return user;
+    }
+
+    private static User fromEntity(IEntityOwnable entity){
+            UUID id = entity.getOwnerId();
+            if (id == null) return null;
+
+            User u = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(id).orElse(null);
+            if (u != null && entity instanceof OwnershipTrackedBridge)((OwnershipTrackedBridge)entity).tracked$setOwnerReference(u);
+
+            return u;
     }
 }

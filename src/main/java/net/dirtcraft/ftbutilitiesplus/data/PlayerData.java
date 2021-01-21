@@ -24,8 +24,9 @@ public class PlayerData {
     private GameProfile gameProfile;
 
     public static PlayerData from(User user){
-        PlayerData data = playerData.get(user);
-        return playerData.get(user);
+        PlayerData ret = playerData.get(user);
+        if (ret == null && user != null) ret = new PlayerData(user);
+        return ret;
     }
 
     public PlayerData(User user){
@@ -40,7 +41,7 @@ public class PlayerData {
 
     public boolean checkLastInteraction(ClaimedChunk claim, User user) {
         if (this.lastInteractResult && user != null && ((SpongeImpl.getServer().getTickCounter() - this.lastInteractTick) <= 2)) {
-            return claim == null || claim.getTeam().equals(this.lastInteractClaim.getTeam());
+            return claim == null || lastInteractClaim != null && claim.getTeam().equals(this.lastInteractClaim.getTeam());
         }
         return false;
     }

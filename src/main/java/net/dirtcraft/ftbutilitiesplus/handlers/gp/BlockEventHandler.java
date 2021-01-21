@@ -62,7 +62,6 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.common.bridge.block.BlockBridge;
-import org.spongepowered.common.bridge.world.LocationBridge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,10 +123,6 @@ public class BlockEventHandler {
 
         if (isForgePlayerBreak && !hasFakePlayer && source instanceof Player) {
             for (Location<World> location : event.getLocations()) {
-                //if (GriefPreventionPlugin.isTargetIdBlacklisted(ClaimFlag.BLOCK_BREAK.toString(), location.getBlock(), world.getProperties())) {
-                //    GPTimings.BLOCK_PRE_EVENT.stopTimingIfSync();
-                //    return;
-                //}
 
                 if (location.getBlockType() == BlockTypes.AIR) {
                     continue;
