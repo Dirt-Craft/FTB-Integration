@@ -1,20 +1,13 @@
-package net.dirtcraft.ftbutilitiesplus.utility;
+package net.dirtcraft.ftbutilities.spongeintegration.utility;
 
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
-import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
-import com.mojang.authlib.GameProfile;
-import net.dirtcraft.ftbutilitiesplus.data.PlayerData;
-import net.minecraft.block.Block;
+import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.registries.IForgeRegistryEntry;
-import net.minecraftforge.server.permission.PermissionAPI;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.entity.Entity;
@@ -22,9 +15,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class ClaimedChunkHelper {
 

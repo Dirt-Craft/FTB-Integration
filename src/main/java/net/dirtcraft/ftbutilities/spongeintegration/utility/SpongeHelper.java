@@ -1,4 +1,4 @@
-package net.dirtcraft.ftbutilitiesplus.utility;
+package net.dirtcraft.ftbutilities.spongeintegration.utility;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.state.IBlockState;

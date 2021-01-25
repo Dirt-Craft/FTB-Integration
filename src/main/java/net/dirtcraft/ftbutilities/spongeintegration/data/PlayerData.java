@@ -1,4 +1,4 @@
-package net.dirtcraft.ftbutilitiesplus.data;
+package net.dirtcraft.ftbutilities.spongeintegration.data;
 
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;

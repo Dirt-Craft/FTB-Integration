@@ -24,17 +24,18 @@
  * THE SOFTWARE.
  */
 
-package net.dirtcraft.ftbutilitiesplus.handlers.gp;
+package net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge;
 
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.flowpowered.math.vector.Vector3d;
-import net.dirtcraft.ftbutilitiesplus.data.PlayerData;
-import net.dirtcraft.ftbutilitiesplus.utility.ClaimedChunkHelper;
+import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
+import net.dirtcraft.ftbutilities.spongeintegration.utility.ClaimedChunkHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemFood;
 import net.minecraft.network.play.server.SPacketChunkData;
+import net.minecraftforge.common.util.FakePlayer;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
@@ -66,77 +67,16 @@ public class PlayerEventHandler {
     private int lastInteractItemPrimaryTick = -1;
     private int lastInteractItemSecondaryTick = -1;
 
-    /*
-    @Listener(order = Order.FIRST, beforeModifications = true)
-    public void onPlayerInteractInventoryOpen(InteractInventoryEvent.Open event, @First Player player) {
-        if (!GPFlags.INTERACT_INVENTORY || !GriefPreventionPlugin.instance.claimsEnabledForWorld(player.getWorld().getProperties())) {
-            return;
-        }
-
-        final Cause cause = event.getCause();
-        final EventContext context = cause.getContext();
-        final BlockSnapshot blockSnapshot = context.get(EventContextKeys.BLOCK_HIT).orElse(BlockSnapshot.NONE);
-        if (blockSnapshot == BlockSnapshot.NONE) {
-            return;
-        }
-        if (GriefPreventionPlugin.isTargetIdBlacklisted(ClaimFlag.INTERACT_INVENTORY.toString(), blockSnapshot, player.getWorld().getProperties())) {
-            return;
-        }
-
-        GPTimings.PLAYER_INTERACT_INVENTORY_OPEN_EVENT.startTimingIfSync();
-        final Location<World> location = blockSnapshot.getLocation().get();
-        final GPClaim claim = this.dataStore.getClaimAt(location);
-        final Tristate result = GPPermissionHandler.getClaimPermission(event, location, claim, GPPermissions.INVENTORY_OPEN, player, blockSnapshot, player, TrustType.CONTAINER, true);
-        if (result == Tristate.FALSE) {
-            Text message = GriefPreventionPlugin.instance.messageData.permissionInventoryOpen
-                    .apply(ImmutableMap.of(
-                            "owner", claim.getOwnerName(),
-                            "block", blockSnapshot.getState().getType().getId())).build();
-            GriefPreventionPlugin.sendClaimDenyMessage(claim, player, message);
-            ((EntityPlayerMP) player).closeScreen();
-            event.setCancelled(true);
-        }
-
-        GPTimings.PLAYER_INTERACT_INVENTORY_OPEN_EVENT.stopTimingIfSync();
-    }
-
-    @Listener(order = Order.FIRST, beforeModifications = true)
-    public void onPlayerInteractInventoryClose(InteractInventoryEvent.Close event, @Root Player player) {
-        final ItemStackSnapshot cursor = event.getCursorTransaction().getOriginal();
-        if (cursor == ItemStackSnapshot.NONE || !GPFlags.ITEM_DROP || !GriefPreventionPlugin.instance.claimsEnabledForWorld(player.getWorld().getProperties())) {
-            return;
-        }
-        if (GriefPreventionPlugin.isTargetIdBlacklisted(ClaimFlag.ITEM_DROP.toString(), cursor, player.getWorld().getProperties())) {
-            return;
-        }
-
-        GPTimings.PLAYER_INTERACT_INVENTORY_CLOSE_EVENT.startTimingIfSync();
-        final Location<World> location = player.getLocation();
-        final GPClaim claim = this.dataStore.getClaimAt(location);
-        if (GPPermissionHandler.getClaimPermission(event, location, claim, GPPermissions.ITEM_DROP, player, cursor, player, TrustType.ACCESSOR, true) == Tristate.FALSE) {
-            Text message = GriefPreventionPlugin.instance.messageData.permissionItemDrop
-                    .apply(ImmutableMap.of(
-                            "owner", claim.getOwnerName(),
-                            "item", cursor.getType().getId())).build();
-            GriefPreventionPlugin.sendClaimDenyMessage(claim, player, message);
-            event.setCancelled(true);
-        }
-
-        GPTimings.PLAYER_INTERACT_INVENTORY_CLOSE_EVENT.stopTimingIfSync();
-    }
-     */
-
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onPlayerInteractBlockPrimary(InteractBlockEvent.Primary.MainHand event, @First Player player) {
         final BlockSnapshot clickedBlock = event.getTargetBlock();
         final HandType handType = event.getHandType();
         final ItemStack itemInHand = player.getItemInHand(handType).orElse(ItemStack.empty());
         // Run our item hook since Sponge no longer fires InteractItemEvent when targetting a non-air block
-        if (clickedBlock != BlockSnapshot.NONE && handleItemInteract(event, player, player.getWorld(), itemInHand).isCancelled()) return;
+        if (clickedBlock != BlockSnapshot.NONE && handleItemInteract(event, player, player.getWorld(), itemInHand)) return;
 
 
         final Location<World> location = clickedBlock.getLocation().orElse(null);
-        final Object source = !itemInHand.isEmpty() ? itemInHand : player;
         if (location == null) return;
 
         final PlayerData playerData = PlayerData.from(player);
@@ -161,12 +101,10 @@ public class PlayerEventHandler {
         // Run our item hook since Sponge no longer fires InteractItemEvent when targetting a non-air block
         final HandType handType = event.getHandType();
         final ItemStack itemInHand = player.getItemInHand(handType).orElse(ItemStack.empty());
-        if (handleItemInteract(event, player, player.getWorld(), itemInHand).isCancelled()) {
+        if (handleItemInteract(event, player, player.getWorld(), itemInHand)) {
             event.setCancelled(true);
             return;
         }
-
-        final Object source = !itemInHand.isEmpty() ? itemInHand : player;
 
         // Check if item is banned
         final PlayerData playerData = PlayerData.from(player);
@@ -210,13 +148,13 @@ public class PlayerEventHandler {
             }
         }
 
+        if (playerData == null) return;
         playerData.setLastInteractData(claim);
     }
 
-    public InteractEvent handleItemInteract(InteractEvent event, Player player, World world, ItemStack itemInHand) {
+    public boolean handleItemInteract(InteractEvent event, Player player, World world, ItemStack itemInHand) {
         if (lastInteractItemSecondaryTick == Sponge.getServer().getRunningTimeTicks() || lastInteractItemPrimaryTick == Sponge.getServer().getRunningTimeTicks()) {
-            // ignore
-            return event;
+            return event.isCancelled();
         }
 
         if (event instanceof InteractItemEvent.Primary) {
@@ -227,7 +165,7 @@ public class PlayerEventHandler {
 
         final ItemType itemType = itemInHand.getType();
         if (itemInHand.isEmpty() || itemType instanceof ItemFood) {
-            return event;
+            return event.isCancelled();
         }
 
         final Cause cause = event.getCause();
@@ -244,13 +182,13 @@ public class PlayerEventHandler {
 
         if (ClaimedChunkHelper.blockItemUse(playerData, location)) {
             if (event instanceof InteractItemEvent) {
-                if (!SpongeImplHooks.isFakePlayer(((EntityPlayerMP) player)) && itemType == ItemTypes.WRITABLE_BOOK) {
+                if (!(player instanceof FakePlayer) && itemType == ItemTypes.WRITABLE_BOOK) {
                     ((EntityPlayerMP) player).closeScreen();
                 }
             }
             event.setCancelled(true);
         }
-        return event;
+        return event.isCancelled();
     }
 
 }

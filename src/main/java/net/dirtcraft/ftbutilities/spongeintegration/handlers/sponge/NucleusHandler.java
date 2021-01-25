@@ -1,8 +1,8 @@
-package net.dirtcraft.ftbutilitiesplus.handlers;
+package net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge;
 
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
 import io.github.nucleuspowered.nucleus.api.events.NucleusHomeEvent;
-import net.dirtcraft.ftbutilitiesplus.utility.SpongeHelper;
+import net.dirtcraft.ftbutilities.spongeintegration.utility.SpongeHelper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;

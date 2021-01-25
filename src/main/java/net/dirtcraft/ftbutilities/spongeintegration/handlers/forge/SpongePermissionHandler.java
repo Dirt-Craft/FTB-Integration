@@ -1,4 +1,4 @@
-package net.dirtcraft.ftbutilitiesplus.handlers;
+package net.dirtcraft.ftbutilities.spongeintegration.handlers.forge;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayer;

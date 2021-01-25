@@ -24,12 +24,12 @@
  * THE SOFTWARE.
  */
 
-package net.dirtcraft.ftbutilitiesplus.handlers.gp;
+package net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge;
 
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
-import net.dirtcraft.ftbutilitiesplus.data.PlayerData;
-import net.dirtcraft.ftbutilitiesplus.utility.CauseContextHelper;
-import net.dirtcraft.ftbutilitiesplus.utility.ClaimedChunkHelper;
+import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
+import net.dirtcraft.ftbutilities.spongeintegration.utility.CauseContextHelper;
+import net.dirtcraft.ftbutilities.spongeintegration.utility.ClaimedChunkHelper;
 import net.minecraft.block.BlockBasePressurePlate;
 import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.item.EntityItem;
@@ -75,7 +75,6 @@ public class BlockEventHandler {
     public void onBlockPre(ChangeBlockEvent.Pre event) {
         final EventContext context = event.getContext();
         final boolean isForgePlayerBreak = context.containsKey(EventContextKeys.PLAYER_BREAK);
-
         if (event.getSource() instanceof Player && isForgePlayerBreak) return;
 
         lastBlockPreTick = Sponge.getServer().getRunningTimeTicks();
@@ -215,9 +214,7 @@ public class BlockEventHandler {
         }
         final TileEntity tileEntity = event.getCause().first(TileEntity.class).orElse(null);
         // Pistons are handled in Pre handler
-        if (tileEntity instanceof TileEntityPiston) {
-            return;
-        }
+        if (tileEntity instanceof TileEntityPiston) return;
 
         LocatableBlock locatableBlock = event.getCause().first(LocatableBlock.class).orElse(null);
         Location<World> sourceLocation = locatableBlock != null ? locatableBlock.getLocation() : tileEntity != null ? tileEntity.getLocation() : null;
@@ -225,9 +222,8 @@ public class BlockEventHandler {
         PlayerData playerData = null;
 
         final User user = CauseContextHelper.getEventUser(event);
-        if (user == null) {
-            return;
-        }
+        if (user == null) return;
+
         if (sourceLocation == null) {
             Player player = event.getCause().first(Player.class).orElse(null);
             if (player == null) {
@@ -242,19 +238,18 @@ public class BlockEventHandler {
             sourceClaim = ClaimedChunkHelper.getChunk(sourceLocation);
         }
 
-        ClaimedChunk targetClaim = null;
         List<Direction> removed = new ArrayList<>();
         for (Map.Entry<Direction, BlockState> neighborEntry : event.getNeighbors().entrySet()) {
             final Direction direction = neighborEntry.getKey();
             final BlockState blockState = neighborEntry.getValue();
             final Location<World> location = sourceLocation.getBlockRelative(direction);
-            targetClaim = ClaimedChunkHelper.getChunk(location);
+            ClaimedChunk targetClaim = ClaimedChunkHelper.getChunk(location);
             if (sourceClaim == null && targetClaim == null) {
                 if (playerData != null) {
-                    playerData.setLastInteractData(targetClaim);
+                    playerData.setLastInteractData(null);
                 }
                 continue;
-            } else if (sourceClaim != null && targetClaim != null && sourceClaim.getTeam().equals(targetClaim.getTeam())) {
+            } else if (ClaimedChunkHelper.isSameTeam(sourceClaim, targetClaim)) {
                 if (playerData != null) {
                     playerData.setLastInteractData(targetClaim);
                 }
@@ -263,7 +258,7 @@ public class BlockEventHandler {
                 final MatterProperty matterProperty = blockState.getProperty(MatterProperty.class).orElse(null);
                 if (matterProperty != null && matterProperty.getValue() != MatterProperty.Matter.LIQUID) {
                     if (playerData != null) {
-                        playerData.setLastInteractData(targetClaim);
+                        playerData.setLastInteractData(null);
                     }
                     continue;
                 }
@@ -290,48 +285,22 @@ public class BlockEventHandler {
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockCollide(CollideBlockEvent event, @Root Entity source) {
-        if (event instanceof CollideBlockEvent.Impact) {
-            return;
-        }
-        // ignore falling blocks
+        if (event instanceof CollideBlockEvent.Impact) return;
         if (source instanceof EntityFallingBlock) return;
+
+        final BlockType blockType = event.getTargetBlock().getType();
+        if (blockType.equals(BlockTypes.AIR)) return;
 
         final User user = CauseContextHelper.getEventUser(event);
         if (user == null) {
             return;
         }
 
-        final BlockType blockType = event.getTargetBlock().getType();
-        if (blockType.equals(BlockTypes.AIR)) return;
+        if (source instanceof EntityItem && (blockType != BlockTypes.PORTAL && !(blockType instanceof BlockBasePressurePlate))) return;
 
-        if (source instanceof EntityItem && (blockType != BlockTypes.PORTAL && !(blockType instanceof BlockBasePressurePlate)))
-            return;
-
-        /*
-        BlockPos collidePos = ((LocationBridge)(Object) event.getTargetLocation()).bridge$getBlockPos();
-        short shortPos = BlockUtils.blockPosToShort(collidePos);
-        int entityId = ((net.minecraft.entity.Entity) source).getEntityId();
-        BlockPosCache entityBlockCache = BlockUtils.ENTITY_BLOCK_CACHE.get(entityId);
-        if (entityBlockCache == null) {
-            entityBlockCache = new BlockPosCache(shortPos);
-            BlockUtils.ENTITY_BLOCK_CACHE.put(entityId, entityBlockCache);
-        } else {
-            Tristate result = entityBlockCache.getCacheResult(shortPos);
-            if (result != Tristate.UNDEFINED) {
-                if (result == Tristate.FALSE) {
-                    event.setCancelled(true);
-                }
-
-                GPTimings.BLOCK_COLLIDE_EVENT.stopTimingIfSync();
-                return;
-            }
-        }
-         */
-
-        PlayerData playerData;
-        ClaimedChunk targetClaim = ClaimedChunkHelper.getChunk(event.getTargetLocation());
         if (user instanceof Player) {
-            playerData = PlayerData.from(user);
+            ClaimedChunk targetClaim = ClaimedChunkHelper.getChunk(event.getTargetLocation());
+            PlayerData playerData = PlayerData.from(user);
             playerData.setLastInteractData(targetClaim);
         }
     }
@@ -341,14 +310,8 @@ public class BlockEventHandler {
         if (!(event.getSource() instanceof Entity)) return;
 
         final User user = CauseContextHelper.getEventUser(event);
-        if (user == null) {
-            return;
-        }
 
-        Location<World> impactPoint = event.getImpactPoint();
-        PlayerData playerData = null;
-        if (user instanceof Player) playerData = PlayerData.from(user);
-        if (ClaimedChunkHelper.blockBlockInteractions(playerData, impactPoint)) {
+        if (user instanceof Player && ClaimedChunkHelper.blockBlockInteractions(PlayerData.from(user), event.getImpactPoint())) {
             event.setCancelled(true);
         }
     }
@@ -397,7 +360,9 @@ public class BlockEventHandler {
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockBreak(ChangeBlockEvent.Break event) {
-        if (event instanceof ExplosionEvent) return;
+        final Object source = event.getSource();
+
+        if (event instanceof ExplosionEvent || source instanceof Explosion) return;
         if (event.getCause().root() instanceof TileEntityPiston) return;
         if (event.getContext().containsKey(EventContextKeys.BLOCK_EVENT_PROCESS)) return;
 
@@ -406,46 +371,20 @@ public class BlockEventHandler {
             return;
         }
 
-        Object source = event.getSource();
-        // Handled in Explosion listeners
-        if (source instanceof Explosion) return;
-        final Player player = source instanceof Player ? (Player) source : null;
-        final User user = player != null ? player : CauseContextHelper.getEventUser(event);
-
-        // TODO FIX liquid_flow context leaking in sponge
-        /*final boolean isLiquidSource = event.getContext().containsKey(EventContextKeys.LIQUID_FLOW);
-        if (isLiquidSource) {
-            return;
-        }*/
-
+        final User user = source instanceof Player? (User) source : CauseContextHelper.getEventUser(event);
 
         // ignore falling blocks when there is no user
         // avoids dupes with falling blocks such as Dragon Egg
         if (user == null && source instanceof EntityFallingBlock) return;
 
-        ClaimedChunk sourceClaim = null;
-        LocatableBlock locatable = null;
-        if (source instanceof LocatableBlock) {
-            locatable = (LocatableBlock) source;
-            sourceClaim = ClaimedChunkHelper.getChunk(locatable.getLocation());
-        } else {
-            sourceClaim = ClaimedChunkHelper.getChunk(event.getCause());
-        }
-        if (sourceClaim == null) {
-            return;
-        }
-
-        List<Transaction<BlockSnapshot>> transactions = event.getTransactions();
-        ClaimedChunk targetClaim = null;
-        for (Transaction<BlockSnapshot> transaction : transactions) {
+        for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
             Location<World> location = transaction.getOriginal().getLocation().orElse(null);
-            targetClaim = ClaimedChunkHelper.getChunk(location);
-            if (locatable != null && targetClaim == null) continue;
+            ClaimedChunk targetClaim = ClaimedChunkHelper.getChunk(location);
+            if (source instanceof LocatableBlock && targetClaim == null) continue;
             if (location == null || transaction.getOriginal().getState().getType() == BlockTypes.AIR) {
                 continue;
             }
 
-            // check overrides
             PlayerData playerData = PlayerData.from(user);
             if (ClaimedChunkHelper.blockBlockEditing(playerData, location)) {
                 event.setCancelled(true);
@@ -457,77 +396,45 @@ public class BlockEventHandler {
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockPlace(ChangeBlockEvent.Place event) {
         final Object source = event.getSource();
-        // Pistons are handled in onBlockPre
+
         if (source instanceof TileEntityPiston) return;
         if (event.getContext().containsKey(EventContextKeys.BLOCK_EVENT_PROCESS)) return;
+
         if (lastBlockPreTick == Sponge.getServer().getRunningTimeTicks() && !(event.getCause().root() instanceof Player)) {
             event.setCancelled(lastBlockPreCancelled);
             return;
         }
 
-        final World world = event.getTransactions().get(0).getFinal().getLocation().get().getExtent();
-
         ClaimedChunk sourceClaim;
-        LocatableBlock locatable = null;
         final User user = CauseContextHelper.getEventUser(event);
         if (source instanceof LocatableBlock) {
-            locatable = (LocatableBlock) source;
-            sourceClaim = ClaimedChunkHelper.getChunk(locatable.getLocation());
+            sourceClaim = ClaimedChunkHelper.getChunk(((LocatableBlock) source).getLocation());
         } else {
             sourceClaim = ClaimedChunkHelper.getChunk(event.getCause());
         }
+
         if (sourceClaim == null) return;
 
-        Player player = user instanceof Player ? (Player) user : null;
         PlayerData playerData = PlayerData.from(user);
 
-        //sourceClaim != null &&
         if (!(source instanceof User) && playerData != null && playerData.checkLastInteraction(sourceClaim, user)) return;
 
-        ClaimedChunk targetClaim = null;
         for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
             final BlockSnapshot block = transaction.getFinal();
-            Location<World> location = block.getLocation().orElse(null);
+            Location<World> location = block.getLocation()
+                    .orElse(null);
             if (location == null) continue;
 
-            targetClaim = ClaimedChunkHelper.getChunk(location);
-            if (locatable != null && targetClaim == null) continue;
+            ClaimedChunk targetClaim = ClaimedChunkHelper.getChunk(location);
+            if (targetClaim == null) continue;
 
-            //if (GPFlags.BLOCK_PLACE) {
             // Allow blocks to grow within claims
             if (user == null && ClaimedChunkHelper.isSameTeam(sourceClaim, targetClaim)) return;
 
-
             if (ClaimedChunkHelper.blockBlockEditing(playerData, location)) {
-                // TODO - make sure this doesn't spam
-                    /*if (source instanceof Player) {
-                        final Text message = GriefPreventionPlugin.instance.messageData.permissionBuild
-                                .apply(ImmutableMap.of(
-                                "player", Text.of(targetClaim.getOwnerName())
-                        )).build();
-                        GriefPreventionPlugin.sendClaimDenyMessage(targetClaim, (Player) source, message);
-                    }*/
                 event.setCancelled(true);
                 return;
             }
-            //}
-
-            /*
-            // warn players when they place TNT above sea level, since it doesn't destroy blocks there
-            if (GPFlags.EXPLOSION_SURFACE && player != null && block.getState().getType() == BlockTypes.TNT && GPPermissionHandler.getClaimPermission(event, location, targetClaim, GPPermissions.EXPLOSION_SURFACE, event.getCause().root(), block.getState(), user) == Tristate.FALSE &&
-                    !block.getLocation().get().getExtent().getDimension().getType().equals(DimensionTypes.NETHER) &&
-                    block.getPosition().getY() > GriefPreventionPlugin.instance.getSeaLevel(block.getLocation().get().getExtent()) - 5 &&
-                    targetClaim.isWilderness()) {
-                GriefPreventionPlugin.sendMessage(player, GriefPreventionPlugin.instance.messageData.warningTntAboveSeaLevel.toText());
-            }
-
-            // warn players about disabled pistons outside of land claims
-            if (player != null && !playerData.canIgnoreClaim(targetClaim) && activeConfig.getConfig().general.limitPistonsToClaims &&
-                    (block.getState().getType() == BlockTypes.PISTON || block.getState().getType() == BlockTypes.STICKY_PISTON) &&
-                    targetClaim.isWilderness()) {
-                GriefPreventionPlugin.sendMessage(player, GriefPreventionPlugin.instance.messageData.warningPistonsOutsideClaims.toText());
-            }
-             */
         }
     }
 }

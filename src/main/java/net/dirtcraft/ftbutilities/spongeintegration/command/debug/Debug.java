@@ -1,4 +1,4 @@
-package net.dirtcraft.ftbutilitiesplus.command;
+package net.dirtcraft.ftbutilities.spongeintegration.command.debug;
 
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
