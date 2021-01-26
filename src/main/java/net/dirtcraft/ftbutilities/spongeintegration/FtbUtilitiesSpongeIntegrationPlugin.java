@@ -1,5 +1,6 @@
 package net.dirtcraft.ftbutilities.spongeintegration;
 
+import net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge.EntityEventHandler;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge.PlayerEventHandler;
 import net.dirtcraft.ftbutilities.spongeintegration.command.debug.Debug;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
@@ -25,7 +26,8 @@ public class FtbUtilitiesSpongeIntegrationPlugin {
     final List<Object> listeners = Stream.of(
             new NucleusHandler(),
             new BlockEventHandler(),
-            new PlayerEventHandler()
+            new PlayerEventHandler(),
+            new EntityEventHandler()
     ).collect(Collectors.toList());
 
     @Listener

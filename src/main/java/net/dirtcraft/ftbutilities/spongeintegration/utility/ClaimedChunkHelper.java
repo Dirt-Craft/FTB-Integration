@@ -1,17 +1,21 @@
 package net.dirtcraft.ftbutilities.spongeintegration.utility;
 
-import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
+import com.feed_the_beast.ftbutilities.FTBUtilitiesConfig;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
+import com.feed_the_beast.ftbutilities.data.FTBUtilitiesPlayerData;
+import com.feed_the_beast.ftbutilities.data.FTBUtilitiesUniverseData;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -24,6 +28,32 @@ public class ClaimedChunkHelper {
 
     public static boolean isSameTeam(ClaimedChunk a, ClaimedChunk b){
         return a == b || a != null && b != null && a.getTeam() == b.getTeam();
+    }
+
+    private static boolean canPvP(EntityPlayer player, EntityPlayer target){
+        if (FTBUtilitiesConfig.world.safe_spawn && player.world.provider.getDimension() == 0 && FTBUtilitiesUniverseData.isInSpawn(ClaimedChunks.instance.universe.server, new ChunkDimPos(target))) {
+            return false;
+        } else if (FTBUtilitiesConfig.world.enable_pvp.isDefault()) {
+            return FTBUtilitiesPlayerData.get(ClaimedChunks.instance.universe.getPlayer(player)).enablePVP() && FTBUtilitiesPlayerData.get(ClaimedChunks.instance.universe.getPlayer(target)).enablePVP();
+        }
+        return FTBUtilitiesConfig.world.enable_pvp.isTrue();
+    }
+
+    public static boolean canPvP(Player player, Player target){
+        return canPvP((EntityPlayer) player, (EntityPlayer) target);
+    }
+
+    public static boolean canAttackEntity(PlayerData owner, DamageSource aggressor, Entity target) {
+        if (!isActive()) return true;
+        else if (target instanceof EntityPlayer && aggressor instanceof EntityPlayer) return canPvP((EntityPlayer) aggressor, (EntityPlayer) target);
+        else if (!(target instanceof IMob)) {
+            ClaimedChunk chunk = getChunk(target.getLocation());
+            return owner == null || chunk == null
+                    || chunk.getTeam().hasStatus(owner.getForgePlayer(), chunk.getData().getAttackEntitiesStatus())
+                    || owner.hasAnimalAttackPermission();
+        }
+
+        return true;
     }
 
     public static boolean blockBlockEditing(PlayerData player, ClaimedChunk chunk, Location<World> location) {
@@ -63,15 +93,6 @@ public class ClaimedChunkHelper {
         return player != null && chunk != null
                 && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getUseItemsStatus())
                 && !player.hasBlockInteractionPermission(SpongeHelper.getBlockState(location).getBlock());
-    }
-
-    public static ForgeTeam getTeam(Location<World> location){
-        if (location == null) return null;
-        BlockPos pos = SpongeHelper.getBlockPos(location);
-        net.minecraft.world.World world = SpongeHelper.getWorld(location);
-        if (!isActive() || world == null) return null;
-        ClaimedChunk chunk = ClaimedChunks.instance.getChunk(new ChunkDimPos(pos, world.provider.getDimension()));
-        return chunk == null? null : chunk.getTeam();
     }
 
     public static ClaimedChunk getChunk(Location<World> location){

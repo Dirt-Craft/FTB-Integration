@@ -1,6 +1,7 @@
 package net.dirtcraft.ftbutilities.spongeintegration.data;
 
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
+import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
 import com.mojang.authlib.GameProfile;
@@ -54,6 +55,10 @@ public class PlayerData {
 
     public boolean hasItemUsePermission(Item block) {
         return PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.item." + formatId(block), null);
+    }
+
+    public boolean hasAnimalAttackPermission() {
+        return PermissionAPI.hasPermission(gameProfile, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS, null);
     }
 
     public ForgePlayer getForgePlayer(){
