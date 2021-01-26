@@ -2,15 +2,15 @@ package net.dirtcraft.ftbutilities.spongeintegration;
 
 import com.feed_the_beast.ftbutilities.handlers.FTBUtilitiesPlayerEventHandler;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.FTBPlayerDataHandler;
-import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.SpongePermissionHandler;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.FTBProtectionHandler;
+import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.SpongePermissionHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.server.permission.PermissionAPI;
 
-import static net.minecraftforge.fml.common.Mod.*;
+import static net.minecraftforge.fml.common.Mod.EventHandler;
 
 @Mod(   modid = FtbUtilitiesSpongeIntegrationMod.MODID,
         name = FtbUtilitiesSpongeIntegrationMod.NAME,

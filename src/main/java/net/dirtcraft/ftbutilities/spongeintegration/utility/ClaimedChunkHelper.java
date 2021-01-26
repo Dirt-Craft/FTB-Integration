@@ -39,10 +39,6 @@ public class ClaimedChunkHelper {
         return FTBUtilitiesConfig.world.enable_pvp.isTrue();
     }
 
-    public static boolean canPvP(Player player, Player target){
-        return canPvP((EntityPlayer) player, (EntityPlayer) target);
-    }
-
     public static boolean canAttackEntity(PlayerData owner, DamageSource aggressor, Entity target) {
         if (!isActive()) return true;
         else if (target instanceof EntityPlayer && aggressor instanceof EntityPlayer) return canPvP((EntityPlayer) aggressor, (EntityPlayer) target);
