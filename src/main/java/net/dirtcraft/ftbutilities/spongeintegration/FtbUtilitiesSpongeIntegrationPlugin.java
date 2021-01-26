@@ -25,8 +25,7 @@ public class FtbUtilitiesSpongeIntegrationPlugin {
     final List<Object> listeners = Stream.of(
             new NucleusHandler(),
             new BlockEventHandler(),
-            new PlayerEventHandler(),
-            new PlayerData.Listener()
+            new PlayerEventHandler()
     ).collect(Collectors.toList());
 
     @Listener

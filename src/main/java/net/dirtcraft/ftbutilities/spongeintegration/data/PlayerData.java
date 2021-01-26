@@ -9,24 +9,18 @@ import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.server.permission.PermissionAPI;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.common.SpongeImpl;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class PlayerData {
-    private static final Map<User, PlayerData> playerData = new HashMap<>();
     private ClaimedChunk lastInteractClaim;
     private boolean lastInteractResult;
     private int lastInteractTick;
     private GameProfile gameProfile;
 
     public static PlayerData from(User user){
-        PlayerData ret = playerData.get(user);
-        if (ret == null && user != null) ret = new PlayerData(user);
-        return ret;
+        return PlayerDataManager.INSTANCE.getData(user);
     }
 
     public PlayerData(User user){
@@ -65,17 +59,4 @@ public class PlayerData {
     public ForgePlayer getForgePlayer(){
         return ClaimedChunks.instance.universe.getPlayer(gameProfile);
     }
-
-    public static class Listener{
-        @org.spongepowered.api.event.Listener
-        public void onLogin(ClientConnectionEvent.Join event){
-            playerData.put(event.getTargetEntity(), new PlayerData(event.getTargetEntity()));
-        }
-        @org.spongepowered.api.event.Listener
-        public void onLogin(ClientConnectionEvent.Disconnect event){
-            playerData.remove(event.getTargetEntity());
-        }
-    }
-
-
 }

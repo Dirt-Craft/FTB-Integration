@@ -50,9 +50,7 @@ public class CauseContextHelper {
         if (event.getSource() instanceof Player && !(event.getSource() instanceof FakePlayer)) return (User) event.getSource();
         final Cause cause = event.getCause();
         final EventContext context = event.getContext();
-        if (context.containsKey(EventContextKeys.LEAVES_DECAY)) {
-            return null;
-        }
+        if (context.containsKey(EventContextKeys.LEAVES_DECAY)) return null;
 
         User user = cause.first(User.class).orElse(null);
         User fakePlayer = user instanceof FakePlayer? user : null;

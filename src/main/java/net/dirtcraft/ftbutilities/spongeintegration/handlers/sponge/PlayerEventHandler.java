@@ -29,6 +29,7 @@ package net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.flowpowered.math.vector.Vector3d;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
+import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerDataManager;
 import net.dirtcraft.ftbutilities.spongeintegration.utility.ClaimedChunkHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -43,7 +44,9 @@ import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.action.InteractEvent;
@@ -51,8 +54,14 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.living.humanoid.HandInteractEvent;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.filter.cause.Root;
+import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
+import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -60,12 +69,73 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.bridge.OwnershipTrackedBridge;
+import org.spongepowered.common.bridge.entity.EntityBridge;
 import org.spongepowered.common.bridge.world.chunk.ActiveChunkReferantBridge;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public class PlayerEventHandler {
 
+    private PlayerDataManager manager = PlayerDataManager.getInstance();
     private int lastInteractItemPrimaryTick = -1;
     private int lastInteractItemSecondaryTick = -1;
+
+    @Listener
+    public void onLogin(ClientConnectionEvent.Join event){
+        manager.loadUser(event.getTargetEntity());
+    }
+
+    @Listener
+    public void onLogoff(ClientConnectionEvent.Disconnect event){
+        manager.unloadUser(event.getTargetEntity());
+    }
+
+    @Listener(order = Order.FIRST, beforeModifications = true)
+    public void onPlayerInteractEntity(InteractEntityEvent.Primary event, @First Player player) {
+        final Entity targetEntity = event.getTargetEntity();
+        final Location<World> location = targetEntity.getLocation();
+        if (ClaimedChunkHelper.blockBlockInteractions(PlayerData.from(player), location)) {
+            event.setCancelled(true);
+        }
+    }
+
+    // when a player interacts with an entity...
+    @Listener(order = Order.FIRST, beforeModifications = true)
+    public void onPlayerInteractEntity(InteractEntityEvent.Secondary event, @First Player player) {
+        final Entity targetEntity = event.getTargetEntity();
+        final Location<World> location = targetEntity.getLocation();
+        if (ClaimedChunkHelper.blockBlockInteractions(PlayerData.from(player), location)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @Listener(order = Order.FIRST, beforeModifications = true)
+    public void onPlayerUseItem(UseItemStackEvent.Start event, @First Player player) {
+        if (ClaimedChunkHelper.blockItemUse(PlayerData.from(player), player.getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @Listener(order = Order.FIRST, beforeModifications = true)
+    public void onPlayerInteractItem(InteractItemEvent event, @Root Player player) {
+        final World world = player.getWorld();
+        final HandInteractEvent handEvent = (HandInteractEvent) event;
+        final ItemStack itemInHand = player.getItemInHand(handEvent.getHandType()).orElse(ItemStack.empty());
+
+        handleItemInteract(event, player, world, itemInHand);
+    }
+
+    @Listener(order = Order.FIRST, beforeModifications = true)
+    public void onPlayerInteractInventoryOpen(InteractInventoryEvent.Open event, @First Player player) {
+        event.getCause().getContext().get(EventContextKeys.BLOCK_HIT).ifPresent(blockSnapshot -> {
+            final Location<World> location = blockSnapshot.getLocation().get();
+            if (!ClaimedChunkHelper.blockBlockEditing(PlayerData.from(player), location)) return;
+            ((EntityPlayerMP) player).closeScreen();
+            event.setCancelled(true);
+        });
+    }
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onPlayerInteractBlockPrimary(InteractBlockEvent.Primary.MainHand event, @First Player player) {
@@ -82,13 +152,6 @@ public class PlayerEventHandler {
         final PlayerData playerData = PlayerData.from(player);
         final ClaimedChunk claim = ClaimedChunkHelper.getChunk(location);
         if (ClaimedChunkHelper.blockBlockInteractions(playerData, location)) {
-            /*
-            if (GPPermissionHandler.getClaimPermission(event, location, claim, GPPermissions.BLOCK_BREAK, player, clickedBlock.getState(), player, TrustType.BUILDER, true) == Tristate.TRUE) {
-                GPTimings.PLAYER_INTERACT_BLOCK_PRIMARY_EVENT.stopTimingIfSync();
-                playerData.setLastInteractData(claim);
-                return;
-            }
-             */
             event.setCancelled(true);
             return;
         }
@@ -106,7 +169,6 @@ public class PlayerEventHandler {
             return;
         }
 
-        // Check if item is banned
         final PlayerData playerData = PlayerData.from(player);
         final Location<World> location = clickedBlock.getLocation().orElse(null);
         if (location == null) return;
@@ -114,7 +176,7 @@ public class PlayerEventHandler {
         final ClaimedChunk claim = ClaimedChunkHelper.getChunk(location);
         final TileEntity tileEntity = clickedBlock.getLocation().get().getTileEntity().orElse(null);
         if (playerData != null) {
-            boolean result = (tileEntity != null && tileEntity instanceof IInventory) ? ClaimedChunkHelper.blockBlockEditing(playerData, location): ClaimedChunkHelper.blockBlockInteractions(playerData, location);
+            boolean result = (tileEntity instanceof IInventory) ? ClaimedChunkHelper.blockBlockEditing(playerData, location): ClaimedChunkHelper.blockBlockInteractions(playerData, location);
             if (result) {
                 // if player is holding an item, check if it can be placed
                 if (!itemInHand.isEmpty() && itemInHand instanceof ItemBlock) {
@@ -123,7 +185,7 @@ public class PlayerEventHandler {
                         return;
                     }
                 }
-                if (!SpongeImplHooks.isFakePlayer(((EntityPlayerMP) player)) && handType == HandTypes.MAIN_HAND) {
+                if (!(player instanceof FakePlayer) && handType == HandTypes.MAIN_HAND) {
                     ((EntityPlayerMP) player).closeScreen();
                 }
 
@@ -148,8 +210,7 @@ public class PlayerEventHandler {
             }
         }
 
-        if (playerData == null) return;
-        playerData.setLastInteractData(claim);
+        if (playerData != null) playerData.setLastInteractData(claim);
     }
 
     public boolean handleItemInteract(InteractEvent event, Player player, World world, ItemStack itemInHand) {
