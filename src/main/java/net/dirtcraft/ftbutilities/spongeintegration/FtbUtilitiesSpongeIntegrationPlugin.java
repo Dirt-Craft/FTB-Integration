@@ -68,7 +68,7 @@ public class FtbUtilitiesSpongeIntegrationPlugin {
     }
 
     public void deregisterListeners(){
-        Sponge.getEventManager().unregisterListeners(listeners);
+        FtbUtilitiesSpongeIntegrationMod.INSTANCE.enableDefaultFtbHandler();
         Sponge.getEventManager().unregisterPluginListeners(this);
     }
 }

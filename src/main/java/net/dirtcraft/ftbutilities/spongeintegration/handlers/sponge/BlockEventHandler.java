@@ -73,17 +73,18 @@ public class BlockEventHandler {
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockPre(ChangeBlockEvent.Pre event) {
-        final EventContext context = event.getContext();
-        final boolean isForgePlayerBreak = context.containsKey(EventContextKeys.PLAYER_BREAK);
-        if (event.getSource() instanceof Player && isForgePlayerBreak) return;
-
         lastBlockPreTick = Sponge.getServer().getRunningTimeTicks();
         lastBlockPreCancelled = false;
 
-        if (context.containsKey(EventContextKeys.PISTON_RETRACT)) return;
-        if (context.containsKey(EventContextKeys.BLOCK_EVENT_PROCESS)) return;
-
         final Cause cause = event.getCause();
+        final EventContext context = event.getContext();
+
+        if (context.containsKey(EventContextKeys.BLOCK_EVENT_PROCESS)) return;
+        if (context.containsKey(EventContextKeys.PISTON_RETRACT)) return;
+        if (context.containsKey(EventContextKeys.LEAVES_DECAY)) return;
+        if (context.containsKey(EventContextKeys.LIQUID_FLOW)) return;
+        if (context.containsKey(EventContextKeys.FIRE_SPREAD)) return;
+
         final TileEntity tileEntity = cause.first(TileEntity.class).orElse(null);
         final LocatableBlock eventBlock = context.get(EventContextKeys.BLOCK_EVENT_QUEUE).orElse(null);
         final boolean pistonExtend = context.containsKey(EventContextKeys.PISTON_EXTEND);
@@ -104,44 +105,24 @@ public class BlockEventHandler {
         final PlayerData playerData = PlayerData.from(user);
         final LocatableBlock locatableBlock = cause.first(LocatableBlock.class).orElse(null);
         final boolean hasFakePlayer = context.containsKey(EventContextKeys.FAKE_PLAYER);
-        Entity sourceEntity = null;
-        // Always use TE as source if available
+
         if (sourceLocation == null) {
             sourceLocation = locatableBlock != null ? locatableBlock.getLocation() : tileEntity != null ? tileEntity.getLocation() : null;
             if (sourceLocation == null && source instanceof Entity) {
-                // check entity
-                sourceEntity = ((Entity) source);
-                sourceLocation = sourceEntity.getLocation();
+                sourceLocation = ((Entity) source).getLocation();
             }
         }
 
-        if (context.containsKey(EventContextKeys.LIQUID_FLOW)) return;
-        if (context.containsKey(EventContextKeys.FIRE_SPREAD)) return;
-        if (context.containsKey(EventContextKeys.LEAVES_DECAY)) return;
-
-
+        final boolean isForgePlayerBreak = context.containsKey(EventContextKeys.PLAYER_BREAK);
         if (isForgePlayerBreak && !hasFakePlayer && source instanceof Player) {
-            for (Location<World> location : event.getLocations()) {
-
-                if (location.getBlockType() == BlockTypes.AIR) {
-                    continue;
-                }
-
-                // check overrides
-                boolean blockBlockBreak = ClaimedChunkHelper.blockBlockEditing(playerData, location);
-                if (blockBlockBreak) {
-                    event.setCancelled(true);
-                    lastBlockPreCancelled = true;
-                    return;
-                }
+            if (handlePlayerBreak(event.getLocations(), playerData)){
+                lastBlockPreCancelled = true;
+                event.setCancelled(true);
             }
-            return;
-        }
-
-        if (sourceLocation != null) {
+        } else if (sourceLocation != null || user != null) {
             List<Location<World>> sourceLocations = event.getLocations();
-            if (pistonExtend) {
-                // check next block in extend direction
+            if (sourceLocation != null && pistonExtend) {
+                // add next block in extend direction
                 sourceLocations = new ArrayList<>(event.getLocations());
                 Location<World> location = sourceLocations.get(sourceLocations.size() - 1);
                 final Direction direction = locatableBlock.getLocation().getBlock().get(Keys.DIRECTION).get();
@@ -152,74 +133,42 @@ public class BlockEventHandler {
                 ClaimedChunk chunk = ClaimedChunkHelper.getChunk(location);
                 // Mods such as enderstorage will send chest updates to itself
                 // We must ignore cases like these to avoid issues with mod
-                if (tileEntity != null) {
-                    if (location.getPosition().equals(tileEntity.getLocation().getPosition())) {
-                        continue;
-                    }
-                }
+                if (tileEntity != null && location.getPosition().equals(tileEntity.getLocation().getPosition())) continue;
 
-                if (user != null && !ClaimedChunkHelper.blockBlockEditing(playerData, location)) continue;
-                if (ClaimedChunkHelper.isSameTeam(sourceLocation, location) && user == null && sourceEntity == null) {
-                    continue;
-                }
+                if (!ClaimedChunkHelper.blockBlockEditing(playerData, chunk, location)) continue;
 
                 // If a player successfully interacted with a block recently such as a pressure plate, ignore check
                 // This fixes issues such as pistons not being able to extend
-                if (user != null && !isForgePlayerBreak && playerData != null && playerData.checkLastInteraction(chunk, user)) {
-                    continue;
-                }
+                if (!isForgePlayerBreak && playerData.checkLastInteraction(chunk, user)) continue;
 
-                if (user != null && pistonExtend) {
-                    if (!ClaimedChunkHelper.blockBlockInteractions(playerData, location)) continue;
-                }
-
-                if (user != null && ClaimedChunkHelper.blockBlockEditing(playerData, location)) {
-                    event.setCancelled(true);
-                    lastBlockPreCancelled = true;
-                    return;
-                }
-            }
-        } else if (user != null) {
-            for (Location<World> location : event.getLocations()) {
-                ClaimedChunk chunk = ClaimedChunkHelper.getChunk(location);
-                // Mods such as enderstorage will send chest updates to itself
-                // We must ignore cases like these to avoid issues with mod
-                if (tileEntity != null) {
-                    if (location.getPosition().equals(tileEntity.getLocation().getPosition())) {
-                        continue;
-                    }
-                }
-
-                // If a player successfully interacted with a block recently such as a pressure plate, ignore check
-                // This fixes issues such as pistons not being able to extend
-                if (!isForgePlayerBreak && playerData != null && playerData.checkLastInteraction(chunk, user)) {
-                    continue;
-                }
-
-                if (!ClaimedChunkHelper.blockBlockInteractions(playerData, location)) continue;
-                if (ClaimedChunkHelper.blockBlockInteractions(playerData, location)) {
-                    event.setCancelled(true);
-                    lastBlockPreCancelled = true;
-                    return;
-                }
+                event.setCancelled(true);
+                lastBlockPreCancelled = true;
+                return;
             }
         }
+    }
+
+    private boolean handlePlayerBreak(List<Location<World>> locations, PlayerData playerData) {
+        for (Location<World> location : locations) {
+            if (location.getBlockType() == BlockTypes.AIR) continue;
+            if (ClaimedChunkHelper.blockBlockEditing(playerData, location)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Handle fluids flowing into claims
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockNotify(NotifyNeighborBlockEvent event) {
-        if (event.getContext().containsKey(EventContextKeys.BLOCK_EVENT_PROCESS)) {
-            return;
-        }
+        if (event.getContext().containsKey(EventContextKeys.BLOCK_EVENT_PROCESS)) return;
         final TileEntity tileEntity = event.getCause().first(TileEntity.class).orElse(null);
-        // Pistons are handled in Pre handler
         if (tileEntity instanceof TileEntityPiston) return;
 
         LocatableBlock locatableBlock = event.getCause().first(LocatableBlock.class).orElse(null);
         Location<World> sourceLocation = locatableBlock != null ? locatableBlock.getLocation() : tileEntity != null ? tileEntity.getLocation() : null;
-        ClaimedChunk sourceClaim = null;
-        PlayerData playerData = null;
+        ClaimedChunk sourceClaim;
+        PlayerData playerData;
 
         final User user = CauseContextHelper.getEventUser(event);
         if (user == null) return;
@@ -232,12 +181,11 @@ public class BlockEventHandler {
 
             sourceLocation = player.getLocation();
             playerData = PlayerData.from(player);
-            sourceClaim = ClaimedChunkHelper.getChunk(sourceLocation);
         } else {
             playerData = PlayerData.from(user);
-            sourceClaim = ClaimedChunkHelper.getChunk(sourceLocation);
         }
 
+        sourceClaim = ClaimedChunkHelper.getChunk(sourceLocation);
         List<Direction> removed = new ArrayList<>();
         for (Map.Entry<Direction, BlockState> neighborEntry : event.getNeighbors().entrySet()) {
             final Direction direction = neighborEntry.getKey();
@@ -266,7 +214,7 @@ public class BlockEventHandler {
                 continue;
             } else  {
                 // Needed to handle levers notifying doors to open etc.
-                if (ClaimedChunkHelper.blockBlockInteractions(playerData, location)) {
+                if (!ClaimedChunkHelper.blockBlockInteractions(playerData, targetClaim, location)) {
                     if (playerData != null) {
                         playerData.setLastInteractData(targetClaim);
                     }
@@ -316,43 +264,23 @@ public class BlockEventHandler {
         }
     }
 
-    /*
+    /* Already handled by default in the FTB handler. Can literally turn explosions off.
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onExplosionDetonate(ExplosionEvent.Detonate event) {
-        Object source = event.getSource();
-        if (source instanceof Explosion) {
-            final Explosion explosion = (Explosion) source;
-            if (explosion.getSourceExplosive().isPresent()) {
-                source = explosion.getSourceExplosive().get();
-            } else {
-                Entity exploder = event.getCause().first(Entity.class).orElse(null);
-                if (exploder != null) {
-                    source = exploder;
-                }
-            }
-        }
-
         final User user = CauseContextHelper.getEventUser(event);
         final PlayerData playerData = PlayerData.from(user);
-        ClaimedChunk targetClaim = null;
-        final List<Location<World>> filteredLocations = new ArrayList<>();
-        for (Location<World> location : event.getAffectedLocations()) {
-            targetClaim =  ClaimedChunkHelper.getChunk(location);
-
-
-            if (ClaimedChunkHelper.blockBlockEditing(playerData, targetClaim)) {
-                // Avoid lagging server from large explosions.
-                if (event.getAffectedLocations().size() > 100) {
-                    event.setCancelled(true);
-                    break;
-                }
-                filteredLocations.add(location);
-            }
-        }
-        // Workaround for SpongeForge bug
-        if (event.isCancelled()) {
+        // Avoid lagging server from large explosions.
+        if (event.getAffectedLocations().size() > 255) {
             event.getAffectedLocations().clear();
-        } else if (!filteredLocations.isEmpty()) {
+            event.setCancelled(true);
+        } else {
+            final List<Location<World>> filteredLocations = new ArrayList<>();
+            for (Location<World> location : event.getAffectedLocations()) {
+                ClaimedChunk chunk = ClaimedChunkHelper.getChunk(location);
+                if (ClaimedChunkHelper.blockBlockEditing(playerData, chunk, location) || !chunk.hasExplosions()) {
+                    filteredLocations.add(location);
+                }
+            }
             event.getAffectedLocations().removeAll(filteredLocations);
         }
     }
@@ -413,16 +341,13 @@ public class BlockEventHandler {
             sourceClaim = ClaimedChunkHelper.getChunk(event.getCause());
         }
 
-        if (sourceClaim == null) return;
-
         PlayerData playerData = PlayerData.from(user);
 
         if (!(source instanceof User) && playerData != null && playerData.checkLastInteraction(sourceClaim, user)) return;
 
         for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
             final BlockSnapshot block = transaction.getFinal();
-            Location<World> location = block.getLocation()
-                    .orElse(null);
+            Location<World> location = block.getLocation().orElse(null);
             if (location == null) continue;
 
             ClaimedChunk targetClaim = ClaimedChunkHelper.getChunk(location);
@@ -431,7 +356,7 @@ public class BlockEventHandler {
             // Allow blocks to grow within claims
             if (user == null && ClaimedChunkHelper.isSameTeam(sourceClaim, targetClaim)) return;
 
-            if (ClaimedChunkHelper.blockBlockEditing(playerData, location)) {
+            if (ClaimedChunkHelper.blockBlockEditing(playerData, targetClaim, location)) {
                 event.setCancelled(true);
                 return;
             }

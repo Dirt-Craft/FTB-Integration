@@ -7,7 +7,6 @@ import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.entity.Entity;
@@ -15,6 +14,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 public class ClaimedChunkHelper {
 
@@ -22,53 +22,64 @@ public class ClaimedChunkHelper {
         return ClaimedChunks.isActive();
     }
 
-    public static boolean isSameTeam(Location<org.spongepowered.api.world.World> a, Location<org.spongepowered.api.world.World> b){
-        return getTeam(a) == getTeam(b);
-    }
-
     public static boolean isSameTeam(ClaimedChunk a, ClaimedChunk b){
-        return a != null && b != null && a.getTeam() == b.getTeam();
+        return a == b || a != null && b != null && a.getTeam() == b.getTeam();
     }
 
-    public static ForgeTeam getTeam(Location<org.spongepowered.api.world.World> location){
+    public static boolean blockBlockEditing(PlayerData player, ClaimedChunk chunk, Location<World> location) {
+        return player != null && chunk != null
+                && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getEditBlocksStatus())
+                && !player.hasBlockEditingPermission(SpongeHelper.getBlockState(location).getBlock());
+    }
+
+    public static boolean blockBlockEditing(PlayerData player, Location<World> location) {
+        ClaimedChunk chunk = getChunk(location);
+        return player != null && chunk != null
+                && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getEditBlocksStatus())
+                && !player.hasBlockEditingPermission(SpongeHelper.getBlockState(location).getBlock());
+    }
+
+    public static boolean blockBlockInteractions(PlayerData player, ClaimedChunk chunk, Location<World> location) {
+        return player != null && chunk != null
+                && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getInteractWithBlocksStatus())
+                && !player.hasBlockInteractionPermission(SpongeHelper.getBlockState(location).getBlock());
+    }
+
+    public static boolean blockBlockInteractions(PlayerData player, Location<World> location) {
+        ClaimedChunk chunk = getChunk(location);
+        return player != null && chunk != null
+                && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getInteractWithBlocksStatus())
+                && !player.hasBlockInteractionPermission(SpongeHelper.getBlockState(location).getBlock());
+    }
+
+    public static boolean blockItemUse(PlayerData player, ClaimedChunk chunk, Location<World> location) {
+        return player != null && chunk != null
+                && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getUseItemsStatus())
+                && !player.hasBlockInteractionPermission(SpongeHelper.getBlockState(location).getBlock());
+    }
+
+    public static boolean blockItemUse(PlayerData player, Location<World> location) {
+        ClaimedChunk chunk = getChunk(location);
+        return player != null && chunk != null
+                && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getUseItemsStatus())
+                && !player.hasBlockInteractionPermission(SpongeHelper.getBlockState(location).getBlock());
+    }
+
+    public static ForgeTeam getTeam(Location<World> location){
         if (location == null) return null;
         BlockPos pos = SpongeHelper.getBlockPos(location);
-        World world = SpongeHelper.getWorld(location);
+        net.minecraft.world.World world = SpongeHelper.getWorld(location);
         if (!isActive() || world == null) return null;
         ClaimedChunk chunk = ClaimedChunks.instance.getChunk(new ChunkDimPos(pos, world.provider.getDimension()));
         return chunk == null? null : chunk.getTeam();
     }
 
-    public static ClaimedChunk getChunk(Location<org.spongepowered.api.world.World> location){
+    public static ClaimedChunk getChunk(Location<World> location){
         if (location == null) return null;
         BlockPos pos = SpongeHelper.getBlockPos(location);
-        World world = SpongeHelper.getWorld(location);
+        net.minecraft.world.World world = SpongeHelper.getWorld(location);
         if (!isActive() || world == null) return null;
         return ClaimedChunks.instance.getChunk(new ChunkDimPos(pos, world.provider.getDimension()));
-    }
-
-    public static boolean blockBlockEditing(PlayerData player, Location<org.spongepowered.api.world.World> location) {
-        ClaimedChunk chunk = getChunk(location);
-        IBlockState state = SpongeHelper.getBlockState(location);
-        return player != null && chunk != null
-                && !player.hasBlockEditingPermission(state.getBlock())
-                && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getEditBlocksStatus());
-    }
-
-    public static boolean blockBlockInteractions(PlayerData player, Location<org.spongepowered.api.world.World> location) {
-        ClaimedChunk chunk = getChunk(location);
-        IBlockState state = SpongeHelper.getBlockState(location);
-        return player != null && chunk != null
-                && !player.hasBlockInteractionPermission(state.getBlock())
-                && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getInteractWithBlocksStatus());
-    }
-
-    public static boolean blockItemUse(PlayerData player, Location<org.spongepowered.api.world.World> location) {
-        ClaimedChunk chunk = getChunk(location);
-        IBlockState state = SpongeHelper.getBlockState(location);
-        return player != null && chunk != null
-                && !player.hasBlockInteractionPermission(state.getBlock())
-                && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getUseItemsStatus());
     }
 
     public static ClaimedChunk getChunk(Cause cause) {
