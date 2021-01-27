@@ -6,7 +6,7 @@ import com.feed_the_beast.ftblib.events.player.ForgePlayerLoggedInEvent;
 import com.feed_the_beast.ftblib.events.player.ForgePlayerLoggedOutEvent;
 import com.feed_the_beast.ftbutilities.FTBUtilitiesConfig;
 import com.feed_the_beast.ftbutilities.handlers.FTBUtilitiesPlayerEventHandler;
-import net.dirtcraft.ftbutilities.spongeintegration.FtbUtilitiesSpongeIntegrationMod;
+import net.dirtcraft.ftbutilities.spongeintegration.FtbUtilitiesSpongeIntegration;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@Mod.EventBusSubscriber(modid = FtbUtilitiesSpongeIntegrationMod.MODID)
+@Mod.EventBusSubscriber(modid = FtbUtilitiesSpongeIntegration.MODID)
 public class FTBPlayerDataHandler {
 
     @SubscribeEvent
