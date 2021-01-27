@@ -1,13 +1,8 @@
 package net.dirtcraft.ftbutilities.spongeintegration;
 
-import com.feed_the_beast.ftblib.FTBLib;
-import com.feed_the_beast.ftblib.events.RegisterRankConfigHandlerEvent;
-import com.feed_the_beast.ftblib.lib.config.DefaultRankConfigHandler;
 import com.feed_the_beast.ftblib.lib.config.IRankConfigHandler;
 import com.feed_the_beast.ftblib.lib.config.RankConfigAPI;
-import com.feed_the_beast.ftbutilities.FTBUtilitiesConfig;
 import com.feed_the_beast.ftbutilities.handlers.FTBUtilitiesPlayerEventHandler;
-import com.feed_the_beast.ftbutilities.ranks.FTBUtilitiesPermissionHandler;
 import net.dirtcraft.ftbutilities.spongeintegration.command.debug.Debug;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.FTBPlayerDataHandler;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.FTBProtectionHandler;
@@ -21,7 +16,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.server.permission.PermissionAPI;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
@@ -73,7 +67,7 @@ public class FtbUtilitiesSpongeIntegration {
         CommandSpec activateListeners = CommandSpec.builder()
                 .permission("ftbutilities.debug")
                 .executor((a,b)->{
-                    deregisterListeners();
+                    registerListeners();
                     return CommandResult.success();
                 })
                 .build();
