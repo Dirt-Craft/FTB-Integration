@@ -22,6 +22,7 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 
 
 dependencies {
+    compileOnly 'net.luckperms:api:5.2'
     compileOnly 'org.spongepowered:spongeapi:7.3.0'
     annotationProcessor 'org.spongepowered:spongeapi:7.3.0'
 }
