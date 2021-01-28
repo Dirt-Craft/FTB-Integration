@@ -142,6 +142,9 @@ public class BlockEventHandler {
                 if (!isForgePlayerBreak && playerData.checkLastInteraction(chunk, user)) continue;
 
                 event.setCancelled(true);
+
+                //Don't cancel any related events if it's a leaf
+                if (location.getBlockType() == BlockTypes.LEAVES || location.getBlockType() ==  BlockTypes.LEAVES2) return;
                 lastBlockPreCancelled = true;
                 return;
             }
