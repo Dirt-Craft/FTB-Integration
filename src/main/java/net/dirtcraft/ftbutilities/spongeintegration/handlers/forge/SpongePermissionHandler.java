@@ -1,13 +1,14 @@
 package net.dirtcraft.ftbutilities.spongeintegration.handlers.forge;
 
 import com.mojang.authlib.GameProfile;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.server.permission.DefaultPermissionHandler;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.IPermissionHandler;
 import net.minecraftforge.server.permission.context.IContext;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.service.user.UserStorageService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,7 +16,7 @@ import java.util.Collection;
 
 public class SpongePermissionHandler implements IPermissionHandler {
     public static final SpongePermissionHandler INSTANCE = new SpongePermissionHandler();
-    private final UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
+    private final LuckPerms lp = LuckPermsProvider.get();
 
     @Override
     public boolean hasPermission(@Nonnull GameProfile profile, @Nonnull String node, @Nullable IContext context) {
@@ -23,11 +24,11 @@ public class SpongePermissionHandler implements IPermissionHandler {
             if (profile.getName() == null) return false;
             else profile = new GameProfile(EntityPlayer.getOfflineUUID(profile.getName()), profile.getName());
         }
-
-        return DefaultPermissionHandler.INSTANCE.hasPermission(profile, node, context) ||
-                uss.get(profile.getId())
-                .map(u -> u.hasPermission(node))
-                .orElse(false);
+        User user = lp.getUserManager().getUser(profile.getId());
+        return user != null && user.getCachedData()
+                .getPermissionData()
+                .checkPermission(node)
+                .asBoolean();
     }
 
     @Override

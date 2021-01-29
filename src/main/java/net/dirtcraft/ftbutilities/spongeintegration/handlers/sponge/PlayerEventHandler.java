@@ -88,7 +88,7 @@ public class PlayerEventHandler {
     public void onPlayerInteractEntity(InteractEntityEvent.Primary event, @First Player player) {
         final Entity targetEntity = event.getTargetEntity();
         final Location<World> location = targetEntity.getLocation();
-        if (ClaimedChunkHelper.blockBlockInteractions(PlayerData.from(player), location)) {
+        if (ClaimedChunkHelper.blockBlockInteractions(PlayerData.getOrCreate(player), location)) {
             event.setCancelled(true);
         }
     }
@@ -98,14 +98,14 @@ public class PlayerEventHandler {
     public void onPlayerInteractEntity(InteractEntityEvent.Secondary event, @First Player player) {
         final Entity targetEntity = event.getTargetEntity();
         final Location<World> location = targetEntity.getLocation();
-        if (ClaimedChunkHelper.blockBlockInteractions(PlayerData.from(player), location)) {
+        if (ClaimedChunkHelper.blockBlockInteractions(PlayerData.getOrCreate(player), location)) {
             event.setCancelled(true);
         }
     }
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onPlayerUseItem(UseItemStackEvent.Start event, @First Player player) {
-        if (ClaimedChunkHelper.blockItemUse(PlayerData.from(player), player.getLocation())) {
+        if (ClaimedChunkHelper.blockItemUse(PlayerData.getOrCreate(player), player.getLocation(), event.getItemStackInUse().getType())) {
             event.setCancelled(true);
         }
     }
@@ -123,7 +123,7 @@ public class PlayerEventHandler {
     public void onPlayerInteractInventoryOpen(InteractInventoryEvent.Open event, @First Player player) {
         event.getCause().getContext().get(EventContextKeys.BLOCK_HIT).ifPresent(blockSnapshot -> {
             final Location<World> location = blockSnapshot.getLocation().get();
-            if (!ClaimedChunkHelper.blockBlockEditing(PlayerData.from(player), location)) return;
+            if (!ClaimedChunkHelper.blockBlockEditing(PlayerData.getOrCreate(player), location)) return;
             ((EntityPlayerMP) player).closeScreen();
             event.setCancelled(true);
         });
@@ -141,7 +141,7 @@ public class PlayerEventHandler {
         final Location<World> location = clickedBlock.getLocation().orElse(null);
         if (location == null) return;
 
-        final PlayerData playerData = PlayerData.from(player);
+        final PlayerData playerData = PlayerData.getOrCreate(player);
         final ClaimedChunk claim = ClaimedChunkHelper.getChunk(location);
         if (ClaimedChunkHelper.blockBlockInteractions(playerData, location)) {
             event.setCancelled(true);
@@ -161,7 +161,7 @@ public class PlayerEventHandler {
             return;
         }
 
-        final PlayerData playerData = PlayerData.from(player);
+        final PlayerData playerData = PlayerData.getOrCreate(player);
         final Location<World> location = clickedBlock.getLocation().orElse(null);
         if (location == null) return;
 
@@ -231,9 +231,9 @@ public class PlayerEventHandler {
                 : interactPoint != null ? new Location<World>(world, interactPoint)
                 : player.getLocation();
 
-        final PlayerData playerData = PlayerData.from(player);
+        final PlayerData playerData = PlayerData.getOrCreate(player);
 
-        if (ClaimedChunkHelper.blockItemUse(playerData, location)) {
+        if (ClaimedChunkHelper.blockItemUse(playerData, location, itemType)) {
             if (event instanceof InteractItemEvent) {
                 if (!(player instanceof FakePlayer) && itemType == ItemTypes.WRITABLE_BOOK) {
                     ((EntityPlayerMP) player).closeScreen();

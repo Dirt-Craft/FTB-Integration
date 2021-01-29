@@ -4,10 +4,8 @@ import com.feed_the_beast.ftblib.lib.config.IRankConfigHandler;
 import com.feed_the_beast.ftblib.lib.config.RankConfigAPI;
 import com.feed_the_beast.ftbutilities.handlers.FTBUtilitiesPlayerEventHandler;
 import net.dirtcraft.ftbutilities.spongeintegration.command.debug.Debug;
-import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.FTBPlayerDataHandler;
-import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.FTBProtectionHandler;
-import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.SpongePermissionHandler;
-import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.SpongeRankConfigHandler;
+import net.dirtcraft.ftbutilities.spongeintegration.data.ClaimContextCalculator;
+import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.*;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge.BlockEventHandler;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge.EntityEventHandler;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge.NucleusHandler;
@@ -41,6 +39,7 @@ public class FtbUtilitiesSpongeIntegration {
     public static final String VERSION = "${version}";
     public static FtbUtilitiesSpongeIntegration INSTANCE;
     private final FTBProtectionHandler defaultHandler = new FTBProtectionHandler();
+    final ChunkEventsHandler chunkHandler = new ChunkEventsHandler();
     final List<Object> listeners = Stream.of(
             new NucleusHandler(),
             new BlockEventHandler(),
@@ -52,12 +51,13 @@ public class FtbUtilitiesSpongeIntegration {
     public void preInit(FMLPreInitializationEvent event) {
         PermissionAPI.setPermissionHandler(SpongePermissionHandler.INSTANCE);
         Sponge.getEventManager().registerListeners(this, this);
-        initRankHandler();
+        //initRankHandler(); //todo make a nice method for getting all the claims meta during login async.
         INSTANCE = this;
     }
 
     @EventHandler
     public void init(FMLServerAboutToStartEvent event) {
+        ClaimContextCalculator.register();
         MinecraftForge.EVENT_BUS.unregister(FTBUtilitiesPlayerEventHandler.class);
         MinecraftForge.EVENT_BUS.register(new FTBPlayerDataHandler());
     }
@@ -105,11 +105,13 @@ public class FtbUtilitiesSpongeIntegration {
 
     public void registerListeners(){
         MinecraftForge.EVENT_BUS.unregister(defaultHandler);
+        MinecraftForge.EVENT_BUS.register(chunkHandler);
         listeners.forEach(handler->Sponge.getEventManager().registerListeners(this, handler));
     }
 
     public void deregisterListeners(){
         MinecraftForge.EVENT_BUS.register(defaultHandler);
+        MinecraftForge.EVENT_BUS.unregister(chunkHandler);
         Sponge.getEventManager().unregisterPluginListeners(this);
     }
 }

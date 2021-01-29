@@ -1,6 +1,7 @@
 package net.dirtcraft.ftbutilities.spongeintegration.data;
 
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
+import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
@@ -15,17 +16,25 @@ import org.spongepowered.common.SpongeImpl;
 import javax.annotation.Nullable;
 
 public class PlayerData {
+    private User user;
+    private ForgePlayer fPlayer;
+    private GameProfile gameProfile;
+    private ForgeTeam chunkStandingIn;
     private ClaimedChunk lastInteractClaim;
     private boolean lastInteractResult;
     private int lastInteractTick;
-    private GameProfile gameProfile;
 
-    public static PlayerData from(User user){
-        return PlayerDataManager.INSTANCE.getData(user);
+    public static PlayerData getOrCreate(User user){
+        return PlayerDataManager.INSTANCE.getOrCreate(user);
+    }
+
+    public static PlayerData get(User user){
+        return PlayerDataManager.INSTANCE.get(user);
     }
 
     public PlayerData(User user){
-        gameProfile = (GameProfile) user.getProfile();
+        this.user = user;
+        this.gameProfile = (GameProfile) user.getProfile();
     }
 
     public void setLastInteractData(ClaimedChunk claim) {
@@ -41,27 +50,60 @@ public class PlayerData {
         return false;
     }
 
+    public String getClaimStandingIn(){
+        if (chunkStandingIn == null) return "wilderness";
+        else if (chunkStandingIn.owner == null) return "server";
+        else return chunkStandingIn.getId();
+    }
+
+    public void setClaimStandingIn(ForgeTeam team){
+        chunkStandingIn = team;
+    }
+
+    public boolean hasBlockEditingPermission(Block block, ClaimedChunk chunk) {
+        return PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.block.edit." + formatId(block) + "." + formatClaim(chunk), null);
+    }
+
+    public boolean hasBlockInteractionPermission(Block block, ClaimedChunk chunk) {
+        return PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.block.interact." + formatId(block) + "." + formatClaim(chunk), null);
+    }
+
+    public boolean hasItemUsePermission(Item block, ClaimedChunk chunk) {
+        return PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.item." + formatId(block) + "." + formatClaim(chunk), null);
+    }
+
+    public boolean hasAnimalAttackPermission(ClaimedChunk chunk) {
+        return PermissionAPI.hasPermission(gameProfile, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS + "." + formatClaim(chunk), null);
+    }
+
+    public ForgePlayer getForgePlayer(){
+        if (fPlayer == null) fPlayer = ClaimedChunks.instance.universe.getPlayer(gameProfile);
+        return fPlayer;
+    }
+
+    public ForgeTeam getForgeTeam(){
+        return getForgePlayer().team;
+    }
+
+    public User getUser(){
+        return user;
+    }
+
+    public GameProfile getGameProfile(){
+        return gameProfile;
+    }
+
+    public boolean isOnline(){
+        return user.isOnline();
+    }
+
     private String formatId(@Nullable IForgeRegistryEntry item) {
         return item != null && item.getRegistryName() != null ? item.getRegistryName().toString().toLowerCase().replace(':', '.') : "minecraft.air";
     }
 
-    public boolean hasBlockEditingPermission(Block block) {
-        return PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.block.edit." + formatId(block), null);
-    }
-
-    public boolean hasBlockInteractionPermission(Block block) {
-        return PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.block.interact." + formatId(block), null);
-    }
-
-    public boolean hasItemUsePermission(Item block) {
-        return PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.item." + formatId(block), null);
-    }
-
-    public boolean hasAnimalAttackPermission() {
-        return PermissionAPI.hasPermission(gameProfile, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS, null);
-    }
-
-    public ForgePlayer getForgePlayer(){
-        return ClaimedChunks.instance.universe.getPlayer(gameProfile);
+    private String formatClaim(ClaimedChunk chunk){
+        if (chunk == null) return "wilderness";
+        else if (chunk.getTeam() == null) return "server";
+        else return chunk.getTeam().getId();
     }
 }

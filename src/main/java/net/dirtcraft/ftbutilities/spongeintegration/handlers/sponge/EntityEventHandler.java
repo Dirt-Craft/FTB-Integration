@@ -52,7 +52,7 @@ public class EntityEventHandler {
             }
         }
 
-        return !ClaimedChunkHelper.canAttackEntity(PlayerData.from(user), damageSource, targetEntity);
+        return !ClaimedChunkHelper.canAttackEntity(PlayerData.getOrCreate(user), damageSource, targetEntity);
     }
 
 }

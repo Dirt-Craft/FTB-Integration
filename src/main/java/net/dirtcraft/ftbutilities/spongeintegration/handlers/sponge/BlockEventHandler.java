@@ -102,7 +102,7 @@ public class BlockEventHandler {
         }
 
         final User user = CauseContextHelper.getEventUser(event);
-        final PlayerData playerData = PlayerData.from(user);
+        final PlayerData playerData = PlayerData.getOrCreate(user);
         final LocatableBlock locatableBlock = cause.first(LocatableBlock.class).orElse(null);
         final boolean hasFakePlayer = context.containsKey(EventContextKeys.FAKE_PLAYER);
 
@@ -183,9 +183,9 @@ public class BlockEventHandler {
             }
 
             sourceLocation = player.getLocation();
-            playerData = PlayerData.from(player);
+            playerData = PlayerData.getOrCreate(player);
         } else {
-            playerData = PlayerData.from(user);
+            playerData = PlayerData.getOrCreate(user);
         }
 
         sourceClaim = ClaimedChunkHelper.getChunk(sourceLocation);
@@ -251,7 +251,7 @@ public class BlockEventHandler {
 
         if (user instanceof Player) {
             ClaimedChunk targetClaim = ClaimedChunkHelper.getChunk(event.getTargetLocation());
-            PlayerData playerData = PlayerData.from(user);
+            PlayerData playerData = PlayerData.getOrCreate(user);
             playerData.setLastInteractData(targetClaim);
         }
     }
@@ -262,7 +262,7 @@ public class BlockEventHandler {
 
         final User user = CauseContextHelper.getEventUser(event);
 
-        if (user instanceof Player && ClaimedChunkHelper.blockBlockInteractions(PlayerData.from(user), event.getImpactPoint())) {
+        if (user instanceof Player && ClaimedChunkHelper.blockBlockInteractions(PlayerData.getOrCreate(user), event.getImpactPoint())) {
             event.setCancelled(true);
         }
     }
@@ -316,7 +316,7 @@ public class BlockEventHandler {
                 continue;
             }
 
-            PlayerData playerData = PlayerData.from(user);
+            PlayerData playerData = PlayerData.getOrCreate(user);
             if (ClaimedChunkHelper.blockBlockEditing(playerData, location)) {
                 event.setCancelled(true);
                 return;
@@ -344,7 +344,7 @@ public class BlockEventHandler {
             sourceClaim = ClaimedChunkHelper.getChunk(event.getCause());
         }
 
-        PlayerData playerData = PlayerData.from(user);
+        PlayerData playerData = PlayerData.getOrCreate(user);
 
         if (!(source instanceof User) && playerData != null && playerData.checkLastInteraction(sourceClaim, user)) return;
 
