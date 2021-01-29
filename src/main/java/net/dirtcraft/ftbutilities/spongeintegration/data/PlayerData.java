@@ -19,9 +19,10 @@ public class PlayerData {
     private User user;
     private ForgePlayer fPlayer;
     private GameProfile gameProfile;
-    private ForgeTeam chunkStandingIn;
+    private ForgeTeam claimStandingIn;
     private ClaimedChunk lastInteractClaim;
     private boolean lastInteractResult;
+    private boolean bypassClaims;
     private int lastInteractTick;
 
     public static PlayerData getOrCreate(User user){
@@ -33,8 +34,8 @@ public class PlayerData {
     }
 
     public PlayerData(User user){
-        this.user = user;
         this.gameProfile = (GameProfile) user.getProfile();
+        this.user = user;
     }
 
     public void setLastInteractData(ClaimedChunk claim) {
@@ -51,29 +52,30 @@ public class PlayerData {
     }
 
     public String getClaimStandingIn(){
-        if (chunkStandingIn == null) return "wilderness";
-        else if (chunkStandingIn.owner == null) return "server";
-        else return chunkStandingIn.getId();
+        return formatTeam(claimStandingIn);
     }
 
     public void setClaimStandingIn(ForgeTeam team){
-        chunkStandingIn = team;
+        claimStandingIn = team;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasBlockEditingPermission(Block block, ClaimedChunk chunk) {
-        return PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.block.edit." + formatId(block) + "." + formatClaim(chunk), null);
+        return canBypassClaims() || PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.block.edit." + formatId(block) + "." + formatClaim(chunk), null);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasBlockInteractionPermission(Block block, ClaimedChunk chunk) {
-        return PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.block.interact." + formatId(block) + "." + formatClaim(chunk), null);
+        return canBypassClaims() || PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.block.interact." + formatId(block) + "." + formatClaim(chunk), null);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasItemUsePermission(Item block, ClaimedChunk chunk) {
-        return PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.item." + formatId(block) + "." + formatClaim(chunk), null);
+        return canBypassClaims() || PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.item." + formatId(block) + "." + formatClaim(chunk), null);
     }
 
     public boolean hasAnimalAttackPermission(ClaimedChunk chunk) {
-        return PermissionAPI.hasPermission(gameProfile, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS + "." + formatClaim(chunk), null);
+        return canBypassClaims() || PermissionAPI.hasPermission(gameProfile, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS + "." + formatClaim(chunk), null);
     }
 
     public ForgePlayer getForgePlayer(){
@@ -97,13 +99,26 @@ public class PlayerData {
         return user.isOnline();
     }
 
-    private String formatId(@Nullable IForgeRegistryEntry item) {
+    public boolean toggleBypassClaims(){
+        bypassClaims = !bypassClaims;
+        return bypassClaims;
+    }
+
+    public boolean canBypassClaims(){
+        return bypassClaims;
+    }
+
+    private String formatId(@Nullable IForgeRegistryEntry<?> item) {
         return item != null && item.getRegistryName() != null ? item.getRegistryName().toString().toLowerCase().replace(':', '.') : "minecraft.air";
     }
 
     private String formatClaim(ClaimedChunk chunk){
-        if (chunk == null) return "wilderness";
-        else if (chunk.getTeam() == null) return "server";
-        else return chunk.getTeam().getId();
+        return formatTeam(chunk == null? null: chunk.getTeam());
+    }
+
+    private String formatTeam(ForgeTeam team){
+        if (team == null) return "wilderness";
+        else if (team.owner == null) return "server";
+        else return team.getId();
     }
 }
