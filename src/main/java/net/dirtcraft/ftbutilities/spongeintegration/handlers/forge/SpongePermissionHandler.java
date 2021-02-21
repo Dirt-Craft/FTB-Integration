@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
+import net.luckperms.api.util.Tristate;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.server.permission.DefaultPermissionHandler;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
@@ -13,9 +14,11 @@ import net.minecraftforge.server.permission.context.IContext;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.HashSet;
 
-public class SpongePermissionHandler implements IPermissionHandler {
-    public static final SpongePermissionHandler INSTANCE = new SpongePermissionHandler();
+public enum SpongePermissionHandler implements IPermissionHandler {
+    INSTANCE;
+    private final HashSet<String> defaultNodes = new HashSet<>();
     private final LuckPerms lp = LuckPermsProvider.get();
 
     @Override
@@ -25,14 +28,25 @@ public class SpongePermissionHandler implements IPermissionHandler {
             else profile = new GameProfile(EntityPlayer.getOfflineUUID(profile.getName()), profile.getName());
         }
         User user = lp.getUserManager().getUser(profile.getId());
-        return user != null && user.getCachedData()
+
+        if (user == null) return false;
+        Tristate permission = user.getCachedData()
                 .getPermissionData()
-                .checkPermission(node)
-                .asBoolean();
+                .checkPermission(node);
+
+        switch (permission) {
+            case TRUE: return true;
+            case FALSE: return false;
+            default: return defaultNodes.contains(node);
+        }
     }
 
     @Override
     public void registerNode(@Nonnull String node, @Nonnull DefaultPermissionLevel level, @Nonnull String desc) {
+        if (level == DefaultPermissionLevel.ALL) {
+
+            defaultNodes.add(node);
+        }
         DefaultPermissionHandler.INSTANCE.registerNode(node, level, desc);
     }
 

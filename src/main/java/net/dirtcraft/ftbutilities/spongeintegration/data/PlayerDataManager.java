@@ -1,5 +1,6 @@
 package net.dirtcraft.ftbutilities.spongeintegration.data;
 
+import com.feed_the_beast.ftblib.lib.EnumTeamStatus;
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.google.common.collect.ArrayListMultimap;
 import com.mojang.authlib.GameProfile;
@@ -7,47 +8,42 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.user.UserStorageService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PlayerDataManager {
     static final PlayerDataManager INSTANCE = new PlayerDataManager();
-    private final Map<User, PlayerData> userDataMap = new HashMap<>();
-    private final Map<GameProfile, PlayerData> profileDataMap = new HashMap<>();
+    private final Map<UUID, PlayerData> playerDataMap = new HashMap<>();
     private final ArrayListMultimap<ForgeTeam, PlayerData> loadedByTeam = ArrayListMultimap.create();
-    private final UserStorageService userStorageService = Sponge.getServiceManager()
-            .provideUnchecked(UserStorageService.class);
+    private UserStorageService userStorageService;
 
     public static PlayerDataManager getInstance(){
         return INSTANCE;
     }
 
     public PlayerData getOrCreate(User user){
-        PlayerData ret = userDataMap.get(user);
-        if (ret == null && user != null) ret = new PlayerData(user);
+        if (user == null) return null;
+        PlayerData ret = playerDataMap.get(user.getUniqueId());
+        if (ret == null) ret = new PlayerData(user);
         return ret;
     }
 
     public PlayerData get(User user){
-        return userDataMap.get(user);
+        return playerDataMap.get(user.getUniqueId());
     }
 
     public PlayerData get(GameProfile user){
-        return profileDataMap.get(user);
+        return playerDataMap.get(user.getId());
     }
 
     public void loadUser(User user){
         PlayerData player = new PlayerData(user);
         ForgeTeam team = player.getForgeTeam();
         if (team == null){
-            userDataMap.put(user, player);
-            profileDataMap.put(player.getGameProfile(), player);
+            playerDataMap.put(user.getUniqueId(), player);
             return;
         } else if (loadedByTeam.containsKey(team)) return;
-        List<PlayerData> teamMates = team.players.keySet().stream()
+        List<PlayerData> teamMates = team.getMembers().stream()
                 .map(fp->fp.profile)
                 .map(this::getUser)
                 .filter(Optional::isPresent)
@@ -55,25 +51,30 @@ public class PlayerDataManager {
                 .map(this::getOrCreate)
                 .collect(Collectors.toList());
         loadedByTeam.putAll(team, teamMates);
-        teamMates.forEach(pd->userDataMap.put(pd.getUser(), pd));
-        teamMates.forEach(pd->profileDataMap.put(pd.getGameProfile(), pd));
+        teamMates.forEach(pd->playerDataMap.put(pd.getUser().getUniqueId(), pd));
     }
 
+    //todo test this shit works?
     public void unloadUser(User user){
-        PlayerData player = userDataMap.get(user);
+        PlayerData player = playerDataMap.get(user.getUniqueId());
         ForgeTeam team = player.getForgeTeam();
-        if (team == null || loadedByTeam.containsKey(team)) userDataMap.remove(user);
+        if (team == null || !loadedByTeam.containsKey(team)) playerDataMap.remove(user.getUniqueId());
         else if (loadedByTeam.get(team).stream().noneMatch(PlayerData::isOnline)) {
             loadedByTeam.get(team).forEach(pd->{
-                userDataMap.remove(pd.getUser());
-                profileDataMap.remove(pd.getGameProfile());
+                playerDataMap.remove(pd.getUser().getUniqueId());
             });
             loadedByTeam.removeAll(team);
         }
     }
 
+    private UserStorageService getUserStorageService(){
+        if (this.userStorageService == null) userStorageService = Sponge.getServiceManager()
+                .provideUnchecked(UserStorageService.class);
+        return userStorageService;
+    }
+
     private Optional<User> getUser(GameProfile profile){
-        return userStorageService.get(profile.getId());
+        return getUserStorageService().get(profile.getId());
     }
 
 }

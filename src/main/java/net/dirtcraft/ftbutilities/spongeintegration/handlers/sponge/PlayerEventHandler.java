@@ -30,6 +30,8 @@ import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.flowpowered.math.vector.Vector3d;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerDataManager;
+import net.dirtcraft.ftbutilities.spongeintegration.data.sponge.PlayerSettings;
+import net.dirtcraft.ftbutilities.spongeintegration.data.sponge.PlayerSettingsImpl;
 import net.dirtcraft.ftbutilities.spongeintegration.utility.ClaimedChunkHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -41,6 +43,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
+import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Entity;
@@ -70,13 +73,19 @@ import org.spongepowered.common.bridge.world.chunk.ActiveChunkReferantBridge;
 
 public class PlayerEventHandler {
 
-    private PlayerDataManager manager = PlayerDataManager.getInstance();
+    private final PlayerDataManager manager = PlayerDataManager.getInstance();
     private int lastInteractItemPrimaryTick = -1;
     private int lastInteractItemSecondaryTick = -1;
 
     @Listener
     public void onLogin(ClientConnectionEvent.Join event){
         manager.loadUser(event.getTargetEntity());
+        boolean b = event.getTargetEntity().get(PlayerSettingsImpl.class).isPresent();
+        PlayerSettings settings = Sponge.getDataManager()
+                .getManipulatorBuilder(PlayerSettings.class).get()
+                .createFrom(event.getTargetEntity()).get();
+        DataTransactionResult ires = event.getTargetEntity().offer(settings);
+        System.out.println(Thread.currentThread());
     }
 
     @Listener

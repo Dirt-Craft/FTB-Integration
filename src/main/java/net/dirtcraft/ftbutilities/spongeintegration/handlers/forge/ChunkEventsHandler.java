@@ -4,6 +4,7 @@ import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.events.chunks.ChunkModifiedEvent;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
 import net.dirtcraft.ftbutilities.spongeintegration.utility.ClaimedChunkHelper;
+import net.dirtcraft.ftbutilities.spongeintegration.utility.Permission;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -24,7 +25,7 @@ public class ChunkEventsHandler {
         World world = dimension == null? null: (World) dimension;
         if (world == null) return;
 
-        String permission = String.format("ftbutilities.claims.claim.%s", world.getName());
+        String permission = Permission.getClaimNode(world.getName());
         if (!player.hasPermission(permission)) claimChunkEvent.setCanceled(true);
     }
 

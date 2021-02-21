@@ -3,8 +3,12 @@ package net.dirtcraft.ftbutilities.spongeintegration;
 import com.feed_the_beast.ftblib.lib.config.IRankConfigHandler;
 import com.feed_the_beast.ftblib.lib.config.RankConfigAPI;
 import com.feed_the_beast.ftbutilities.handlers.FTBUtilitiesPlayerEventHandler;
-import net.dirtcraft.ftbutilities.spongeintegration.command.debug.Debug;
+import net.dirtcraft.ftbutilities.spongeintegration.command.Base;
 import net.dirtcraft.ftbutilities.spongeintegration.data.ClaimContextCalculator;
+import net.dirtcraft.ftbutilities.spongeintegration.data.sponge.ImmutablePlayerSettings;
+import net.dirtcraft.ftbutilities.spongeintegration.data.sponge.ImmutablePlayerSettingsImpl;
+import net.dirtcraft.ftbutilities.spongeintegration.data.sponge.PlayerSettings;
+import net.dirtcraft.ftbutilities.spongeintegration.data.sponge.PlayerSettingsImpl;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.forge.*;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge.BlockEventHandler;
 import net.dirtcraft.ftbutilities.spongeintegration.handlers.sponge.EntityEventHandler;
@@ -16,9 +20,10 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.server.permission.PermissionAPI;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 
 import java.lang.reflect.Method;
@@ -64,35 +69,8 @@ public class FtbUtilitiesSpongeIntegration {
 
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
-        CommandSpec activateListeners = CommandSpec.builder()
-                .permission("ftbutilities.debug")
-                .executor((a,b)->{
-                    registerListeners();
-                    return CommandResult.success();
-                })
-                .build();
-
-        CommandSpec deactivateListeners = CommandSpec.builder()
-                .permission("ftbutilities.debug")
-                .executor((a,b)->{
-                    deregisterListeners();
-                    return CommandResult.success();
-                })
-                .build();
-
-        CommandSpec debug = CommandSpec.builder()
-                .permission("ftbutilities.debug")
-                .executor(new Debug())
-                .child(activateListeners, "enable")
-                .child(deactivateListeners, "disable")
-                .build();
-
-        CommandSpec main = CommandSpec.builder()
-                .permission("ftbutilities.main")
-                .child(debug, "debug")
-                .build();
+        Base.registerCommands(this);
         this.registerListeners();
-        Sponge.getCommandManager().register(this, main, "ftbupp");
     }
 
     private void initRankHandler(){
@@ -113,5 +91,24 @@ public class FtbUtilitiesSpongeIntegration {
         MinecraftForge.EVENT_BUS.register(defaultHandler);
         MinecraftForge.EVENT_BUS.unregister(chunkHandler);
         Sponge.getEventManager().unregisterPluginListeners(this);
+    }
+
+    @Listener
+    public void onDataRegistry(GameRegistryEvent.Register<DataRegistration<?, ?>> event) {
+        DataRegistration.builder()
+                .id(MODID)
+                .name(NAME)
+                .dataClass(PlayerSettings.class)
+                .immutableClass(ImmutablePlayerSettings.class)
+                .dataImplementation(PlayerSettingsImpl.class)
+                .immutableImplementation(ImmutablePlayerSettingsImpl.class)
+                .builder(new PlayerSettingsImpl.Builder())
+                .build();
+    }
+
+    @Listener
+    public void onKeyRegistry(GameRegistryEvent.Register<Key<?>> event) {
+        event.register(PlayerSettings.CAN_BYPASS);
+        event.register(PlayerSettings.IS_DEBUG);
     }
 }

@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.5.7",
+  "package": "net.dirtcraft.ftbutilities.spongeintegration.core.mixins",
+  "refmap": "mixins.ftbutilities.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "server": [
+    "debug.MixinMessageClaimedChunksUpdate",
+    "debug.MixinForgeTeam",
+    "flags.MixinForgeTeam"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

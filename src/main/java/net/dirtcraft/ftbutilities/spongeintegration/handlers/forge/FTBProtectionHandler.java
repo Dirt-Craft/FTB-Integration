@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class FTBProtectionHandler {
 
     @SubscribeEvent
-    public static void onEntityDamage(LivingDamageEvent event) {
+    public void onEntityDamage(LivingDamageEvent event) {
         if (FTBUtilitiesConfig.world.disable_player_suffocation_damage && event.getEntity() instanceof EntityPlayer && (event.getSource() == DamageSource.IN_WALL || event.getSource() == DamageSource.FLY_INTO_WALL)) {
             event.setAmount(0F);
             event.setCanceled(true);
@@ -29,7 +29,7 @@ public class FTBProtectionHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onEntityAttacked(AttackEntityEvent event) {
+    public void onEntityAttacked(AttackEntityEvent event) {
         if (!ClaimedChunks.canAttackEntity(event.getEntityPlayer(), event.getTarget())) {
             InvUtils.forceUpdate(event.getEntityPlayer());
             event.setCanceled(true);
@@ -37,7 +37,7 @@ public class FTBProtectionHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+    public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (FTBUtilitiesConfig.world.isItemRightClickDisabled(event.getItemStack())) {
             event.setCanceled(true);
 
@@ -55,7 +55,7 @@ public class FTBProtectionHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+    public void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         if (FTBUtilitiesConfig.world.isItemRightClickDisabled(event.getItemStack())) {
             event.setCanceled(true);
 
@@ -73,14 +73,14 @@ public class FTBProtectionHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onBlockBreak(BlockEvent.BreakEvent event) {
+    public void onBlockBreak(BlockEvent.BreakEvent event) {
         if (ClaimedChunks.blockBlockEditing(event.getPlayer(), event.getPos(), event.getState())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onBlockPlace(BlockEvent.PlaceEvent event) {
+    public void onBlockPlace(BlockEvent.PlaceEvent event) {
         if (ClaimedChunks.blockBlockEditing(event.getPlayer(), event.getPos(), event.getPlacedBlock())) {
             InvUtils.forceUpdate(event.getPlayer());
             event.setCanceled(true);
@@ -88,7 +88,7 @@ public class FTBProtectionHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onBlockLeftClick(PlayerInteractEvent.LeftClickBlock event) {
+    public void onBlockLeftClick(PlayerInteractEvent.LeftClickBlock event) {
         if (ClaimedChunks.blockBlockEditing(event.getEntityPlayer(), event.getPos(), null)) {
             event.setCanceled(true);
         }
@@ -101,7 +101,7 @@ public class FTBProtectionHandler {
     }
     */
 
-    private static String getStateName(IBlockState state) {
+    private String getStateName(IBlockState state) {
         if (state == state.getBlock().getDefaultState()) {
             return state.getBlock().getRegistryName().toString();
         }
@@ -109,16 +109,16 @@ public class FTBProtectionHandler {
         return state.toString();
     }
 
-    private static String getDim(EntityPlayer player) {
+    private String getDim(EntityPlayer player) {
         return ServerUtils.getDimensionName(player.dimension).getUnformattedText();
     }
 
-    private static String getPos(BlockPos pos) {
+    private String getPos(BlockPos pos) {
         return String.format("[%d, %d, %d]", pos.getX(), pos.getY(), pos.getZ());
     }
 
     @SubscribeEvent
-    public static void onBlockBreakLog(BlockEvent.BreakEvent event) {
+    public void onBlockBreakLog(BlockEvent.BreakEvent event) {
         EntityPlayer player = event.getPlayer();
 
         if (FTBUtilitiesConfig.world.logging.block_broken && player instanceof EntityPlayerMP && FTBUtilitiesConfig.world.logging.log((EntityPlayerMP) player)) {
@@ -127,7 +127,7 @@ public class FTBProtectionHandler {
     }
 
     @SubscribeEvent
-    public static void onBlockPlaceLog(BlockEvent.PlaceEvent event) {
+    public void onBlockPlaceLog(BlockEvent.PlaceEvent event) {
         EntityPlayer player = event.getPlayer();
 
         if (FTBUtilitiesConfig.world.logging.block_placed && player instanceof EntityPlayerMP && FTBUtilitiesConfig.world.logging.log((EntityPlayerMP) player)) {
@@ -136,7 +136,7 @@ public class FTBProtectionHandler {
     }
 
     @SubscribeEvent
-    public static void onRightClickItemLog(PlayerInteractEvent.RightClickItem event) {
+    public void onRightClickItemLog(PlayerInteractEvent.RightClickItem event) {
         EntityPlayer player = event.getEntityPlayer();
 
         if (FTBUtilitiesConfig.world.logging.item_clicked_in_air && player instanceof EntityPlayerMP && FTBUtilitiesConfig.world.logging.log((EntityPlayerMP) player)) {
