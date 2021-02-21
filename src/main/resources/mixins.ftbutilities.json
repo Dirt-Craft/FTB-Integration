@@ -6,8 +6,9 @@
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "server": [
-    "debug.MixinMessageClaimedChunksUpdate",
+    "badges.FTBUtilitiesUniverseDataAccessor",
     "debug.MixinForgeTeam",
+    "debug.MixinMessageClaimedChunksUpdate",
     "flags.MixinForgeTeam"
   ],
   "injectors": {

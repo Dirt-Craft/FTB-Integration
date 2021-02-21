@@ -10,9 +10,11 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
+import javax.annotation.Nonnull;
+
 public class IgnoreClaim implements CommandExecutor {
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
         if (!(src instanceof Player)) throw new CommandException(Text.of("Only players may execute this command!"));
         Player player = (Player) src;
         PlayerData data = PlayerData.get(player);

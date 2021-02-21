@@ -31,7 +31,6 @@ import com.flowpowered.math.vector.Vector3d;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerDataManager;
 import net.dirtcraft.ftbutilities.spongeintegration.data.sponge.PlayerSettings;
-import net.dirtcraft.ftbutilities.spongeintegration.data.sponge.PlayerSettingsImpl;
 import net.dirtcraft.ftbutilities.spongeintegration.utility.ClaimedChunkHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -43,7 +42,6 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
-import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Entity;
@@ -80,15 +78,13 @@ public class PlayerEventHandler {
     @Listener
     public void onLogin(ClientConnectionEvent.Join event){
         manager.loadUser(event.getTargetEntity());
-        boolean b = event.getTargetEntity().get(PlayerSettingsImpl.class).isPresent();
         PlayerSettings settings = Sponge.getDataManager()
                 .getManipulatorBuilder(PlayerSettings.class).get()
                 .createFrom(event.getTargetEntity()).get();
-        DataTransactionResult ires = event.getTargetEntity().offer(settings);
-        System.out.println(Thread.currentThread());
+        event.getTargetEntity().offer(settings);
     }
 
-    @Listener
+    @Listener(order = Order.POST)
     public void onLogoff(ClientConnectionEvent.Disconnect event){
         manager.unloadUser(event.getTargetEntity());
     }
@@ -102,7 +98,6 @@ public class PlayerEventHandler {
         }
     }
 
-    // when a player interacts with an entity...
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onPlayerInteractEntity(InteractEntityEvent.Secondary event, @First Player player) {
         final Entity targetEntity = event.getTargetEntity();
@@ -237,7 +232,7 @@ public class PlayerEventHandler {
         final Entity entity = context.get(EventContextKeys.ENTITY_HIT).orElse(null);
         final Location<World> location = entity != null ? entity.getLocation()
                 : blockSnapshot != BlockSnapshot.NONE ? blockSnapshot.getLocation().get()
-                : interactPoint != null ? new Location<World>(world, interactPoint)
+                : interactPoint != null ? new Location<>(world, interactPoint)
                 : player.getLocation();
 
         final PlayerData playerData = PlayerData.getOrCreate(player);

@@ -6,17 +6,17 @@ import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
 import com.mojang.authlib.GameProfile;
+import net.dirtcraft.ftbutilities.spongeintegration.core.mixins.badges.FTBUtilitiesUniverseDataAccessor;
 import net.dirtcraft.ftbutilities.spongeintegration.data.sponge.PlayerSettings;
+import net.dirtcraft.ftbutilities.spongeintegration.utility.Permission;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.server.permission.PermissionAPI;
-import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.common.SpongeImpl;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 public class PlayerData {
     private final User user;
@@ -42,6 +42,7 @@ public class PlayerData {
         this.user = user;
         this.bypassClaims = user.get(PlayerSettings.CAN_BYPASS).orElse(false);
         this.debugClaims = user.get(PlayerSettings.IS_DEBUG).orElse(false);
+        if (getBadge() != null) FTBUtilitiesUniverseDataAccessor.getBADGE_CACHE().put(user.getUniqueId(), getBadge());
     }
 
     public void setLastInteractData(ClaimedChunk claim) {
@@ -123,6 +124,11 @@ public class PlayerData {
 
     public boolean canDebugClaims(){
         return debugClaims;
+    }
+
+    public @Nullable String getBadge(){
+        if (!user.hasPermission(Permission.STAFF_BADGE)) return null;
+        return "https://i.imgur.com/G0pEx1j.png";
     }
 
     private String formatId(@Nullable IForgeRegistryEntry<?> item) {

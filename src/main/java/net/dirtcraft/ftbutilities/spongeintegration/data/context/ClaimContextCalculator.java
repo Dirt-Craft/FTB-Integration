@@ -1,5 +1,6 @@
-package net.dirtcraft.ftbutilities.spongeintegration.data;
+package net.dirtcraft.ftbutilities.spongeintegration.data.context;
 
+import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;

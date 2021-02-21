@@ -9,9 +9,11 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 
+import javax.annotation.Nonnull;
+
 public class ToggleSpawns implements CommandExecutor {
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
         String id = args.requireOne("teamid");
         boolean val = args.requireOne("value");
         ForgeTeam team = Universe.get().getTeam(id);

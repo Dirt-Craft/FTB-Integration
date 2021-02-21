@@ -12,11 +12,12 @@ import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.data.value.mutable.Value;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 public class PlayerSettingsImpl extends AbstractData<PlayerSettings, ImmutablePlayerSettings> implements PlayerSettings {
-    public static final DataQuery BYPASS = DataQuery.of("ftb-integration:player-bypass");
-    public static final DataQuery DEBUG = DataQuery.of("ftb-integration:player-debug");
+    public static final DataQuery BYPASS = DataQuery.of("bypass");
+    public static final DataQuery DEBUG = DataQuery.of("debug");
 
     private boolean bypass;
     private boolean debug;
@@ -57,12 +58,13 @@ public class PlayerSettingsImpl extends AbstractData<PlayerSettings, ImmutablePl
     }
 
     @Override
-    public Optional<PlayerSettings> fill(DataHolder dataHolder, MergeFunction overlap) {
+    public Optional<PlayerSettings> fill(DataHolder dataHolder, @Nonnull MergeFunction overlap) {
         dataHolder.get(PlayerSettings.class).ifPresent(data -> data.set(overlap.merge(this, data).getValues()));
         return Optional.of(this);
     }
 
     @Override
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     public Optional<PlayerSettings> from(DataContainer container) {
         if (!container.contains(BYPASS, DEBUG)) return Optional.empty();
 
@@ -103,6 +105,7 @@ public class PlayerSettingsImpl extends AbstractData<PlayerSettings, ImmutablePl
         }
 
         @Override
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
         protected Optional<PlayerSettings> buildContent(DataView container) throws InvalidDataException {
             if (!container.contains(BYPASS, DEBUG)) return Optional.empty();
 

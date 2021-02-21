@@ -12,6 +12,8 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
 
+import javax.annotation.Nonnull;
+
 public class Base implements CommandExecutor {
 
     public static void registerCommands(FtbUtilitiesSpongeIntegration plugin){
@@ -32,13 +34,8 @@ public class Base implements CommandExecutor {
                 .executor(new ToggleSpawns())
                 .build();
 
-        CommandSpec settings = CommandSpec.builder()
-                .executor(new Settings())
-                .build();
-
         CommandSpec base = CommandSpec.builder()
                 .child(toggleSpawns, "togglespawns", "ts")
-                .child(settings, "settings", "s")
                 .build();
 
         Sponge.getCommandManager().register(plugin, base, "ftbi", "ftbintegration");
@@ -47,7 +44,7 @@ public class Base implements CommandExecutor {
     }
 
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
         return CommandResult.success();
     }
 }

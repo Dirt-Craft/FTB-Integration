@@ -2,9 +2,9 @@ package net.dirtcraft.ftbutilities.spongeintegration.core.mixins.debug;
 
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftbutilities.net.MessageClaimedChunksUpdate;
+import net.dirtcraft.ftbutilities.spongeintegration.core.api.DebugTeamInfo;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerData;
 import net.dirtcraft.ftbutilities.spongeintegration.data.PlayerDataManager;
-import net.dirtcraft.ftbutilities.spongeintegration.core.api.DebugTeamInfo;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.ITextComponent;
 import org.spongepowered.asm.mixin.Mixin;
