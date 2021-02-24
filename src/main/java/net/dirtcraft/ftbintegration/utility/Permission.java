@@ -11,24 +11,14 @@ public class Permission {
     public static final String DEBUG = resolvePermission(CLAIMS_BASE, "debug");
 
     //Claim Nodes
-    public static final String CLAIM_CHUNK = resolvePermission(CLAIMS_BASE, "claim");
+    public static final String CLAIM_CHUNK = resolvePermission(CLAIMS_BASE, "claim", "base");
+    public static final String CLAIM_OTHER = resolvePermission(CLAIMS_BASE, "claim", "others");
     public static final String FLAG_MOB_SPAWN = resolvePermission(FLAG_BASE, "mobspawn");
 
     //Badge Nodes
     public static final String STAFF_BADGE = resolvePermission(BADGE_BASE, "staff");
 
-
-    private static String resolvePermission(String... node){
-        return String.join(".", node);
-    }
-
-    public static String getClaimNode(String world){
-        return resolvePermission(CLAIM_CHUNK, world);
-    }
-
-    /*
-
-    Permissions Quick-List
+    /* Permissions Quick-List
     Claiming In General:
      - ftbintegration.claims.claim.worldId
      - ftbintegration.claims.debug
@@ -42,7 +32,13 @@ public class Permission {
       - ftbintegration.badges.staff
 
     Flags:
-     - ftbintegration.claims.flags.mobspawn
+     - ftbintegration.claims.flags.mobspawn */
 
-     */
+    private static String resolvePermission(String... node){
+        return String.join(".", node);
+    }
+
+    public static String getClaimNode(String world){
+        return resolvePermission(CLAIM_CHUNK, world);
+    }
 }

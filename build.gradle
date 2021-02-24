@@ -45,24 +45,17 @@ dependencies {
 jar {
     manifest.attributes(
             'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-            'FMLCorePlugin': 'net.dirtcraft.ftbutilities.spongeintegration.core.MixinLoader',
+            'FMLCorePlugin': 'net.dirtcraft.ftbintegration.core.MixinLoader',
             'FMLCorePluginContainsFMLMod': 'true',
             'ForceLoadAsMod': true
     )
-    destinationDir project.file('E:/IdeaProjects/.Sponge/SpongeForge 1.12.2/run/mods')
+    //destinationDir project.file('E:/IdeaProjects/.Sponge/SpongeForge 1.12.2/run/mods')
 }
 
 minecraft {
     version = "1.12.2-14.23.5.2847"
-    runDir = "run"
-
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not always work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
     mappings = "snapshot_20171003"
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+    runDir = "run"
 }
 
 processResources {
@@ -83,3 +76,5 @@ processResources {
         exclude 'mcmod.info'
     }
 }
+
+compileJava.options.encoding = 'UTF-8'

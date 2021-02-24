@@ -71,6 +71,8 @@ import org.spongepowered.common.bridge.world.chunk.ActiveChunkReferantBridge;
 
 public class PlayerEventHandler {
 
+    private final ItemType CLAIM_MARKER = ItemTypes.GOLDEN_AXE;
+    private final ItemType INFO_TOOL = ItemTypes.BLAZE_ROD;
     private final PlayerDataManager manager = PlayerDataManager.getInstance();
     private int lastInteractItemPrimaryTick = -1;
     private int lastInteractItemSecondaryTick = -1;
@@ -139,7 +141,15 @@ public class PlayerEventHandler {
         final HandType handType = event.getHandType();
         final ItemStack itemInHand = player.getItemInHand(handType).orElse(ItemStack.empty());
         // Run our item hook since Sponge no longer fires InteractItemEvent when targetting a non-air block
-        if (clickedBlock != BlockSnapshot.NONE && handleItemInteract(event, player, player.getWorld(), itemInHand)) return;
+        if (itemInHand.getType() == CLAIM_MARKER){
+            PlayerData data = PlayerData.get(player);
+            Location<World> location = clickedBlock.getLocation().orElse(null);
+            if (data != null && location != null) {
+                data.setPrimaryChunkPos(location, player);
+                event.setCancelled(true);
+                return;
+            }
+        } else if (clickedBlock != BlockSnapshot.NONE && handleItemInteract(event, player, player.getWorld(), itemInHand)) return;
 
 
         final Location<World> location = clickedBlock.getLocation().orElse(null);
@@ -160,7 +170,15 @@ public class PlayerEventHandler {
         // Run our item hook since Sponge no longer fires InteractItemEvent when targetting a non-air block
         final HandType handType = event.getHandType();
         final ItemStack itemInHand = player.getItemInHand(handType).orElse(ItemStack.empty());
-        if (handleItemInteract(event, player, player.getWorld(), itemInHand)) {
+        if (itemInHand.getType() == CLAIM_MARKER){
+            PlayerData data = PlayerData.get(player);
+            Location<World> location = clickedBlock.getLocation().orElse(null);
+            if (data != null && location != null) {
+                data.setSecondaryChunkPos(location, player);
+                event.setCancelled(true);
+                return;
+            }
+        } else if (handleItemInteract(event, player, player.getWorld(), itemInHand)) {
             event.setCancelled(true);
             return;
         }
@@ -172,7 +190,8 @@ public class PlayerEventHandler {
         final ClaimedChunk claim = ClaimedChunkHelper.getChunk(location);
         final TileEntity tileEntity = clickedBlock.getLocation().get().getTileEntity().orElse(null);
         if (playerData != null) {
-            boolean result = (tileEntity instanceof IInventory) ? ClaimedChunkHelper.blockBlockEditing(playerData, location): ClaimedChunkHelper.blockBlockInteractions(playerData, location);
+            //boolean result = (tileEntity instanceof IInventory) ? ClaimedChunkHelper.blockBlockEditing(playerData, location): ClaimedChunkHelper.blockBlockInteractions(playerData, location);
+            boolean result = ClaimedChunkHelper.blockBlockInteractions(playerData, location);
             if (result) {
                 // if player is holding an item, check if it can be placed
                 if (!itemInHand.isEmpty() && itemInHand instanceof ItemBlock) {

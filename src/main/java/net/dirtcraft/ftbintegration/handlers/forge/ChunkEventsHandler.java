@@ -2,7 +2,9 @@ package net.dirtcraft.ftbintegration.handlers.forge;
 
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.events.chunks.ChunkModifiedEvent;
+import com.mojang.authlib.GameProfile;
 import net.dirtcraft.ftbintegration.data.PlayerData;
+import net.dirtcraft.ftbintegration.data.PlayerDataManager;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
 import net.dirtcraft.ftbintegration.utility.Permission;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -16,9 +18,15 @@ public class ChunkEventsHandler {
 
     @SubscribeEvent
     public void onClaimChunk(ChunkModifiedEvent.Claim claimChunkEvent){
-        EntityPlayerMP forgePlayer = claimChunkEvent.getPlayer().getNullablePlayer();
-        if (forgePlayer == null) return;
-        Player player = (Player) forgePlayer;
+        GameProfile profile = claimChunkEvent.getPlayer().getProfile();
+        if (profile.getId() == null) return;
+        Player player = PlayerDataManager.getInstance()
+                .get(profile)
+                .getUser()
+                .getPlayer()
+                .orElse(null);
+        if (player == null) return;
+
         int dim = claimChunkEvent.getChunkDimPos().dim;
         net.minecraft.world.World[] worlds = FMLCommonHandler.instance().getMinecraftServerInstance().worlds;
         net.minecraft.world.World dimension = worlds.length < dim? null : worlds[dim];

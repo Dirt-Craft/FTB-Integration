@@ -2,32 +2,48 @@ package net.dirtcraft.ftbintegration.data;
 
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
+import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
 import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
 import com.mojang.authlib.GameProfile;
 import net.dirtcraft.ftbintegration.core.mixins.badges.FTBUtilitiesUniverseDataAccessor;
+import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorFinalIDObject;
 import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
 import net.dirtcraft.ftbintegration.utility.Permission;
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.server.permission.PermissionAPI;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerData {
     private final User user;
     private final GameProfile gameProfile;
     private ForgePlayer fPlayer;
+
     private ForgeTeam claimStandingIn;
     private ClaimedChunk lastInteractClaim;
     private boolean lastInteractResult;
+    private int lastInteractTick;
+
     private boolean bypassClaims;
     private boolean debugClaims;
-    private int lastInteractTick;
+
+    private ChunkDimPos primaryChunkPos;
+    private ChunkDimPos secondaryChunkPos;
+    private List<ChunkDimPos> selection;
 
     public static PlayerData getOrCreate(User user){
         return PlayerDataManager.INSTANCE.getOrCreate(user);
@@ -40,8 +56,8 @@ public class PlayerData {
     public PlayerData(User user){
         this.gameProfile = (GameProfile) user.getProfile();
         this.user = user;
-        this.bypassClaims = user.get(PlayerSettings.CAN_BYPASS).orElse(false);
-        this.debugClaims = user.get(PlayerSettings.IS_DEBUG).orElse(false);
+        this.bypassClaims = user.get(PlayerSettings.CAN_BYPASS).orElse(false) && user.hasPermission(Permission.BYPASS);
+        this.debugClaims = user.get(PlayerSettings.IS_DEBUG).orElse(false) && user.hasPermission(Permission.DEBUG);
         if (getBadge() != null) FTBUtilitiesUniverseDataAccessor.getBADGE_CACHE().put(user.getUniqueId(), getBadge());
     }
 
@@ -64,6 +80,54 @@ public class PlayerData {
 
     public void setClaimStandingIn(ForgeTeam team){
         claimStandingIn = team;
+    }
+
+    public void setPrimaryChunkPos(Location<World> location, Player player) {
+        int x = location.getBlockX() >> 4;
+        int z = location.getBlockZ() >> 4;
+        int d = ((EntityPlayerMP)player).dimension;
+        this.primaryChunkPos = new ChunkDimPos(x, z, d);
+        calcSelectedRegion();
+        String message = String.format("&aSet primary selection %d, %d - %d total chunks)", x, z, selection.size());
+        Text response = TextSerializers.FORMATTING_CODE.deserialize(message);
+        player.sendMessage(response);
+    }
+
+    public void setSecondaryChunkPos(Location<World> location, Player player) {
+        int x = location.getBlockX() >> 4;
+        int z = location.getBlockZ() >> 4;
+        int d = ((EntityPlayerMP)player).dimension;
+        this.secondaryChunkPos = new ChunkDimPos(x, z, d);
+        calcSelectedRegion();
+        String message = String.format("&aSet secondary selection %d, %d - %d total chunks)", x, z, selection.size());
+        Text response = TextSerializers.FORMATTING_CODE.deserialize(message);
+        player.sendMessage(response);
+    }
+
+    public List<ChunkDimPos> getSelectedRegion(){
+        if (selection == null) selection = new ArrayList<>();
+        return selection;
+    }
+
+    public void calcSelectedRegion(){
+        if (primaryChunkPos == null || secondaryChunkPos == null || primaryChunkPos.dim != secondaryChunkPos.dim) {
+            this.selection = new ArrayList<>();
+            return;
+        }
+        List<ChunkDimPos> posList = new ArrayList<>();
+        int dim = primaryChunkPos.dim;
+        int xMin = Math.min(primaryChunkPos.posX, secondaryChunkPos.posX);
+        int xMax = Math.max(primaryChunkPos.posX, secondaryChunkPos.posX);
+        int zMin = Math.min(primaryChunkPos.posZ, secondaryChunkPos.posZ);
+        int zMax = Math.max(primaryChunkPos.posZ, secondaryChunkPos.posZ);
+        for (int x = xMin; x <= xMax; x++){
+            for (int z = zMin; z <= zMax; z++){
+                ChunkDimPos pos = new ChunkDimPos(x, z, dim);
+                posList.add(pos);
+            }
+        }
+        this.selection = posList;
+
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -142,6 +206,6 @@ public class PlayerData {
     private String formatTeam(ForgeTeam team){
         if (team == null) return "wilderness";
         else if (team.owner == null) return "server";
-        else return team.getId();
+        else return ((AccessorFinalIDObject)team).getTeamIdString();
     }
 }

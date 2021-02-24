@@ -6,6 +6,7 @@ import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftblib.lib.util.FinalIDObject;
 import net.dirtcraft.ftbintegration.core.api.DebugTeamInfo;
 import net.dirtcraft.ftbintegration.core.api.FlagTeamInfo;
+import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorFinalIDObject;
 import net.minecraft.util.text.ITextComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(value = ForgeTeam.class, remap = false)
-public abstract class MixinForgeTeam extends FinalIDObject implements DebugTeamInfo {
+public abstract class MixinForgeTeam extends FinalIDObject implements DebugTeamInfo, AccessorFinalIDObject {
 
     public MixinForgeTeam(String _id, int flags) {
         super(_id, flags);
@@ -65,22 +66,28 @@ public abstract class MixinForgeTeam extends FinalIDObject implements DebugTeamI
     @Unique
     private ITextComponent generateDebugTitle() {
         ITextComponent textComponent = getTitle().createCopy()
-                .appendText("\nTeam ID: ")
-                .appendText(getId());
+                .appendText("\n")
+                .appendText("Team ID: ")
+                .appendText(getTeamIdString());
         if (owner == null) textComponent.appendText(" [Server]");
         if (!getMembers().isEmpty()){
-            textComponent.appendText("\nMembers: ");
+            textComponent.appendText("\n")
+                .appendText("Members: ");
             for (ForgePlayer fp : getMembers()){
-                textComponent.appendText("\n - ");
-                textComponent.appendText(fp.getName());
+                textComponent.appendText("\n")
+                        .appendText(" - ")
+                        .appendText(fp.getName());
                 if (fp == owner) textComponent.appendText(" [Owner]");
             }
         }
         if (this instanceof FlagTeamInfo){
             FlagTeamInfo flagTeamInfo = (FlagTeamInfo) this;
-            textComponent.appendText("\nFlags:");
-            textComponent.appendText("\n - Mob Spawn: ");
-            textComponent.appendText(String.valueOf(!flagTeamInfo.blockMobSpawns()));
+            String mobSpawn = String.valueOf(!flagTeamInfo.blockMobSpawns());
+            textComponent.appendText("\n")
+                    .appendText("Flags:")
+                    .appendText("\n")
+                    .appendText(" - Mob Spawn: ")
+                    .appendText(mobSpawn);
         }
         return textComponent;
     }

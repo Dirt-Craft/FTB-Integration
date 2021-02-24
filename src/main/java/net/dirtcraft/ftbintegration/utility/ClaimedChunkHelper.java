@@ -1,5 +1,8 @@
 package net.dirtcraft.ftbintegration.utility;
 
+import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
+import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
+import com.feed_the_beast.ftblib.lib.data.Universe;
 import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
 import com.feed_the_beast.ftbutilities.FTBUtilitiesConfig;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
@@ -21,6 +24,9 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class ClaimedChunkHelper {
 
@@ -135,6 +141,16 @@ public class ClaimedChunkHelper {
         }
 
         return sourceClaim;
+    }
+
+    public static ForgePlayer getTeamOwner(ForgeTeam team){
+        if (team.type.isPlayer) return team.owner;
+        else if (team.type.isNone) return null;
+        else {
+            ForgePlayer p = new ForgePlayer(Universe.get(), UUID.nameUUIDFromBytes("FakePlayerClaimAs".getBytes(StandardCharsets.UTF_8)), "FakePlayerClaimAs");
+            p.team = team;
+            return p;
+        }
     }
 
 

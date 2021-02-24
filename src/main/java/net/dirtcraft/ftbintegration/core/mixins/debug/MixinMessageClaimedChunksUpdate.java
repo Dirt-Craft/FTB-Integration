@@ -20,4 +20,11 @@ public abstract class MixinMessageClaimedChunksUpdate {
         if (data == null || !data.canDebugClaims() || !(team instanceof DebugTeamInfo)) return team.getTitle();
         else return ((DebugTeamInfo) team).getDebugTitle();
     }
+
+    /* This shit right here is commented out till i can figure out how to access if a chunk is loaded or not lmao. BCL doesn't seem to have an API for it sadly.
+    @Redirect(method = "<init>(IILnet/minecraft/entity/player/EntityPlayer;)V", at = @At(value = "INVOKE", target = "Lcom/feed_the_beast/ftbutilities/data/ClaimedChunk;isLoaded()Z"))
+    public boolean isChunkLoaded(ClaimedChunk claimedChunk) {
+        return true;
+    }
+     */
 }

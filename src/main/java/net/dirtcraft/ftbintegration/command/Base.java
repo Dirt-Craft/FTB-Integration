@@ -34,13 +34,27 @@ public class Base implements CommandExecutor {
                 .executor(new ToggleSpawns())
                 .build();
 
-        CommandSpec base = CommandSpec.builder()
-                .child(toggleSpawns, "togglespawns", "ts")
+        CommandSpec claimChunks = CommandSpec.builder()
+                .permission(Permission.CLAIM_CHUNK)
+                .executor(new ClaimChunks())
+                .arguments(GenericArguments.optional(GenericArguments.string(Text.of("teamid"))))
                 .build();
 
-        Sponge.getCommandManager().register(plugin, base, "ftbi", "ftbintegration");
-        Sponge.getCommandManager().register(plugin, bypass, "ic", "ignoreclaims");
+        CommandSpec unclaimChunks = CommandSpec.builder()
+                .permission(Permission.CLAIM_CHUNK)
+                .executor(new UnclaimChunks())
+                .arguments(GenericArguments.optional(GenericArguments.string(Text.of("teamid"))))
+                .build();
+
+        CommandSpec base = CommandSpec.builder()
+                .child(toggleSpawns, "togglespawns", "ts")
+                .child(unclaimChunks, "unclaim", "uc")
+                .child(claimChunks, "claim", "c")
+                .build();
+
         Sponge.getCommandManager().register(plugin, debug, "dc", "debugclaims");
+        Sponge.getCommandManager().register(plugin, bypass, "ic", "ignoreclaims");
+        Sponge.getCommandManager().register(plugin, base, "ftbi", "ftbintegration");
     }
 
     @Override

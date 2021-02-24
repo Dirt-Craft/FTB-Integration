@@ -39,7 +39,7 @@ import static net.minecraftforge.fml.common.Mod.EventHandler;
         dependencies = "required-after:ftbutilities")
 public class FtbIntegration {
     public static final String MODID = "ftb-integration";
-    public static final String NAME = "FTB-Utilities Sponge Integration";
+    public static final String NAME = "FTB Utilities Sponge Integration";
     public static final String VERSION = "${version}";
     public static FtbIntegration INSTANCE;
     final ChunkEventsHandler chunkHandler = new ChunkEventsHandler();
