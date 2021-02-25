@@ -2,6 +2,7 @@ package net.dirtcraft.ftbintegration.command;
 
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
+import com.feed_the_beast.ftblib.lib.data.TeamType;
 import com.feed_the_beast.ftblib.lib.data.Universe;
 import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
 import com.feed_the_beast.ftbutilities.data.ClaimResult;
@@ -30,23 +31,29 @@ public class ClaimChunks implements CommandExecutor {
         if (data == null) throw new CommandException(Text.of("Unable to locate player data!"));
         ClaimedChunks claimedChunks = ClaimedChunks.instance;
         ForgePlayer forgePlayer;
-        ForgeTeam forgeTeam = args.<String>getOne("team")
+
+        if (args.hasAny("team-id")) forgePlayer = args.<String>getOne("team-id")
                 .filter(discard->src.hasPermission(Permission.CLAIM_OTHER))
                 .map(Universe.get()::getTeam)
-                .orElse(null);
-        if (forgeTeam == null) forgePlayer = data.getForgePlayer();
-        else if (forgeTeam.type.isNone) throw new CommandException(Text.of("Invalid Team!"));
-        else forgePlayer = ClaimedChunkHelper.getTeamOwner(forgeTeam);
+                .filter(t->t.type != TeamType.NONE)
+                .map(ClaimedChunkHelper::getTeamOwner)
+                .orElseThrow(()->new CommandException(Text.of("Unable to find team, or you do not have permission.")));
+        else forgePlayer = data.getForgePlayer();
+
         if (forgePlayer == null) throw new CommandException(Text.of("Invalid Team!"));
+
         for (ChunkDimPos pos : data.getSelectedRegion()) claimedChunks.claimChunk(forgePlayer, pos);
         long success = data.getSelectedRegion().stream()
                 .map(ch->claimedChunks.claimChunk(forgePlayer, ch))
                 .filter(claimResult -> claimResult == ClaimResult.SUCCESS)
                 .count();
+
         long fail = data.getSelectedRegion().size() - success;
+
         String message = String.format("Successfully claimed %d chunks, with %d failures.", success, fail);
         Text response = TextSerializers.FORMATTING_CODE.deserialize(message);
         src.sendMessage(response);
+        
         return CommandResult.success();
     }
 }

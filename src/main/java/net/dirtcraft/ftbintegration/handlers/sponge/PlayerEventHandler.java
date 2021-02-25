@@ -140,7 +140,6 @@ public class PlayerEventHandler {
         final BlockSnapshot clickedBlock = event.getTargetBlock();
         final HandType handType = event.getHandType();
         final ItemStack itemInHand = player.getItemInHand(handType).orElse(ItemStack.empty());
-        // Run our item hook since Sponge no longer fires InteractItemEvent when targetting a non-air block
         if (itemInHand.getType() == CLAIM_MARKER){
             PlayerData data = PlayerData.get(player);
             Location<World> location = clickedBlock.getLocation().orElse(null);
@@ -167,7 +166,6 @@ public class PlayerEventHandler {
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onPlayerInteractBlockSecondary(InteractBlockEvent.Secondary event, @First Player player) {
         final BlockSnapshot clickedBlock = event.getTargetBlock();
-        // Run our item hook since Sponge no longer fires InteractItemEvent when targetting a non-air block
         final HandType handType = event.getHandType();
         final ItemStack itemInHand = player.getItemInHand(handType).orElse(ItemStack.empty());
         if (itemInHand.getType() == CLAIM_MARKER){

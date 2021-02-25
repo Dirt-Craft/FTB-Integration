@@ -23,21 +23,25 @@ public enum SpongePermissionHandler implements IPermissionHandler {
 
     @Override
     public boolean hasPermission(@Nonnull GameProfile profile, @Nonnull String node, @Nullable IContext context) {
+        return hasPermission(profile, context, node);
+    }
+
+    public boolean hasPermission(@Nonnull GameProfile profile, @Nullable IContext context, @Nonnull String... node) {
         if (profile.getId() == null) {
             if (profile.getName() == null) return false;
             else profile = new GameProfile(EntityPlayer.getOfflineUUID(profile.getName()), profile.getName());
         }
         User user = lp.getUserManager().getUser(profile.getId());
 
-        if (user == null) return false;
+        if (user == null || node.length == 0) return false;
         Tristate permission = user.getCachedData()
                 .getPermissionData()
-                .checkPermission(node);
+                .checkPermission(String.join(".", node));
 
         switch (permission) {
             case TRUE: return true;
             case FALSE: return false;
-            default: return defaultNodes.contains(node);
+            default: return defaultNodes.contains(node[0]);
         }
     }
 
@@ -56,7 +60,7 @@ public enum SpongePermissionHandler implements IPermissionHandler {
     }
 
     @Override
-    public String getNodeDescription(String node) {
+    public String getNodeDescription(@Nonnull String node) {
         return DefaultPermissionHandler.INSTANCE.getNodeDescription(node);
     }
 }

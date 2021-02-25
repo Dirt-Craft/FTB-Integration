@@ -6,6 +6,7 @@
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "server": [
+    "bypass.MixinClaimedChunks",
     "generic.AccessorFinalIDObject",
     "badges.FTBUtilitiesUniverseDataAccessor",
     "debug.MixinForgeTeam",

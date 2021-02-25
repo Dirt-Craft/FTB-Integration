@@ -29,7 +29,7 @@ public class Base implements CommandExecutor {
 
         CommandSpec toggleSpawns = CommandSpec.builder()
                 .permission(Permission.FLAG_MOB_SPAWN)
-                .arguments(GenericArguments.string(Text.of("teamid")),
+                .arguments(GenericArguments.string(Text.of("team-id")),
                         GenericArguments.bool(Text.of("value")))
                 .executor(new ToggleSpawns())
                 .build();
@@ -37,13 +37,12 @@ public class Base implements CommandExecutor {
         CommandSpec claimChunks = CommandSpec.builder()
                 .permission(Permission.CLAIM_CHUNK)
                 .executor(new ClaimChunks())
-                .arguments(GenericArguments.optional(GenericArguments.string(Text.of("teamid"))))
+                .arguments(GenericArguments.optional(GenericArguments.string(Text.of("team-id"))))
                 .build();
 
         CommandSpec unclaimChunks = CommandSpec.builder()
                 .permission(Permission.CLAIM_CHUNK)
                 .executor(new UnclaimChunks())
-                .arguments(GenericArguments.optional(GenericArguments.string(Text.of("teamid"))))
                 .build();
 
         CommandSpec base = CommandSpec.builder()

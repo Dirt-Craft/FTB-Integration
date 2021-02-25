@@ -33,16 +33,7 @@ public class UnclaimChunks implements CommandExecutor {
         PlayerData data = PlayerData.get((Player)src);
         if (data == null) throw new CommandException(Text.of("Unable to locate player data!"));
         ClaimedChunks claimedChunks = ClaimedChunks.instance;
-        ForgePlayer forgePlayer;
-        ForgeTeam forgeTeam = args.<String>getOne("team")
-                .filter(discard->src.hasPermission(Permission.CLAIM_OTHER))
-                .map(Universe.get()::getTeam)
-                .orElse(null);
-        if (forgeTeam == null) forgePlayer = data.getForgePlayer();
-        else if (forgeTeam.type.isNone) throw new CommandException(Text.of("Invalid Team!"));
-        else forgePlayer = ClaimedChunkHelper.getTeamOwner(forgeTeam);
-        if (forgePlayer == null) throw new CommandException(Text.of("Invalid Team!"));
-        for (ChunkDimPos pos : data.getSelectedRegion()) claimedChunks.claimChunk(forgePlayer, pos);
+        ForgePlayer forgePlayer = data.getForgePlayer();
         long success = data.getSelectedRegion().stream()
                 .map(claimedChunks::getChunk)
                 .filter(Objects::nonNull)

@@ -12,6 +12,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.world.World;
 
 public class ChunkEventsHandler {
@@ -20,10 +21,10 @@ public class ChunkEventsHandler {
     public void onClaimChunk(ChunkModifiedEvent.Claim claimChunkEvent){
         GameProfile profile = claimChunkEvent.getPlayer().getProfile();
         if (profile.getId() == null) return;
-        Player player = PlayerDataManager.getInstance()
-                .get(profile)
-                .getUser()
-                .getPlayer()
+        PlayerData data = PlayerDataManager.getInstance().get(profile);
+        if (data == null) return;
+        Player player = data.getUser()
+                .flatMap(User::getPlayer)
                 .orElse(null);
         if (player == null) return;
 

@@ -10,6 +10,7 @@ import com.mojang.authlib.GameProfile;
 import net.dirtcraft.ftbintegration.core.mixins.badges.FTBUtilitiesUniverseDataAccessor;
 import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorFinalIDObject;
 import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
+import net.dirtcraft.ftbintegration.handlers.forge.SpongePermissionHandler;
 import net.dirtcraft.ftbintegration.utility.Permission;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -27,6 +28,7 @@ import org.spongepowered.common.SpongeImpl;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PlayerData {
     private final User user;
@@ -130,23 +132,20 @@ public class PlayerData {
 
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasBlockEditingPermission(Block block, ClaimedChunk chunk) {
-        return canBypassClaims() || PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.block.edit." + formatId(block) + "." + formatClaim(chunk), null);
+        return canBypassClaims() || SpongePermissionHandler.INSTANCE.hasPermission(gameProfile, null, "ftbutilities.claims.block.edit." + formatId(block), formatClaim(chunk));
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasBlockInteractionPermission(Block block, ClaimedChunk chunk) {
-        return canBypassClaims() || PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.block.interact." + formatId(block) + "." + formatClaim(chunk), null);
+        return canBypassClaims() || SpongePermissionHandler.INSTANCE.hasPermission(gameProfile, null, "ftbutilities.claims.block.interact." + formatId(block), formatClaim(chunk));
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasItemUsePermission(Item block, ClaimedChunk chunk) {
-        return canBypassClaims() || PermissionAPI.hasPermission(gameProfile, "ftbutilities.claims.item." + formatId(block) + "." + formatClaim(chunk), null);
+        return canBypassClaims() || SpongePermissionHandler.INSTANCE.hasPermission(gameProfile, null, "ftbutilities.claims.item." + formatId(block), formatClaim(chunk));
     }
 
     public boolean hasAnimalAttackPermission(ClaimedChunk chunk) {
-        return canBypassClaims() || PermissionAPI.hasPermission(gameProfile, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS + "." + formatClaim(chunk), null);
+        return canBypassClaims() || SpongePermissionHandler.INSTANCE.hasPermission(gameProfile, null, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS, formatClaim(chunk));
     }
 
     public ForgePlayer getForgePlayer(){
@@ -154,20 +153,8 @@ public class PlayerData {
         return fPlayer;
     }
 
-    public ForgeTeam getForgeTeam(){
-        return getForgePlayer().team;
-    }
-
-    public User getUser(){
-        return user;
-    }
-
-    public GameProfile getGameProfile(){
-        return gameProfile;
-    }
-
-    public boolean isOnline(){
-        return user.isOnline();
+    public Optional<User> getUser(){
+        return Optional.ofNullable(user);
     }
 
     public boolean toggleBypassClaims(){
