@@ -20,7 +20,15 @@ public interface PlayerSettings extends DataManipulator<PlayerSettings, Immutabl
             .query(PlayerSettingsImpl.DEBUG)
             .build();
 
+    Key<Value<String>> GET_BADGE = Key.builder()
+            .type(TypeTokens.STRING_VALUE_TOKEN)
+            .name("Badge Url")
+            .id("badge")
+            .query(PlayerSettingsImpl.BADGE)
+            .build();
+
     Value<Boolean> canBypass();
     Value<Boolean> isDebug();
+    Value<String> getBadge();
 
 }

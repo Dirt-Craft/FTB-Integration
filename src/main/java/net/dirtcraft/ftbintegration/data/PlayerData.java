@@ -178,6 +178,9 @@ public class PlayerData {
     }
 
     public @Nullable String getBadge(){
+        if (user.get(PlayerSettings.GET_BADGE).filter(url->!url.equalsIgnoreCase("")).isPresent()){
+            return user.get(PlayerSettings.GET_BADGE).orElse(null);
+        }
         if (!user.hasPermission(Permission.STAFF_BADGE)) return null;
         return "https://i.imgur.com/G0pEx1j.png";
     }

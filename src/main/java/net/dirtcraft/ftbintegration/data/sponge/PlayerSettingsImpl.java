@@ -18,17 +18,20 @@ import java.util.Optional;
 public class PlayerSettingsImpl extends AbstractData<PlayerSettings, ImmutablePlayerSettings> implements PlayerSettings {
     public static final DataQuery BYPASS = DataQuery.of("bypass");
     public static final DataQuery DEBUG = DataQuery.of("debug");
+    public static final DataQuery BADGE = DataQuery.of("badge");
 
     private boolean bypass;
     private boolean debug;
+    private String badgeUrl;
 
     public PlayerSettingsImpl(){
-        this(false, false);
+        this(false, false, "");
     }
 
-    public PlayerSettingsImpl(boolean bypass, boolean debug){
+    public PlayerSettingsImpl(boolean bypass, boolean debug, String badgeUrl){
         this.bypass = bypass;
         this.debug = debug;
+        this.badgeUrl = badgeUrl;
         registerGettersAndSetters();
     }
 
@@ -41,6 +44,10 @@ public class PlayerSettingsImpl extends AbstractData<PlayerSettings, ImmutablePl
         registerFieldGetter(IS_DEBUG, () -> this.debug);
         registerFieldSetter(IS_DEBUG, debug -> this.debug = debug);
         registerKeyValue(IS_DEBUG, this::isDebug);
+
+        registerFieldGetter(GET_BADGE, () -> this.badgeUrl);
+        registerFieldSetter(GET_BADGE, debug -> this.badgeUrl = debug);
+        registerKeyValue(GET_BADGE, this::getBadge);
     }
 
     @Override
@@ -58,6 +65,13 @@ public class PlayerSettingsImpl extends AbstractData<PlayerSettings, ImmutablePl
     }
 
     @Override
+    public Value<String> getBadge() {
+        return Sponge.getRegistry()
+                .getValueFactory()
+                .createValue(GET_BADGE, this.badgeUrl);
+    }
+
+    @Override
     public Optional<PlayerSettings> fill(DataHolder dataHolder, @Nonnull MergeFunction overlap) {
         dataHolder.get(PlayerSettings.class).ifPresent(data -> data.set(overlap.merge(this, data).getValues()));
         return Optional.of(this);
@@ -70,27 +84,30 @@ public class PlayerSettingsImpl extends AbstractData<PlayerSettings, ImmutablePl
 
         final boolean bypass = container.getBoolean(BYPASS).get();
         final boolean debug = container.getBoolean(DEBUG).get();
+        final String badge = container.contains(BADGE)? container.getString(BADGE).get() : "";
 
         this.set(CAN_BYPASS, bypass);
         this.set(IS_DEBUG, debug);
+        this.set(GET_BADGE, badge);
 
         return Optional.of(this);
     }
 
     @Override
     public PlayerSettingsImpl copy() {
-        return new PlayerSettingsImpl(this.bypass, this.debug);
+        return new PlayerSettingsImpl(this.bypass, this.debug, this.badgeUrl);
     }
     @Override
     public ImmutablePlayerSettings asImmutable() {
-        return new ImmutablePlayerSettingsImpl(this.bypass, this.debug);
+        return new ImmutablePlayerSettingsImpl(this.bypass, this.debug, this.badgeUrl);
     }
 
     @Override
     public DataContainer toContainer() {
         return super.toContainer()
                 .set(BYPASS, this.bypass)
-                .set(DEBUG, this.debug);
+                .set(DEBUG, this.debug)
+                .set(BADGE, this.badgeUrl);
     }
 
     @Override
@@ -111,8 +128,9 @@ public class PlayerSettingsImpl extends AbstractData<PlayerSettings, ImmutablePl
 
             final boolean bypass = container.getBoolean(BYPASS).get();
             final boolean debug = container.getBoolean(DEBUG).get();
+            final String badge = container.contains(BADGE)? container.getString(BADGE).get() : "";
 
-            return Optional.of(new PlayerSettingsImpl(bypass, debug));
+            return Optional.of(new PlayerSettingsImpl(bypass, debug, badge));
         }
 
         @Override

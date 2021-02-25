@@ -17,6 +17,10 @@ public class Permission {
 
     //Badge Nodes
     public static final String STAFF_BADGE = resolvePermission(BADGE_BASE, "staff");
+    public static final String BADGE_SET = resolvePermission(BADGE_BASE, "get");
+    public static final String BADGE_OTHERS = resolvePermission(BADGE_BASE, "other");
+    public static final String BADGE_CLEAR = resolvePermission(BADGE_BASE, "clear");
+    public static final String BADGE_GET = resolvePermission(BADGE_BASE, "get");
 
     /* Permissions Quick-List
     Claiming In General:
