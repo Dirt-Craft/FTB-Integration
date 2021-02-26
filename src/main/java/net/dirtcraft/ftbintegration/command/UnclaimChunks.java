@@ -1,15 +1,10 @@
 package net.dirtcraft.ftbintegration.command;
 
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
-import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
-import com.feed_the_beast.ftblib.lib.data.Universe;
-import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
-import com.feed_the_beast.ftbutilities.data.ClaimResult;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
 import net.dirtcraft.ftbintegration.data.PlayerData;
-import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
-import net.dirtcraft.ftbintegration.utility.Permission;
+import net.dirtcraft.ftbintegration.storage.Permission;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -20,9 +15,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import javax.annotation.Nonnull;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.UUID;
 
 @SuppressWarnings("DuplicatedCode")
 public class UnclaimChunks implements CommandExecutor {

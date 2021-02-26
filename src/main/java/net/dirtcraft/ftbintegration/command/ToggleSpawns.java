@@ -12,6 +12,7 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 import javax.annotation.Nonnull;
 
 public class ToggleSpawns implements CommandExecutor {
+    @Nonnull
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
         String id = args.requireOne("teamid");

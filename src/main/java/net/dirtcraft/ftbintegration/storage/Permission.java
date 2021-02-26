@@ -1,4 +1,4 @@
-package net.dirtcraft.ftbintegration.utility;
+package net.dirtcraft.ftbintegration.storage;
 
 public class Permission {
     private static final String BASE = "ftbintegration";
@@ -7,6 +7,8 @@ public class Permission {
     private static final String BADGE_BASE = resolvePermission(BASE, "badges");
 
     //Admin Nodes
+    public static final String SEE_INFO = resolvePermission(BASE, "tool", "info");
+    public static final String RELOAD_CONFIG = resolvePermission(BASE, "reload");
     public static final String BYPASS = resolvePermission(CLAIMS_BASE, "bypass");
     public static final String DEBUG = resolvePermission(CLAIMS_BASE, "debug");
 
@@ -27,6 +29,7 @@ public class Permission {
      - ftbintegration.claims.claim.worldId
      - ftbintegration.claims.debug
      - ftbintegration.claims.bypass
+     - ftbintegration.tool.info
 
     FTB:U Exposed:
      - ftbutilities.other_player.claims.unclaim

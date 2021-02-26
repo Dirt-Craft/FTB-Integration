@@ -28,10 +28,13 @@ package net.dirtcraft.ftbintegration.handlers.sponge;
 
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.flowpowered.math.vector.Vector3d;
+import net.dirtcraft.ftbintegration.FtbIntegration;
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.data.PlayerDataManager;
 import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
+import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
+import net.dirtcraft.ftbintegration.utility.SpongeHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemBlock;
@@ -64,10 +67,13 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.bridge.world.chunk.ActiveChunkReferantBridge;
+
+import java.util.UUID;
 
 public class PlayerEventHandler {
 
@@ -176,7 +182,11 @@ public class PlayerEventHandler {
                 event.setCancelled(true);
                 return;
             }
-        } else if (handleItemInteract(event, player, player.getWorld(), itemInHand)) {
+        } else if (itemInHand.getType() == INFO_TOOL && clickedBlock.getLocation().isPresent()) {
+            if (SpongeHelper.hasOwner(clickedBlock) && player.hasPermission(Permission.SEE_INFO)) SpongeHelper.sendOwnerData(player, clickedBlock);
+            else ClaimedChunkHelper.showClaimInfo(clickedBlock.getLocation().get(), player);
+        }
+        if (handleItemInteract(event, player, player.getWorld(), itemInHand)) {
             event.setCancelled(true);
             return;
         }

@@ -11,12 +11,11 @@ import net.dirtcraft.ftbintegration.core.mixins.badges.FTBUtilitiesUniverseDataA
 import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorFinalIDObject;
 import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
 import net.dirtcraft.ftbintegration.handlers.forge.SpongePermissionHandler;
-import net.dirtcraft.ftbintegration.utility.Permission;
+import net.dirtcraft.ftbintegration.storage.Permission;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistryEntry;
-import net.minecraftforge.server.permission.PermissionAPI;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;

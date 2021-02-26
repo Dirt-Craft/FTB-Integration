@@ -9,11 +9,15 @@ import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
 import com.feed_the_beast.ftbutilities.data.FTBUtilitiesPlayerData;
 import com.feed_the_beast.ftbutilities.data.FTBUtilitiesUniverseData;
+import net.dirtcraft.ftbintegration.core.api.DebugTeamInfo;
 import net.dirtcraft.ftbintegration.data.PlayerData;
+import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.entity.Entity;
@@ -150,6 +154,19 @@ public class ClaimedChunkHelper {
             ForgePlayer p = new ForgePlayer(Universe.get(), UUID.nameUUIDFromBytes("FakePlayerClaimAs".getBytes(StandardCharsets.UTF_8)), "FakePlayerClaimAs");
             p.team = team;
             return p;
+        }
+    }
+
+    public static void showClaimInfo(Location<World> location, Player player){
+        EntityPlayerMP playerMP = (EntityPlayerMP) player;
+        ClaimedChunk chunk = getChunk(location);
+        if (chunk == null) player.sendMessage(SpongeHelper.formatText("&aWilderness"));
+        else {
+            //todo add visualization
+            ForgeTeam team = chunk.getTeam();
+            boolean debug = player.get(PlayerSettings.IS_DEBUG).orElse(false);
+            ITextComponent message = debug? ((DebugTeamInfo)team).getDebugTitle(): team.getTitle();
+            playerMP.sendMessage(message);
         }
     }
 

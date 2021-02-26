@@ -1,9 +1,10 @@
 package net.dirtcraft.ftbintegration.command;
 
 import net.dirtcraft.ftbintegration.FtbIntegration;
+import net.dirtcraft.ftbintegration.command.badge.ClearBadge;
 import net.dirtcraft.ftbintegration.command.badge.GetCurrent;
 import net.dirtcraft.ftbintegration.command.badge.SetBadge;
-import net.dirtcraft.ftbintegration.utility.Permission;
+import net.dirtcraft.ftbintegration.storage.Permission;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -19,6 +20,17 @@ import javax.annotation.Nonnull;
 public class Base implements CommandExecutor {
 
     public static void registerCommands(FtbIntegration plugin){
+        CommandSpec settings = CommandSpec.builder()
+                .executor(new Settings())
+                .build();
+
+        CommandSpec reload = CommandSpec.builder()
+                .permission(Permission.RELOAD_CONFIG)
+                .executor((a,b)->{
+                    FtbIntegration.INSTANCE.loadConfig();
+                    return CommandResult.success();
+                }).build();
+
         CommandSpec bypass = CommandSpec.builder()
                 .permission(Permission.BYPASS)
                 .executor(new IgnoreClaim())
@@ -56,7 +68,7 @@ public class Base implements CommandExecutor {
                 ).build();
 
         CommandSpec clearBadge = CommandSpec.builder()
-                .executor(new SetBadge())
+                .executor(new ClearBadge())
                 .permission(Permission.BADGE_SET)
                 .arguments(GenericArguments.optional(GenericArguments.player(Text.of("target"))))
                 .build();
@@ -77,6 +89,8 @@ public class Base implements CommandExecutor {
                 .child(toggleSpawns, "togglespawns", "ts")
                 .child(unclaimChunks, "unclaim", "uc")
                 .child(claimChunks, "claim", "c")
+                .child(settings, "settings", "s")
+                .child(reload, "reload", "r")
                 .child(badge, "badge", "b")
                 .build();
 
@@ -85,6 +99,7 @@ public class Base implements CommandExecutor {
         Sponge.getCommandManager().register(plugin, base, "ftbi", "ftbintegration");
     }
 
+    @Nonnull
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
         return CommandResult.success();

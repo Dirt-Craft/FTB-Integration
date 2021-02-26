@@ -1,0 +1,13 @@
+[
+  {
+    "modid": "ftb-integration",
+    "name": "FTB Utilities Sponge Integration",
+    "description": "Beefs up FTB-Utilities handlers using sponge sensibilities, and adds various QoL Tweaks..",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://www.dirtcraft.net/",
+    "authorList": ["ShinyAfro"],
+    "credits": "LatvianModder, Sponge.",
+    "parents": ["ftbutilities"]
+  }
+]

@@ -13,6 +13,7 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 import javax.annotation.Nonnull;
 
 public class DebugClaim implements CommandExecutor {
+    @Nonnull
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
         if (!(src instanceof Player)) throw new CommandException(Text.of("Only players may execute this command!"));
