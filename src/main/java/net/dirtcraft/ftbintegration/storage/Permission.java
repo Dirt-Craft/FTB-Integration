@@ -24,6 +24,10 @@ public class Permission {
     public static final String BADGE_CLEAR = resolvePermission(BADGE_BASE, "clear");
     public static final String BADGE_GET = resolvePermission(BADGE_BASE, "get");
 
+    //Claims Meta
+    public static final String CHUNK_CLAIM_META = resolvePermission(CLAIMS_BASE, "chunks", "max");
+    public static final String CHUNK_LOADER_META = resolvePermission(CLAIMS_BASE, "loaders", "max");
+
     /* Permissions Quick-List
     Claiming In General:
      - ftbintegration.claims.claim.worldId
@@ -39,7 +43,11 @@ public class Permission {
       - ftbintegration.badges.staff
 
     Flags:
-     - ftbintegration.claims.flags.mobspawn */
+     - ftbintegration.claims.flags.mobspawn
+
+    Meta:
+     - ftbintegration.claims.chunks.max
+     - ftbintegration.claims.loaders.max */
 
     private static String resolvePermission(String... node){
         return String.join(".", node);

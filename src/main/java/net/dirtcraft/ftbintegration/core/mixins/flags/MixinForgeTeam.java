@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinForgeTeam implements FlagTeamInfo {
 
 
-    @Unique private final String flags$BLOCK_MOB_SPAWN_KEY = "spongeintegration:blockmobspawns";
+    @Unique private final String flags$BLOCK_MOB_SPAWN_KEY = "ftb-integration:block-mob-spawns";
     @Unique private boolean flags$blockMobSpawns = false;
 
     @Shadow public abstract void markDirty();
@@ -32,18 +32,14 @@ public abstract class MixinForgeTeam implements FlagTeamInfo {
         this.markDirty();
     }
 
-    @Inject(method = "serializeNBT", at = @At(value = "TAIL"))
+    @Inject(method = "serializeNBT", at = @At("TAIL"))
     private void onSerialize(CallbackInfoReturnable<NBTTagCompound> cir){
         NBTTagCompound nbt = cir.getReturnValue();
         nbt.setBoolean(flags$BLOCK_MOB_SPAWN_KEY, flags$blockMobSpawns);
     }
 
-    @Inject(method = "deserializeNBT", at = @At(value = "TAIL"))
+    @Inject(method = "deserializeNBT", at = @At("TAIL"))
     private void onDeserialize(NBTTagCompound nbt, CallbackInfo ci){
         flags$blockMobSpawns = nbt.hasKey(flags$BLOCK_MOB_SPAWN_KEY) && nbt.getBoolean(flags$BLOCK_MOB_SPAWN_KEY);
     }
-
-
-
-
 }

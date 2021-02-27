@@ -4,6 +4,7 @@ import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftblib.lib.data.Universe;
 import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
+import com.feed_the_beast.ftblib.lib.util.ServerUtils;
 import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.mojang.authlib.GameProfile;
@@ -148,7 +149,7 @@ public class PlayerData {
 
     public ForgePlayer getForgePlayer() {
         if (fPlayer == null) {
-            fPlayer = user instanceof FakePlayer? Universe.get().fakePlayer: Universe.get().getPlayer(gameProfile);
+            fPlayer = user instanceof FakePlayer? Universe.get().getPlayer(ServerUtils.FAKE_PLAYER_PROFILE): Universe.get().getPlayer(gameProfile);
         }
         return fPlayer;
     }

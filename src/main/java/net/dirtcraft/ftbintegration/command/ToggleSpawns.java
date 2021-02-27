@@ -15,7 +15,7 @@ public class ToggleSpawns implements CommandExecutor {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
-        String id = args.requireOne("teamid");
+        String id = args.requireOne("team-id");
         boolean val = args.requireOne("value");
         ForgeTeam team = Universe.get().getTeam(id);
         if (!(team instanceof FlagTeamInfo)) return CommandResult.empty();

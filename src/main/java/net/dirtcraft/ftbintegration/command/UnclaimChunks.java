@@ -32,7 +32,8 @@ public class UnclaimChunks implements CommandExecutor {
                 .filter(Objects::nonNull)
                 .filter(claimedChunk -> canUnclaim(claimedChunk, forgePlayer, src))
                 .map(ClaimedChunk::getPos)
-                .map(claimedChunks::unclaimChunk)
+                .map(pos->claimedChunks.unclaimChunk(forgePlayer, pos))
+                //.map(claimedChunks::unclaimChunk)
                 .count();
         long fail = data.getSelectedRegion().size() - success;
         String message = String.format("Successfully unclaimed %d chunks, with %d failures.", success, fail);

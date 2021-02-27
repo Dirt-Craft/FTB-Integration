@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.UUID;
+import java.util.function.Function;
 
 public enum SpongePermissionHandler implements IPermissionHandler {
     INSTANCE;
@@ -62,5 +64,23 @@ public enum SpongePermissionHandler implements IPermissionHandler {
     @Override
     public String getNodeDescription(@Nonnull String node) {
         return DefaultPermissionHandler.INSTANCE.getNodeDescription(node);
+    }
+
+    public String getMeta(UUID uuid, String key){
+        User user = lp.getUserManager().getUser(uuid);
+        if (user == null) return null;
+        else return user.getCachedData()
+                .getMetaData()
+                .getMetaValue(key);
+    }
+
+    public <T> T getMetaOrDefault(UUID uuid, String key, Function<String, T> mapper, T def){
+        try {
+            String val = getMeta(uuid, key);
+            if (val == null) return def;
+            else return mapper.apply(val);
+        } catch (Exception e){
+            return def;
+        }
     }
 }

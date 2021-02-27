@@ -10,9 +10,12 @@
     "generic.AccessorFinalIDObject",
     "badges.FTBUtilitiesUniverseDataAccessor",
     "debug.MixinForgeTeam",
+    "debug.MixinForgePlayer",
     "debug.MixinMessageClaimedChunksUpdate",
     "flags.MixinFTBUtilitiesTeamData",
-    "flags.MixinForgeTeam"
+    "flags.MixinForgeTeam",
+    "chunks.MixinForgePlayer",
+    "chunks.MixinFTBUtilitiesTeamData"
   ],
   "injectors": {
     "defaultRequire": 1

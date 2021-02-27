@@ -4,6 +4,7 @@ import com.feed_the_beast.ftblib.lib.EnumTeamStatus;
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftblib.lib.util.FinalIDObject;
+import net.dirtcraft.ftbintegration.core.api.DebugPlayerInfo;
 import net.dirtcraft.ftbintegration.core.api.DebugTeamInfo;
 import net.dirtcraft.ftbintegration.core.api.FlagTeamInfo;
 import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorFinalIDObject;
@@ -77,6 +78,7 @@ public abstract class MixinForgeTeam extends FinalIDObject implements DebugTeamI
                 textComponent.appendText("\n")
                         .appendText(" - ")
                         .appendText(fp.getName());
+                if (fp instanceof DebugPlayerInfo) textComponent.appendText(" " + ((DebugPlayerInfo) fp).getElapsedString());
                 if (fp == owner) textComponent.appendText(" [Owner]");
             }
         }

@@ -28,7 +28,8 @@ package net.dirtcraft.ftbintegration.handlers.sponge;
 
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.flowpowered.math.vector.Vector3d;
-import net.dirtcraft.ftbintegration.FtbIntegration;
+import net.dirtcraft.ftbintegration.core.api.ChunkPlayerInfo;
+import net.dirtcraft.ftbintegration.core.api.DebugPlayerInfo;
 import net.dirtcraft.ftbintegration.core.mixins.badges.FTBUtilitiesUniverseDataAccessor;
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.data.PlayerDataManager;
@@ -69,13 +70,10 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.bridge.world.chunk.ActiveChunkReferantBridge;
-
-import java.util.UUID;
 
 public class PlayerEventHandler {
 
@@ -93,11 +91,16 @@ public class PlayerEventHandler {
                 .createFrom(event.getTargetEntity()).get();
         event.getTargetEntity().offer(settings);
         if (data.getBadge() != null) FTBUtilitiesUniverseDataAccessor.getBADGE_CACHE().put(event.getTargetEntity().getUniqueId(), data.getBadge());
+        ChunkPlayerInfo info = (ChunkPlayerInfo)data.getForgePlayer();
+        info.loadChunkData();
+        ((DebugPlayerInfo)data.getForgePlayer()).updateLastSeenMs();
     }
 
     @Listener(order = Order.POST)
     public void onLogoff(ClientConnectionEvent.Disconnect event){
+        PlayerData data = manager.get(event.getTargetEntity());
         manager.unloadUser(event.getTargetEntity());
+        ((DebugPlayerInfo)data.getForgePlayer()).updateLastSeenMs();
     }
 
     @Listener(order = Order.FIRST, beforeModifications = true)
