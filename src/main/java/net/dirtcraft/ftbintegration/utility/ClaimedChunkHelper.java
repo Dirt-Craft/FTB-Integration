@@ -64,6 +64,14 @@ public class ClaimedChunkHelper {
         return true;
     }
 
+    public static boolean blockContainerEditing(PlayerData player, ClaimedChunk chunk, Location<World> location){
+        return blockBlockInteractions(player, chunk, location);
+    }
+
+    public static boolean blockContainerEditing(PlayerData player, Location<World> location){
+        return blockBlockInteractions(player, location);
+    }
+
     public static boolean blockBlockEditing(PlayerData player, ClaimedChunk chunk, Location<World> location) {
         return player != null && chunk != null
                 && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getEditBlocksStatus())

@@ -29,7 +29,7 @@ public class Settings implements CommandExecutor {
 
         Switcher<String> switcher = new Switcher<>("&6", "&e");
         List<Text> message = Arrays.asList(
-                formatText("&c&m-------- &fFTB-Integration Player Settings &c&m--------"),
+                formatText("&c&m--------&f FTB-Integration Admin Settings &c&m--------"),
                 formatText("%sBypass: ", switcher.get()).concat(getToggle(data.canBypassClaims(), data::toggleBypassClaims)),
                 formatText("%sDebug: ", switcher.get()).concat(getToggle(data.canDebugClaims(), data::toggleDebugClaims)),
                 formatText("%sBadge: ", switcher.get()).concat(getSuggestible(data.getBadge(), "/ftbi badge set <url>")),

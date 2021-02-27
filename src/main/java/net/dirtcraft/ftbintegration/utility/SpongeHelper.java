@@ -60,12 +60,12 @@ public class SpongeHelper {
                             .map(CompletableFuture::join)
                             .map(profile->profile.getName().orElse(profile.getUniqueId().toString()))
                             .orElse("None.");
-                    String notifer = clickedBlock.getCreator()
+                    String notifer = clickedBlock.getNotifier()
                             .map(manager::get)
                             .map(CompletableFuture::join)
                             .map(profile->profile.getName().orElse(profile.getUniqueId().toString()))
                             .orElse("None.");
-                    player.sendMessage(formatText("&7Owner: &5%s\n&8Notifier: &d%s", owner, notifer));
+                    player.sendMessage(formatText("&7Owner: &d%s\n&8Notifier: &5%s", owner, notifer));
                 }).submit(FtbIntegration.INSTANCE);
     }
 }

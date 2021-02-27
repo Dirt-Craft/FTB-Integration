@@ -34,8 +34,10 @@ public class PlayerDataManager {
         return playerDataMap.get(user.getId());
     }
 
-    public void loadUser(User user){
-        playerDataMap.put(user.getUniqueId(), new PlayerData(user));
+    public PlayerData loadUser(User user){
+        PlayerData data = new PlayerData(user);
+        playerDataMap.put(user.getUniqueId(), data);
+        return data;
     }
 
     public void unloadUser(User user){

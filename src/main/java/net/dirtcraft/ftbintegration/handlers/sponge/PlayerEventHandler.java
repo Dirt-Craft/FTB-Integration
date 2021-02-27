@@ -29,6 +29,7 @@ package net.dirtcraft.ftbintegration.handlers.sponge;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.flowpowered.math.vector.Vector3d;
 import net.dirtcraft.ftbintegration.FtbIntegration;
+import net.dirtcraft.ftbintegration.core.mixins.badges.FTBUtilitiesUniverseDataAccessor;
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.data.PlayerDataManager;
 import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
@@ -45,6 +46,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Entity;
@@ -85,11 +87,12 @@ public class PlayerEventHandler {
 
     @Listener
     public void onLogin(ClientConnectionEvent.Join event){
-        manager.loadUser(event.getTargetEntity());
+        PlayerData data = manager.loadUser(event.getTargetEntity());
         PlayerSettings settings = Sponge.getDataManager()
                 .getManipulatorBuilder(PlayerSettings.class).get()
                 .createFrom(event.getTargetEntity()).get();
         event.getTargetEntity().offer(settings);
+        if (data.getBadge() != null) FTBUtilitiesUniverseDataAccessor.getBADGE_CACHE().put(event.getTargetEntity().getUniqueId(), data.getBadge());
     }
 
     @Listener(order = Order.POST)
@@ -135,7 +138,7 @@ public class PlayerEventHandler {
     public void onPlayerInteractInventoryOpen(InteractInventoryEvent.Open event, @First Player player) {
         event.getCause().getContext().get(EventContextKeys.BLOCK_HIT).ifPresent(blockSnapshot -> {
             final Location<World> location = blockSnapshot.getLocation().get();
-            if (!ClaimedChunkHelper.blockBlockEditing(PlayerData.getOrCreate(player), location)) return;
+            if (!ClaimedChunkHelper.blockContainerEditing(PlayerData.getOrCreate(player), location)) return;
             ((EntityPlayerMP) player).closeScreen();
             event.setCancelled(true);
         });
@@ -182,7 +185,7 @@ public class PlayerEventHandler {
                 event.setCancelled(true);
                 return;
             }
-        } else if (itemInHand.getType() == INFO_TOOL && clickedBlock.getLocation().isPresent()) {
+        } else if (itemInHand.getType() == INFO_TOOL && clickedBlock.getLocation().isPresent() && player.getOrElse(Keys.IS_SNEAKING, false)) {
             if (SpongeHelper.hasOwner(clickedBlock) && player.hasPermission(Permission.SEE_INFO)) SpongeHelper.sendOwnerData(player, clickedBlock);
             else ClaimedChunkHelper.showClaimInfo(clickedBlock.getLocation().get(), player);
         }
@@ -198,8 +201,7 @@ public class PlayerEventHandler {
         final ClaimedChunk claim = ClaimedChunkHelper.getChunk(location);
         final TileEntity tileEntity = clickedBlock.getLocation().get().getTileEntity().orElse(null);
         if (playerData != null) {
-            //boolean result = (tileEntity instanceof IInventory) ? ClaimedChunkHelper.blockBlockEditing(playerData, location): ClaimedChunkHelper.blockBlockInteractions(playerData, location);
-            boolean result = ClaimedChunkHelper.blockBlockInteractions(playerData, location);
+            boolean result = (tileEntity instanceof IInventory) ? ClaimedChunkHelper.blockContainerEditing(playerData, location): ClaimedChunkHelper.blockBlockInteractions(playerData, location);
             if (result) {
                 // if player is holding an item, check if it can be placed
                 if (!itemInHand.isEmpty() && itemInHand instanceof ItemBlock) {

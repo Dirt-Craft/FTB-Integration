@@ -49,7 +49,7 @@ jar {
             'FMLCorePluginContainsFMLMod': 'true',
             'ForceLoadAsMod': true
     )
-    destinationDir project.file('E:/IdeaProjects/.Sponge/SpongeForge 1.12.2/run/mods')
+    //destinationDir project.file('E:/IdeaProjects/.Sponge/SpongeForge 1.12.2/run/mods')
 }
 
 minecraft {

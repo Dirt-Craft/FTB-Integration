@@ -59,7 +59,6 @@ public class PlayerData {
         this.user = user;
         this.bypassClaims = user.get(PlayerSettings.CAN_BYPASS).orElse(false) && user.hasPermission(Permission.BYPASS);
         this.debugClaims = user.get(PlayerSettings.IS_DEBUG).orElse(false) && user.hasPermission(Permission.DEBUG);
-        if (getBadge() != null) FTBUtilitiesUniverseDataAccessor.getBADGE_CACHE().put(user.getUniqueId(), getBadge());
     }
 
     public void setLastInteractData(ClaimedChunk claim) {
