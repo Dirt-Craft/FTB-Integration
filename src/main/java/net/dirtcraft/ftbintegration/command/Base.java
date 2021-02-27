@@ -4,6 +4,7 @@ import net.dirtcraft.ftbintegration.FtbIntegration;
 import net.dirtcraft.ftbintegration.command.badge.ClearBadge;
 import net.dirtcraft.ftbintegration.command.badge.GetCurrent;
 import net.dirtcraft.ftbintegration.command.badge.SetBadge;
+import net.dirtcraft.ftbintegration.command.chunks.SetGroupClaims;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
@@ -85,11 +86,23 @@ public class Base implements CommandExecutor {
                 .child(getBadge, "get", "g")
                 .build();
 
+        CommandSpec setGroupClaims = CommandSpec.builder()
+                .permission(Permission.CHUNK_CLAIM_MODIFY_GROUP)
+                .arguments(GenericArguments.string(Text.of("group-id")),
+                        GenericArguments.string(Text.of("value")))
+                .executor(new SetGroupClaims())
+                .build();
+
+        CommandSpec chunks = CommandSpec.builder()
+                .child(setGroupClaims, "setgroupclaims", "sgc")
+                .build();
+
         CommandSpec base = CommandSpec.builder()
                 .child(toggleSpawns, "togglespawns", "ts")
                 .child(unclaimChunks, "unclaim", "uc")
                 .child(claimChunks, "claim", "c")
                 .child(settings, "settings", "s")
+                .child(chunks, "chunks", "ch")
                 .child(reload, "reload", "r")
                 .child(badge, "badge", "b")
                 .build();

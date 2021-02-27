@@ -25,6 +25,7 @@ public class Permission {
     public static final String BADGE_GET = resolvePermission(BADGE_BASE, "get");
 
     //Claims Meta
+    public static final String CHUNK_CLAIM_MODIFY_GROUP = resolvePermission(CLAIMS_BASE, "chunks", "modify", "group");
     public static final String CHUNK_CLAIM_META = resolvePermission(CLAIMS_BASE, "chunks", "max");
     public static final String CHUNK_LOADER_META = resolvePermission(CLAIMS_BASE, "loaders", "max");
 
@@ -46,6 +47,7 @@ public class Permission {
      - ftbintegration.claims.flags.mobspawn
 
     Meta:
+     - ftbintegration.claims.chunks.modify.group
      - ftbintegration.claims.chunks.max
      - ftbintegration.claims.loaders.max */
 

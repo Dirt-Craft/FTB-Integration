@@ -3,6 +3,7 @@ package net.dirtcraft.ftbintegration.handlers.forge;
 import com.mojang.authlib.GameProfile;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.context.ImmutableContextSet;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.util.Tristate;
 import net.minecraft.entity.player.EntityPlayer;
@@ -10,6 +11,7 @@ import net.minecraftforge.server.permission.DefaultPermissionHandler;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.IPermissionHandler;
 import net.minecraftforge.server.permission.context.IContext;
+import org.spongepowered.api.Sponge;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,8 +22,9 @@ import java.util.function.Function;
 
 public enum SpongePermissionHandler implements IPermissionHandler {
     INSTANCE;
-    private final HashSet<String> defaultNodes = new HashSet<>();
     private final LuckPerms lp = LuckPermsProvider.get();
+    private final ImmutableContextSet contexts = lp.getContextManager().getStaticContext();
+    private final HashSet<String> defaultNodes = new HashSet<>();
 
     @Override
     public boolean hasPermission(@Nonnull GameProfile profile, @Nonnull String node, @Nullable IContext context) {
@@ -82,5 +85,14 @@ public enum SpongePermissionHandler implements IPermissionHandler {
         } catch (Exception e){
             return def;
         }
+    }
+
+    public String getServerContext(){
+        return contexts.getAnyValue("server").orElse("global");
+    }
+
+    public void setGroupMeta(String group, String node, String value){
+        String command = String.format("lp group %s meta set %s %s %s", group, node, value, getServerContext());
+        Sponge.getCommandManager().process(Sponge.getServer().getConsole(), command);
     }
 }
