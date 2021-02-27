@@ -2,12 +2,11 @@ package net.dirtcraft.ftbintegration.data;
 
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
+import com.feed_the_beast.ftblib.lib.data.Universe;
 import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
 import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
-import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
 import com.mojang.authlib.GameProfile;
-import net.dirtcraft.ftbintegration.core.mixins.badges.FTBUtilitiesUniverseDataAccessor;
 import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorFinalIDObject;
 import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
 import net.dirtcraft.ftbintegration.handlers.forge.SpongePermissionHandler;
@@ -15,6 +14,7 @@ import net.dirtcraft.ftbintegration.storage.Permission;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -32,7 +32,7 @@ import java.util.Optional;
 public class PlayerData {
     private final User user;
     private final GameProfile gameProfile;
-    private ForgePlayer fPlayer;
+    ForgePlayer fPlayer;
 
     private ForgeTeam claimStandingIn;
     private ClaimedChunk lastInteractClaim;
@@ -146,8 +146,10 @@ public class PlayerData {
         return canBypassClaims() || SpongePermissionHandler.INSTANCE.hasPermission(gameProfile, null, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS, formatClaim(chunk));
     }
 
-    public ForgePlayer getForgePlayer(){
-        if (fPlayer == null) fPlayer = ClaimedChunks.instance.universe.getPlayer(gameProfile);
+    public ForgePlayer getForgePlayer() {
+        if (fPlayer == null) {
+            fPlayer = user instanceof FakePlayer? Universe.get().fakePlayer: Universe.get().getPlayer(gameProfile);
+        }
         return fPlayer;
     }
 
