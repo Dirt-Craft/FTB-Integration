@@ -26,6 +26,7 @@
 
 package net.dirtcraft.ftbintegration.handlers.sponge;
 
+import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.utility.CauseContextHelper;
@@ -57,6 +58,7 @@ import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -64,6 +66,7 @@ import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.common.bridge.block.BlockBridge;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -89,6 +92,7 @@ public class BlockEventHandler {
         final LocatableBlock eventBlock = context.get(EventContextKeys.BLOCK_EVENT_QUEUE).orElse(null);
         final boolean pistonExtend = context.containsKey(EventContextKeys.PISTON_EXTEND);
         final boolean isBlockEvent = eventBlock != null;
+
         Object source = tileEntity != null ? tileEntity : cause.root();
         Location<World> sourceLocation = null;
         boolean isVanillaBlock;
@@ -267,15 +271,33 @@ public class BlockEventHandler {
         }
     }
 
-    /* Already handled by default in the FTB handler. Can literally turn explosions off.
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onExplosionDetonate(ExplosionEvent.Detonate event) {
         final User user = CauseContextHelper.getEventUser(event);
-        final PlayerData playerData = PlayerData.from(user);
+        final PlayerData playerData = PlayerData.get(user);
         // Avoid lagging server from large explosions.
         if (event.getAffectedLocations().size() > 255) {
             event.getAffectedLocations().clear();
             event.setCancelled(true);
+        } else if (event.getAffectedLocations().size() > 20) {
+            final HashMap<ForgeTeam, Tristate> chunkCache = new HashMap<>();
+            final List<Location<World>> filteredLocations = new ArrayList<>();
+            for (Location<World> location : event.getAffectedLocations()){
+                ClaimedChunk chunk = ClaimedChunkHelper.getChunk(location);
+                if (chunk == null) continue;
+                switch (chunkCache.getOrDefault(chunk.getTeam(), Tristate.UNDEFINED)){
+                    case FALSE: filteredLocations.add(location);
+                    case TRUE: continue;
+                }
+                if (!chunk.hasExplosions() || ClaimedChunkHelper.blockBlockEditing(playerData, chunk, location)) {
+                    filteredLocations.add(location);
+                    chunkCache.put(chunk.getTeam(), Tristate.FALSE);
+                } else {
+                    chunkCache.put(chunk.getTeam(), Tristate.TRUE);
+                }
+            }
+            event.getAffectedLocations().removeAll(filteredLocations);
+
         } else {
             final List<Location<World>> filteredLocations = new ArrayList<>();
             for (Location<World> location : event.getAffectedLocations()) {
@@ -287,7 +309,6 @@ public class BlockEventHandler {
             event.getAffectedLocations().removeAll(filteredLocations);
         }
     }
-     */
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockBreak(ChangeBlockEvent.Break event) {

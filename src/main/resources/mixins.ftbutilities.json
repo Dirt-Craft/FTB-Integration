@@ -8,6 +8,7 @@
   "server": [
     "bypass.MixinClaimedChunks",
     "generic.AccessorFinalIDObject",
+    "generic.AccessorClaimedChunks",
     "badges.FTBUtilitiesUniverseDataAccessor",
     "debug.MixinForgeTeam",
     "debug.MixinForgePlayer",

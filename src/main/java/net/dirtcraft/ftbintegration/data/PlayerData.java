@@ -8,6 +8,7 @@ import com.feed_the_beast.ftblib.lib.util.ServerUtils;
 import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.mojang.authlib.GameProfile;
+import net.dirtcraft.ftbintegration.FtbIntegration;
 import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorFinalIDObject;
 import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
 import net.dirtcraft.ftbintegration.handlers.forge.SpongePermissionHandler;
@@ -16,7 +17,6 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class PlayerData {
+    private static final FtbIntegration INTEGRATION = FtbIntegration.INSTANCE;
+    private static final SpongePermissionHandler PERMS = SpongePermissionHandler.INSTANCE;
+
     private final User user;
     private final GameProfile gameProfile;
     ForgePlayer fPlayer;
@@ -132,19 +135,23 @@ public class PlayerData {
     }
 
     public boolean hasBlockEditingPermission(Block block, ClaimedChunk chunk) {
-        return canBypassClaims() || SpongePermissionHandler.INSTANCE.hasPermission(gameProfile, null, "ftbutilities.claims.block.edit." + formatId(block), formatClaim(chunk));
+        return canBypassClaims() || INTEGRATION.getConfig().isBlockEditAllowed(block) ||
+                PERMS.hasPermission(gameProfile, Permission.resolveBlockEdit(block), formatClaim(chunk));
     }
 
     public boolean hasBlockInteractionPermission(Block block, ClaimedChunk chunk) {
-        return canBypassClaims() || SpongePermissionHandler.INSTANCE.hasPermission(gameProfile, null, "ftbutilities.claims.block.interact." + formatId(block), formatClaim(chunk));
+        return canBypassClaims() || INTEGRATION.getConfig().isBlockInteractAllowed(block) ||
+                PERMS.hasPermission(gameProfile, Permission.resolveBlockInteract(block), formatClaim(chunk));
     }
 
-    public boolean hasItemUsePermission(Item block, ClaimedChunk chunk) {
-        return canBypassClaims() || SpongePermissionHandler.INSTANCE.hasPermission(gameProfile, null, "ftbutilities.claims.item." + formatId(block), formatClaim(chunk));
+    public boolean hasItemUsePermission(Item item, ClaimedChunk chunk) {
+        return canBypassClaims() || INTEGRATION.getConfig().isItemUseAllowed(item) ||
+                PERMS.hasPermission(gameProfile, Permission.resolveItemUse(item), formatClaim(chunk));
     }
 
     public boolean hasAnimalAttackPermission(ClaimedChunk chunk) {
-        return canBypassClaims() || SpongePermissionHandler.INSTANCE.hasPermission(gameProfile, null, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS, formatClaim(chunk));
+        return canBypassClaims() ||
+                PERMS.hasPermission(gameProfile, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS, formatClaim(chunk));
     }
 
     public ForgePlayer getForgePlayer() {
@@ -184,10 +191,6 @@ public class PlayerData {
         }
         if (!user.hasPermission(Permission.STAFF_BADGE)) return null;
         return "https://i.imgur.com/G0pEx1j.png";
-    }
-
-    private String formatId(@Nullable IForgeRegistryEntry<?> item) {
-        return item != null && item.getRegistryName() != null ? item.getRegistryName().toString().toLowerCase().replace(':', '.') : "minecraft.air";
     }
 
     private String formatClaim(ClaimedChunk chunk){

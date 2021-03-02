@@ -1,10 +1,18 @@
 package net.dirtcraft.ftbintegration.storage;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraftforge.registries.IForgeRegistryEntry;
+
+import javax.annotation.Nullable;
+
 public class Permission {
     private static final String BASE = "ftbintegration";
     private static final String CLAIMS_BASE = resolvePermission(BASE, "claims");
     private static final String FLAG_BASE =  resolvePermission(CLAIMS_BASE, "flags");
     private static final String BADGE_BASE = resolvePermission(BASE, "badges");
+    private static final String CONFIG_BASE = resolvePermission(BASE, "config");
+    private static final String RESTRICT_BASE = resolvePermission(CONFIG_BASE, "restrict");
 
     //Admin Nodes
     public static final String SEE_INFO = resolvePermission(BASE, "tool", "info");
@@ -29,6 +37,11 @@ public class Permission {
     public static final String CHUNK_CLAIM_META = resolvePermission(CLAIMS_BASE, "chunks", "max");
     public static final String CHUNK_LOADER_META = resolvePermission(CLAIMS_BASE, "loaders", "max");
 
+    //Configuration
+    public static final String RESTRICT_MODIFY = resolvePermission(RESTRICT_BASE, "modify");
+    public static final String RESTRICT_VIEW = resolvePermission(RESTRICT_BASE, "view");
+
+
     /* Permissions Quick-List
     Claiming In General:
      - ftbintegration.claims.claim.worldId
@@ -49,13 +62,36 @@ public class Permission {
     Meta:
      - ftbintegration.claims.chunks.modify.group
      - ftbintegration.claims.chunks.max
-     - ftbintegration.claims.loaders.max */
+     - ftbintegration.claims.loaders.max
+
+    Config:
+     - ftbintegration.config.restrict.modify
+     - ftbintegration.config.restrict.view
+     */
+
+
+    public static String resolveClaimDimension(String world){
+        return resolvePermission(CLAIM_CHUNK, world);
+    }
+
+    public static String resolveBlockEdit(Block block){
+        return resolvePermission("ftbutilities.claims.block.edit", formatId(block));
+    }
+
+    public static String resolveBlockInteract(Block block){
+        return resolvePermission("ftbutilities.claims.block.interact", formatId(block));
+    }
+
+    public static String resolveItemUse(Item item){
+        return resolvePermission("ftbutilities.claims.item", formatId(item));
+    }
 
     private static String resolvePermission(String... node){
         return String.join(".", node);
     }
 
-    public static String getClaimNode(String world){
-        return resolvePermission(CLAIM_CHUNK, world);
+    private static String formatId(@Nullable IForgeRegistryEntry<?> item) {
+        if (item == null || item.getRegistryName() == null) return "minecraft.air" ;
+        else return item.getRegistryName().toString().toLowerCase().replace(':', '.');
     }
 }

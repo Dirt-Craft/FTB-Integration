@@ -20,10 +20,11 @@ public abstract class MixinFTBUtilitiesTeamData extends TeamData {
 
     @Inject(method = "addConfig", at = @At(value = "TAIL"))
     private void onAddConfig(ConfigGroup main, CallbackInfo ci) {
-        ConfigGroup group = main.getGroup(FtbIntegration.MODID);
+        String id = FtbIntegration.MODID.replace("-", "_");
+        ConfigGroup group = main.getGroup(id);
         group.setDisplayName(new TextComponentString(FtbIntegration.NAME));
         FlagTeamInfo team = (FlagTeamInfo)this.team;
 
-        group.addBool("block-mob-spawns", team::blockMobSpawns, team::setBlockMobSpawns, false);
+        group.addBool("block_mob_spawns", team::blockMobSpawns, team::setBlockMobSpawns, false);
     }
 }

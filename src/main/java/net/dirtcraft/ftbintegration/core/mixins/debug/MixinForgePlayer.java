@@ -48,9 +48,9 @@ public abstract class MixinForgePlayer implements DebugPlayerInfo {
     }
 
     public String getElapsedString() {
-        if (lastSeenMs == 0) return "(?)";
         long time = getLastSeenMs();
-        if (lastSeenMs < DAY) return "(0d)";
+        if (lastSeenMs == 0) return "(?)";
+        else if (time < DAY) return "(0D)";
         else return String.format("(%dD)", time/DAY);
     }
 }

@@ -2,7 +2,7 @@ package net.dirtcraft.ftbintegration;
 
 import com.feed_the_beast.ftbutilities.handlers.FTBUtilitiesPlayerEventHandler;
 import com.google.common.reflect.TypeToken;
-import net.dirtcraft.ftbintegration.command.Base;
+import net.dirtcraft.ftbintegration.command.IntegrationBase;
 import net.dirtcraft.ftbintegration.data.context.ClaimContextCalculator;
 import net.dirtcraft.ftbintegration.data.sponge.ImmutablePlayerSettings;
 import net.dirtcraft.ftbintegration.data.sponge.ImmutablePlayerSettingsImpl;
@@ -77,7 +77,7 @@ public class FtbIntegration {
 
     @Listener
     public void onServerStarting(GameStartingServerEvent event) {
-        Base.registerCommands(this);
+        IntegrationBase.registerCommands(this);
         EventManager manager = Sponge.getEventManager();
         Stream.of(
                 new NucleusHandler(),
@@ -128,5 +128,9 @@ public class FtbIntegration {
         } catch (IOException | ObjectMappingException exception) {
             exception.printStackTrace();
         }
+    }
+
+    public Configuration getConfig(){
+        return configuration;
     }
 }

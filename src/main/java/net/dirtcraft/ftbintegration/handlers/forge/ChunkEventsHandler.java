@@ -33,7 +33,7 @@ public class ChunkEventsHandler {
         World world = dimension == null? null: (World) dimension;
         if (world == null) return;
 
-        String permission = Permission.getClaimNode(world.getName());
+        String permission = Permission.resolveClaimDimension(world.getName());
         if (!player.hasPermission(permission)) claimChunkEvent.setCanceled(true);
     }
 

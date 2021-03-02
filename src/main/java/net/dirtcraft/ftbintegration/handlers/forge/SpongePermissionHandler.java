@@ -1,5 +1,6 @@
 package net.dirtcraft.ftbintegration.handlers.forge;
 
+import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import com.mojang.authlib.GameProfile;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
@@ -28,10 +29,10 @@ public enum SpongePermissionHandler implements IPermissionHandler {
 
     @Override
     public boolean hasPermission(@Nonnull GameProfile profile, @Nonnull String node, @Nullable IContext context) {
-        return hasPermission(profile, context, node);
+        return hasPermission(profile, node);
     }
 
-    public boolean hasPermission(@Nonnull GameProfile profile, @Nullable IContext context, @Nonnull String... node) {
+    public boolean hasPermission(@Nonnull GameProfile profile, @Nonnull String... node) {
         if (profile.getId() == null) {
             if (profile.getName() == null) return false;
             else profile = new GameProfile(EntityPlayer.getOfflineUUID(profile.getName()), profile.getName());
@@ -52,8 +53,7 @@ public enum SpongePermissionHandler implements IPermissionHandler {
 
     @Override
     public void registerNode(@Nonnull String node, @Nonnull DefaultPermissionLevel level, @Nonnull String desc) {
-        if (level == DefaultPermissionLevel.ALL) {
-
+        if (level == DefaultPermissionLevel.ALL && !node.startsWith("ftbutilities.claims.item")) {
             defaultNodes.add(node);
         }
         DefaultPermissionHandler.INSTANCE.registerNode(node, level, desc);

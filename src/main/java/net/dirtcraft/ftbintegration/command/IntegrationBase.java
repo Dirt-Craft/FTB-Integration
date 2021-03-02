@@ -1,10 +1,9 @@
 package net.dirtcraft.ftbintegration.command;
 
 import net.dirtcraft.ftbintegration.FtbIntegration;
-import net.dirtcraft.ftbintegration.command.badge.ClearBadge;
-import net.dirtcraft.ftbintegration.command.badge.GetCurrent;
-import net.dirtcraft.ftbintegration.command.badge.SetBadge;
+import net.dirtcraft.ftbintegration.command.badge.BadgeBase;
 import net.dirtcraft.ftbintegration.command.chunks.SetGroupClaims;
+import net.dirtcraft.ftbintegration.command.restrictions.RestrictionsBase;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
@@ -18,7 +17,7 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 
-public class Base implements CommandExecutor {
+public class IntegrationBase implements CommandExecutor {
 
     public static void registerCommands(FtbIntegration plugin){
         CommandSpec settings = CommandSpec.builder()
@@ -60,32 +59,6 @@ public class Base implements CommandExecutor {
                 .executor(new UnclaimChunks())
                 .build();
 
-        CommandSpec setBadge = CommandSpec.builder()
-                .executor(new SetBadge())
-                .permission(Permission.BADGE_CLEAR)
-                .arguments(
-                        GenericArguments.string(Text.of("badge")),
-                        GenericArguments.optional(GenericArguments.player(Text.of("target")))
-                ).build();
-
-        CommandSpec clearBadge = CommandSpec.builder()
-                .executor(new ClearBadge())
-                .permission(Permission.BADGE_SET)
-                .arguments(GenericArguments.optional(GenericArguments.player(Text.of("target"))))
-                .build();
-
-        CommandSpec getBadge = CommandSpec.builder()
-                .executor(new GetCurrent())
-                .permission(Permission.BADGE_GET)
-                .arguments(GenericArguments.optional(GenericArguments.player(Text.of("target"))))
-                .build();
-
-        CommandSpec badge = CommandSpec.builder()
-                .child(setBadge, "set", "s")
-                .child(clearBadge, "clear", "c")
-                .child(getBadge, "get", "g")
-                .build();
-
         CommandSpec setGroupClaims = CommandSpec.builder()
                 .permission(Permission.CHUNK_CLAIM_MODIFY_GROUP)
                 .arguments(GenericArguments.string(Text.of("group-id")),
@@ -98,13 +71,14 @@ public class Base implements CommandExecutor {
                 .build();
 
         CommandSpec base = CommandSpec.builder()
+                .child(RestrictionsBase.getCommand(), "restrict")
+                .child(BadgeBase.getCommand(), "badge", "b")
                 .child(toggleSpawns, "togglespawns", "ts")
                 .child(unclaimChunks, "unclaim", "uc")
                 .child(claimChunks, "claim", "c")
                 .child(settings, "settings", "s")
                 .child(chunks, "chunks", "ch")
                 .child(reload, "reload", "r")
-                .child(badge, "badge", "b")
                 .build();
 
         Sponge.getCommandManager().register(plugin, debug, "dc", "debugclaims");

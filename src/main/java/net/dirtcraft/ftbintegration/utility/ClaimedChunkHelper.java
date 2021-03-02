@@ -99,7 +99,6 @@ public class ClaimedChunkHelper {
     }
 
     public static boolean blockItemUse(PlayerData player, ClaimedChunk chunk, ItemType item) {
-
         return player != null && chunk != null
                 && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getUseItemsStatus())
                 && !player.hasItemUsePermission((Item) item, chunk);

@@ -78,8 +78,8 @@ public abstract class MixinForgeTeam extends FinalIDObject implements DebugTeamI
                 textComponent.appendText("\n")
                         .appendText(" - ")
                         .appendText(fp.getName());
+                if (fp == owner) textComponent.appendText("✯");
                 if (fp instanceof DebugPlayerInfo) textComponent.appendText(" " + ((DebugPlayerInfo) fp).getElapsedString());
-                if (fp == owner) textComponent.appendText(" [Owner]");
             }
         }
         if (this instanceof FlagTeamInfo){
