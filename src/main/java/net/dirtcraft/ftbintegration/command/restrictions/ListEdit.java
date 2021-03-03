@@ -17,7 +17,8 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import static net.dirtcraft.ftbintegration.utility.SpongeHelper.*;
+
+import static net.dirtcraft.ftbintegration.utility.SpongeHelper.formatText;
 
 public class ListEdit implements CommandExecutor {
     @Nonnull

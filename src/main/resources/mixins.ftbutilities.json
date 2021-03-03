@@ -6,17 +6,17 @@
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "server": [
-    "bypass.MixinClaimedChunks",
-    "generic.AccessorFinalIDObject",
-    "generic.AccessorClaimedChunks",
     "badges.FTBUtilitiesUniverseDataAccessor",
-    "debug.MixinForgeTeam",
-    "debug.MixinForgePlayer",
-    "debug.MixinMessageClaimedChunksUpdate",
-    "flags.MixinFTBUtilitiesTeamData",
-    "flags.MixinForgeTeam",
+    "bypass.MixinClaimedChunks",
     "chunks.MixinForgePlayer",
-    "chunks.MixinFTBUtilitiesTeamData"
+    "chunks.MixinFTBUtilitiesTeamData",
+    "debug.MixinForgePlayer",
+    "debug.MixinForgeTeam",
+    "debug.MixinMessageClaimedChunksUpdate",
+    "flags.MixinForgeTeam",
+    "flags.MixinFTBUtilitiesTeamData",
+    "generic.AccessorClaimedChunks",
+    "generic.AccessorFinalIDObject"
   ],
   "injectors": {
     "defaultRequire": 1

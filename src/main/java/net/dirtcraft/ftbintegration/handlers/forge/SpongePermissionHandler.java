@@ -1,6 +1,5 @@
 package net.dirtcraft.ftbintegration.handlers.forge;
 
-import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import com.mojang.authlib.GameProfile;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;

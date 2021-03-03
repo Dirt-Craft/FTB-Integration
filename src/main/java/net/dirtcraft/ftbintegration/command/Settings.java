@@ -13,11 +13,12 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 
-import static net.dirtcraft.ftbintegration.utility.SpongeHelper.*;
-
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
+
+import static net.dirtcraft.ftbintegration.utility.SpongeHelper.formatText;
+import static net.dirtcraft.ftbintegration.utility.SpongeHelper.getText;
 
 public class Settings implements CommandExecutor {
     @Nonnull
