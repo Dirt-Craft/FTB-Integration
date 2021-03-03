@@ -3,12 +3,13 @@ package net.dirtcraft.ftbintegration.storage;
 import net.dirtcraft.ftbintegration.FtbIntegration;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.item.ItemType;
 
-import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.stream.Stream;
 
 @ConfigSerializable
 public class Configuration {
@@ -16,75 +17,73 @@ public class Configuration {
 
     @Setting(value = "Use-Blacklisted-Items",
             comment = "Items not allowed to be used in others claims without permission.")
-    private final HashSet<String> itemBlacklist = new HashSet<>();
+    private final HashSet<ItemType> itemBlacklist = new HashSet<>();
 
     @Setting(value = "Edit-Whitelisted-Blocks",
             comment = "Blocks allowed to be edited in others claims without explicit permission.")
-    private final HashSet<String> blockEditWhitelist = new HashSet<>();
+    private final HashSet<BlockType> blockEditWhitelist = new HashSet<>();
 
     @Setting(value = "Interact-Whitelisted-Blocks",
             comment = "Blocks allowed to be interacted with in others claims without explicit permission.")
-    private final HashSet<String> blockInteractWhitelist = new HashSet<>();
+    private final HashSet<BlockType> blockInteractWhitelist = new HashSet<>();
+
+    public Stream<ItemType> getItemBlacklist(){
+        return itemBlacklist.stream();
+    }
+
+    public Stream<BlockType> getInteractWhitelist(){
+        return blockInteractWhitelist.stream();
+    }
+
+    public Stream<BlockType> getEditWhitelist(){
+        return blockEditWhitelist.stream();
+    }
 
     public boolean isBlockEditAllowed(Block block) {
-        String identifier = formatId(block);
-        return blockEditWhitelist.contains(identifier);
+        return blockEditWhitelist.contains(block);
     }
 
     public boolean isBlockInteractAllowed(Block block) {
-        String identifier = formatId(block);
-        return blockInteractWhitelist.contains(identifier);
+        return blockInteractWhitelist.contains(block);
     }
 
     public boolean isItemUseAllowed(Item item){
-        String identifier = formatId(item);
-        return !itemBlacklist.contains(identifier);
+        return !itemBlacklist.contains(item);
     }
 
     public boolean addItemBlacklist(Item item){
-        String identifier = formatId(item);
-        boolean r = itemBlacklist.add(identifier);
+        boolean r = itemBlacklist.add((ItemType) item);
         plugin.saveConfig();
         return r;
     }
 
     public boolean removeItemBlacklist(Item item){
-        String identifier = formatId(item);
-        boolean r = itemBlacklist.remove(identifier);
+        boolean r = itemBlacklist.remove(item);
         plugin.saveConfig();
         return r;
     }
 
     public boolean addEditWhitelist(Block block){
-        String identifier = formatId(block);
-        boolean r = blockEditWhitelist.add(identifier);
+        boolean r = blockEditWhitelist.add((BlockType) block);
         plugin.saveConfig();
         return r;
     }
 
     public boolean removeEditWhitelist(Block block){
-        String identifier = formatId(block);
-        boolean r = blockEditWhitelist.remove(identifier);
+        boolean r = blockEditWhitelist.remove(block);
         plugin.saveConfig();
         return r;
     }
 
     public boolean addInteractWhitelist(Block block){
-        String identifier = formatId(block);
-        boolean r = blockInteractWhitelist.add(identifier);
+        boolean r = blockInteractWhitelist.add((BlockType) block);
         plugin.saveConfig();
         return r;
     }
 
     public boolean removeInteractWhitelist(Block block){
-        String identifier = formatId(block);
-        boolean r = blockInteractWhitelist.add(identifier);
+        boolean r = blockInteractWhitelist.remove(block);
         plugin.saveConfig();
         return r;
-    }
-
-    private static String formatId(@Nullable IForgeRegistryEntry<?> item) {
-        if (item == null || item.getRegistryName() == null) return "minecraft:air" ;
-        else return item.getRegistryName().toString().toLowerCase();
     }
 }

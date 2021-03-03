@@ -65,7 +65,6 @@ public class FtbIntegration {
         PermissionAPI.setPermissionHandler(SpongePermissionHandler.INSTANCE);
         PluginContainer container = Sponge.getPluginManager().getPlugin(MODID).orElse(()->MODID);
         this.loader = SpongeConfigManager.getPrivateRoot(container).getConfig();
-        loadConfig();
     }
 
     @EventHandler
@@ -77,6 +76,7 @@ public class FtbIntegration {
 
     @Listener
     public void onServerStarting(GameStartingServerEvent event) {
+        loadConfig();
         IntegrationBase.registerCommands(this);
         EventManager manager = Sponge.getEventManager();
         Stream.of(

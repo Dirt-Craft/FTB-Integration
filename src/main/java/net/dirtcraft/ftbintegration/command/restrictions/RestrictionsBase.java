@@ -3,6 +3,7 @@ package net.dirtcraft.ftbintegration.command.restrictions;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -30,6 +31,7 @@ public class RestrictionsBase {
 
         CommandSpec itemList = CommandSpec.builder()
                 .permission(Permission.RESTRICT_VIEW)
+                .executor(new ListItem())
                 .build();
 
         CommandSpec interactWhitelist = CommandSpec.builder()
@@ -46,6 +48,7 @@ public class RestrictionsBase {
 
         CommandSpec interactList = CommandSpec.builder()
                 .permission(Permission.RESTRICT_VIEW)
+                .executor(new ListInteract())
                 .build();
 
         CommandSpec editWhitelist = CommandSpec.builder()
@@ -62,6 +65,7 @@ public class RestrictionsBase {
 
         CommandSpec editList = CommandSpec.builder()
                 .permission(Permission.RESTRICT_VIEW)
+                .executor(new ListEdit())
                 .build();
 
 

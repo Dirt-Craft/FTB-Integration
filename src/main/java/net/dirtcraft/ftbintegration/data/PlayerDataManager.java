@@ -27,6 +27,7 @@ public class PlayerDataManager {
     }
 
     public PlayerData get(User user){
+        if (user == null) return null;
         return playerDataMap.get(user.getUniqueId());
     }
 
