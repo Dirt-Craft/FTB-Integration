@@ -2,7 +2,6 @@ package net.dirtcraft.ftbintegration.command.badge;
 
 import net.dirtcraft.ftbintegration.FtbIntegration;
 import net.dirtcraft.ftbintegration.command.IntegrationBase;
-import net.dirtcraft.ftbintegration.command.restrictions.RestrictBase;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.Pair;
 import net.dirtcraft.ftbintegration.utility.Switcher;
@@ -17,6 +16,7 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,7 +55,7 @@ public class BadgeBase implements CommandExecutor {
                 new Pair<>(setBadge, new String[]{"set", "s"}),
                 new Pair<>(clearBadge, new String[]{"clear", "c"}),
                 new Pair<>(getBadge, new String[]{"get", "g"})
-        ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+        ).collect(Collectors.toMap(Pair::getKey, Pair::getValue, (a,b)->a, LinkedHashMap::new));
         commandMap.forEach(base::child);
 
         return base.build();
@@ -64,7 +64,7 @@ public class BadgeBase implements CommandExecutor {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
-        String alias = String.join(" ", IntegrationBase.ALIAS + ALIASES[0]);
+        String alias = String.join(" ", IntegrationBase.ALIAS, ALIASES[0]);
         Switcher<String> s = new Switcher<>("&3", "&b");
         List<Text> message = new ArrayList<>();
         commandMap.forEach((cmd, aliases)->{

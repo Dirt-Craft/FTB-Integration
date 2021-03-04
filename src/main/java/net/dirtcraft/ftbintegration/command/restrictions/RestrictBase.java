@@ -23,6 +23,7 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -98,7 +99,7 @@ public class RestrictBase implements CommandExecutor {
                 new Pair<>(editWhitelist, new String[]{"whitelistedit", "wedit"}),
                 new Pair<>(editRemove, new String[]{"removeedit", "redit"}),
                 new Pair<>(editList, new String[]{"listedit", "ledit"})
-        ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+        ).collect(Collectors.toMap(Pair::getKey, Pair::getValue, (a,b)->a, LinkedHashMap::new));
         commandMap.forEach(base::child);
 
         return base.build();
@@ -107,7 +108,7 @@ public class RestrictBase implements CommandExecutor {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
-        String alias = String.join(" ", IntegrationBase.ALIAS + ALIASES[0]);
+        String alias = String.join(" ", IntegrationBase.ALIAS, ALIASES[0]);
         Switcher<String> s = new Switcher<>("&3", "&b");
         List<Text> message = new ArrayList<>();
         commandMap.forEach((cmd, aliases)->{
