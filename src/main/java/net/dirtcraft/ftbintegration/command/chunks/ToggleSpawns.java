@@ -1,4 +1,4 @@
-package net.dirtcraft.ftbintegration.command;
+package net.dirtcraft.ftbintegration.command.chunks;
 
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftblib.lib.data.Universe;

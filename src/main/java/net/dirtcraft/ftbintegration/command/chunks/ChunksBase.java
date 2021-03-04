@@ -1,7 +1,8 @@
-package net.dirtcraft.ftbintegration.command.badge;
+package net.dirtcraft.ftbintegration.command.chunks;
 
 import net.dirtcraft.ftbintegration.FtbIntegration;
 import net.dirtcraft.ftbintegration.command.IntegrationBase;
+import net.dirtcraft.ftbintegration.command.badge.BadgeBase;
 import net.dirtcraft.ftbintegration.command.restrictions.RestrictBase;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.Pair;
@@ -24,37 +25,44 @@ import java.util.stream.Stream;
 
 import static net.dirtcraft.ftbintegration.utility.SpongeHelper.*;
 
-public class BadgeBase implements CommandExecutor {
-    public static final String[] ALIASES = new String[]{"badge", "b"};
+public class ChunksBase implements CommandExecutor {
+    public static final String[] ALIASES = new String[]{"chunks", "ch"};
     private static Map<CommandSpec, String[]> commandMap;
-    public static CommandSpec getCommand(){
-        CommandSpec setBadge = CommandSpec.builder()
-                .executor(new SetBadge())
-                .permission(Permission.BADGE_CLEAR)
-                .arguments(
-                        GenericArguments.string(Text.of("badge")),
-                        GenericArguments.optional(GenericArguments.player(Text.of("target")))
-                ).build();
 
-        CommandSpec clearBadge = CommandSpec.builder()
-                .executor(new ClearBadge())
-                .permission(Permission.BADGE_SET)
-                .arguments(GenericArguments.optional(GenericArguments.player(Text.of("target"))))
+    public static CommandSpec getCommand(){
+        CommandSpec toggleSpawns = CommandSpec.builder()
+                .permission(Permission.FLAG_MOB_SPAWN)
+                .arguments(GenericArguments.string(Text.of("team-id")),
+                        GenericArguments.bool(Text.of("value")))
+                .executor(new ToggleSpawns())
                 .build();
 
-        CommandSpec getBadge = CommandSpec.builder()
-                .executor(new GetCurrent())
-                .permission(Permission.BADGE_GET)
-                .arguments(GenericArguments.optional(GenericArguments.player(Text.of("target"))))
+        CommandSpec claimChunks = CommandSpec.builder()
+                .permission(Permission.CLAIM_CHUNK)
+                .executor(new ClaimChunks())
+                .arguments(GenericArguments.optional(GenericArguments.string(Text.of("team-id"))))
+                .build();
+
+        CommandSpec unclaimChunks = CommandSpec.builder()
+                .permission(Permission.CLAIM_CHUNK)
+                .executor(new UnclaimChunks())
+                .build();
+
+        CommandSpec setGroupClaims = CommandSpec.builder()
+                .permission(Permission.CHUNK_CLAIM_MODIFY_GROUP)
+                .arguments(GenericArguments.string(Text.of("group-id")),
+                        GenericArguments.string(Text.of("value")))
+                .executor(new SetGroupClaims())
                 .build();
 
         CommandSpec.Builder base = CommandSpec.builder()
-                .executor(new BadgeBase());
+                .executor(new ChunksBase());
 
         commandMap = Stream.of(
-                new Pair<>(setBadge, new String[]{"set", "s"}),
-                new Pair<>(clearBadge, new String[]{"clear", "c"}),
-                new Pair<>(getBadge, new String[]{"get", "g"})
+                new Pair<>(setGroupClaims, new String[]{"setgroupclaims", "sgc"}),
+                new Pair<>(toggleSpawns, new String[]{"togglespawns", "ts"}),
+                new Pair<>(unclaimChunks, new String[]{"unclaim", "uc"}),
+                new Pair<>(claimChunks, new String[]{"claim", "c"})
         ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
         commandMap.forEach(base::child);
 

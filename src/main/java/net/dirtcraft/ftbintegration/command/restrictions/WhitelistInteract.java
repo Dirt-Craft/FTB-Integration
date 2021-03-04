@@ -17,7 +17,7 @@ public class WhitelistInteract implements CommandExecutor {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
-        BlockType specified = RestrictionsBase.getBlockType(src, args);
+        BlockType specified = RestrictBase.getBlockType(src, args);
         boolean success = FtbIntegration.INSTANCE.getConfig().addInteractWhitelist((Block) specified);
         String template;
         if (success) template = "&aSuccessfully whitelisted &7\"&c%s&7\"";

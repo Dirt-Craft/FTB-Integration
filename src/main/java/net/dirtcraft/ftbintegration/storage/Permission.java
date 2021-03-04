@@ -52,6 +52,7 @@ public class Permission {
     FTB:U Exposed:
      - ftbutilities.other_player.claims.unclaim
      - ftbutilities.other_player.claims.see_info
+     - ftbutilities.claims.bypass_limits (admin)
 
     Staff Badge:
       - ftbintegration.badges.staff

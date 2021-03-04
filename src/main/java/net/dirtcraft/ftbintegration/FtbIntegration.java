@@ -48,7 +48,7 @@ import static net.minecraftforge.fml.common.Mod.EventHandler;
 public class FtbIntegration {
     public static final String MODID = "ftb-integration";
     public static final String NAME = "FTB Utilities Sponge Integration";
-    public static final String VERSION = "${version}";
+    public static final String VERSION = "@VERSION@";
     public static FtbIntegration INSTANCE;
 
     private ConfigurationLoader<CommentedConfigurationNode> loader;

@@ -6,11 +6,14 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.profile.GameProfileManager;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -44,6 +47,23 @@ public class SpongeHelper {
 
     public static Text getText(String string){
         return TextSerializers.FORMATTING_CODE.deserialize(string);
+    }
+
+
+    public static Text formatCommand(String base, String alias, String color){
+        String command = "/" + String.join(" ", base, alias);
+        return formatText("%s - %s", color, alias).toBuilder()
+                .onClick(TextActions.runCommand(command))
+                .onHover(TextActions.showText(formatText("Click to run %s", command)))
+                .build();
+    }
+
+    public static Text formatCommandSuggest(CommandSource src, CommandSpec spec, String base, String alias, String color){
+        String command = "/" + String.join(" ", base, alias);
+        return formatText("%s - %s", color, alias).toBuilder()
+                .onClick(TextActions.suggestCommand(command + " " + spec.getUsage(src).toPlain()))
+                .onHover(TextActions.showText(formatText("Click to run %s", command)))
+                .build();
     }
 
     public static boolean hasOwner(BlockSnapshot clickedBlock){

@@ -17,7 +17,7 @@ public class RemoveItem implements CommandExecutor {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
-        ItemType specified = RestrictionsBase.getItemType(src, args);
+        ItemType specified = RestrictBase.getItemType(src, args);
         boolean success = FtbIntegration.INSTANCE.getConfig().removeItemBlacklist((Item) specified);
         String template;
         if (success) template = "&aSuccessfully removed the blacklist for &7\"&c%s&7\"";

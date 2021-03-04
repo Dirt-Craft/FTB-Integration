@@ -27,6 +27,7 @@
 package net.dirtcraft.ftbintegration.handlers.sponge;
 
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
+import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.utility.CauseContextHelper;
@@ -71,13 +72,9 @@ import java.util.List;
 import java.util.Map;
 
 public class BlockEventHandler {
-    private int lastBlockPreTick = -1;
-    private boolean lastBlockPreCancelled = false;
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockPre(ChangeBlockEvent.Pre event) {
-        lastBlockPreTick = Sponge.getServer().getRunningTimeTicks();
-        lastBlockPreCancelled = false;
 
         final Cause cause = event.getCause();
         final EventContext context = event.getContext();
@@ -120,7 +117,6 @@ public class BlockEventHandler {
         final boolean isForgePlayerBreak = context.containsKey(EventContextKeys.PLAYER_BREAK);
         if (isForgePlayerBreak && !hasFakePlayer && source instanceof Player) {
             if (handlePlayerBreak(event.getLocations(), playerData)){
-                lastBlockPreCancelled = true;
                 event.setCancelled(true);
             }
         } else if (sourceLocation != null || user != null) {
@@ -145,11 +141,9 @@ public class BlockEventHandler {
                 // This fixes issues such as pistons not being able to extend
                 if (!isForgePlayerBreak && playerData.checkLastInteraction(chunk, user)) continue;
 
-                event.setCancelled(true);
-
                 //Don't cancel any related events if it's a leaf
                 if (location.getBlockType() == BlockTypes.LEAVES || location.getBlockType() ==  BlockTypes.LEAVES2) return;
-                lastBlockPreCancelled = true;
+                event.setCancelled(true);
                 return;
             }
         }
@@ -302,7 +296,7 @@ public class BlockEventHandler {
             final List<Location<World>> filteredLocations = new ArrayList<>();
             for (Location<World> location : event.getAffectedLocations()) {
                 ClaimedChunk chunk = ClaimedChunkHelper.getChunk(location);
-                if (ClaimedChunkHelper.blockBlockEditing(playerData, chunk, location) || !chunk.hasExplosions()) {
+                if (!chunk.hasExplosions() || ClaimedChunkHelper.blockBlockEditing(playerData, chunk, location)) {
                     filteredLocations.add(location);
                 }
             }
@@ -317,11 +311,6 @@ public class BlockEventHandler {
         if (event instanceof ExplosionEvent || source instanceof Explosion) return;
         if (event.getCause().root() instanceof TileEntityPiston) return;
         if (event.getContext().containsKey(EventContextKeys.BLOCK_EVENT_PROCESS)) return;
-
-        if (lastBlockPreTick == Sponge.getServer().getRunningTimeTicks()) {
-            event.setCancelled(lastBlockPreCancelled);
-            return;
-        }
 
         final User user = source instanceof Player? (User) source : CauseContextHelper.getEventUser(event);
 
@@ -351,11 +340,6 @@ public class BlockEventHandler {
 
         if (source instanceof TileEntityPiston) return;
         if (event.getContext().containsKey(EventContextKeys.BLOCK_EVENT_PROCESS)) return;
-
-        if (lastBlockPreTick == Sponge.getServer().getRunningTimeTicks() && !(event.getCause().root() instanceof Player)) {
-            event.setCancelled(lastBlockPreCancelled);
-            return;
-        }
 
         ClaimedChunk sourceClaim;
         final User user = CauseContextHelper.getEventUser(event);

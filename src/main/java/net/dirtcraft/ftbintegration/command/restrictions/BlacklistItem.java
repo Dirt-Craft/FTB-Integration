@@ -17,7 +17,7 @@ public class BlacklistItem implements CommandExecutor {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
-        ItemType specified = RestrictionsBase.getItemType(src, args);
+        ItemType specified = RestrictBase.getItemType(src, args);
         boolean success = FtbIntegration.INSTANCE.getConfig().addItemBlacklist((Item) specified);
         String template;
         if (success) template = "&aSuccessfully blacklisted &7\"&c%s&7\"";
