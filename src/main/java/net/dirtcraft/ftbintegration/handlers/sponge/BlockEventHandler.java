@@ -29,6 +29,8 @@ package net.dirtcraft.ftbintegration.handlers.sponge;
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
+import net.dirtcraft.ftbintegration.FtbIntegration;
+import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorTileEntity;
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.utility.CauseContextHelper;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
@@ -36,6 +38,8 @@ import net.minecraft.block.BlockBasePressurePlate;
 import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.tileentity.TileEntityPiston;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.FakePlayer;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
@@ -58,18 +62,19 @@ import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.world.ExplosionEvent;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
+import org.spongepowered.common.bridge.OwnershipTrackedBridge;
 import org.spongepowered.common.bridge.block.BlockBridge;
+import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
+import org.spongepowered.common.mixin.core.tileentity.TileEntityAccessor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BlockEventHandler {
 
@@ -351,7 +356,7 @@ public class BlockEventHandler {
 
         PlayerData playerData = PlayerData.getOrCreate(user);
 
-        if (!(source instanceof User) && playerData != null && playerData.checkLastInteraction(sourceClaim, user)) return;
+        if ( sourceClaim != null && !(source instanceof User) && playerData != null && playerData.checkLastInteraction(sourceClaim, user)) return;
 
         for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
             final BlockSnapshot block = transaction.getFinal();
@@ -368,6 +373,27 @@ public class BlockEventHandler {
                 event.setCancelled(true);
                 return;
             }
+        }
+    }
+
+    @Listener(order = Order.POST)
+    public void afterBlockPlace(ChangeBlockEvent.Place event){
+        for (Transaction<BlockSnapshot> transaction : event.getTransactions()){
+            if (transaction.getFinal().getCreator().isPresent()) continue;
+            User user = CauseContextHelper.getEventUser(event);
+            Optional<TileEntity> optTe = transaction.getFinal().getLocation().flatMap(Location::getTileEntity);
+            if (user == null || user instanceof FakePlayer || !optTe.isPresent()) continue;
+
+            TileEntity te = optTe.get();
+            OwnershipTrackedBridge teTracker = (OwnershipTrackedBridge) te;
+            teTracker.tracked$setOwnerReference(user);
+            World cd = te.getLocation().getExtent();
+            int cx = te.getLocation().getBlockX() >> 4;
+            int cz = te.getLocation().getBlockZ() >> 4;
+            BlockPos bp = ((net.minecraft.tileentity.TileEntity)te).getPos();
+            ChunkBridge bridge = (ChunkBridge) cd.getChunk(cx, 0, cz).get();
+            bridge.bridge$setBlockCreator(bp, user.getUniqueId());
+            bridge.bridge$markChunkDirty();
         }
     }
 }

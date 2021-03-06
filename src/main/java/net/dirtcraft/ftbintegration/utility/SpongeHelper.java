@@ -17,9 +17,11 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.common.bridge.OwnershipTrackedBridge;
 import org.spongepowered.common.bridge.world.LocationBridge;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class SpongeHelper {
@@ -67,25 +69,35 @@ public class SpongeHelper {
     }
 
     public static boolean hasOwner(BlockSnapshot clickedBlock){
-        return clickedBlock.getCreator().isPresent() || clickedBlock.getNotifier().isPresent();
+        Optional<OwnershipTrackedBridge> oTe = clickedBlock
+                .getLocation()
+                .flatMap(Location::getTileEntity)
+                .map(OwnershipTrackedBridge.class::cast);
+        return oTe.isPresent() &&
+                oTe.flatMap(OwnershipTrackedBridge::tracked$getNotifierUUID).isPresent() ||
+                oTe.flatMap(OwnershipTrackedBridge::tracked$getOwnerUUID).isPresent();
     }
 
     public static void sendOwnerData(Player player, BlockSnapshot clickedBlock){
         Task.builder()
                 .async()
                 .execute(()->{
+                    Optional<OwnershipTrackedBridge> oTe = clickedBlock
+                            .getLocation()
+                            .flatMap(Location::getTileEntity)
+                            .map(OwnershipTrackedBridge.class::cast);
                     GameProfileManager manager = Sponge.getServer().getGameProfileManager();
-                    String owner = clickedBlock.getCreator()
+                    String owner = oTe.flatMap(OwnershipTrackedBridge::tracked$getOwnerUUID)
                             .map(manager::get)
                             .map(CompletableFuture::join)
                             .map(profile->profile.getName().orElse(profile.getUniqueId().toString()))
                             .orElse("None.");
-                    String notifer = clickedBlock.getNotifier()
+                    String notifier = oTe.flatMap(OwnershipTrackedBridge::tracked$getNotifierUUID)
                             .map(manager::get)
                             .map(CompletableFuture::join)
                             .map(profile->profile.getName().orElse(profile.getUniqueId().toString()))
                             .orElse("None.");
-                    player.sendMessage(formatText("&7Owner: &d%s\n&8Notifier: &5%s", owner, notifer));
+                    player.sendMessage(formatText("&7Owner: &d%s\n&8Notifier: &5%s", owner, notifier));
                 }).submit(FtbIntegration.INSTANCE);
     }
 }
