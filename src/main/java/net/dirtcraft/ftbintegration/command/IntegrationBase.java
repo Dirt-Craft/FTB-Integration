@@ -12,6 +12,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
@@ -33,11 +34,13 @@ public class IntegrationBase implements CommandExecutor {
     public static void registerCommands(FtbIntegration plugin){
         CommandSpec debug = CommandSpec.builder()
                 .permission(Permission.DEBUG)
+                .arguments(GenericArguments.optional(GenericArguments.player(Text.of("target"))))
                 .executor(new DebugClaim())
                 .build();
 
         CommandSpec bypass = CommandSpec.builder()
                 .permission(Permission.BYPASS)
+                .arguments(GenericArguments.optional(GenericArguments.player(Text.of("target"))))
                 .executor(new IgnoreClaim())
                 .build();
 
