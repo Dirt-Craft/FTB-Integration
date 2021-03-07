@@ -23,6 +23,7 @@ archivesBaseName = 'FTB-Integration'
 group = pluginGroup
 version = pluginVersion
 sponge.plugin.id = pluginId
+def directory = project.hasProperty("args")? project.file(project.getProperty("args")) : project.file(jar.destinationDir)
 
 repositories {
     mavenCentral()
@@ -50,7 +51,7 @@ jar {
             'FMLCorePluginContainsFMLMod': 'true',
             'ForceLoadAsMod': true
     )
-    destinationDir project.file('E:/IdeaProjects/.Sponge/SpongeForge 1.12.2/run/mods')
+    destinationDir = directory
 }
 
 minecraft {

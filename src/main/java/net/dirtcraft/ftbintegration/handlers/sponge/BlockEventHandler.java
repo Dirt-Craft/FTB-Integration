@@ -27,10 +27,7 @@
 package net.dirtcraft.ftbintegration.handlers.sponge;
 
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
-import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
-import net.dirtcraft.ftbintegration.FtbIntegration;
-import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorTileEntity;
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.utility.CauseContextHelper;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
@@ -40,7 +37,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.tileentity.TileEntityPiston;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.FakePlayer;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -62,7 +58,6 @@ import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.world.ExplosionEvent;
-import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.LocatableBlock;
@@ -72,7 +67,6 @@ import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.common.bridge.OwnershipTrackedBridge;
 import org.spongepowered.common.bridge.block.BlockBridge;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
-import org.spongepowered.common.mixin.core.tileentity.TileEntityAccessor;
 
 import java.util.*;
 

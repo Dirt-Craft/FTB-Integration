@@ -1,6 +1,5 @@
 package net.dirtcraft.ftbintegration.utility;
 
-import com.mojang.authlib.GameProfile;
 import net.dirtcraft.ftbintegration.FtbIntegration;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -9,7 +8,6 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.profile.GameProfileManager;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
@@ -25,10 +23,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class SpongeHelper {
-    public static GameProfile getGameProfile(User user){
-        return new GameProfile(user.getUniqueId(), user.getName());
-    }
-
     @SuppressWarnings("ConstantConditions")
     public static BlockPos getBlockPos(Location<World> location){
         return ((LocationBridge) (Object) location).bridge$getBlockPos();
