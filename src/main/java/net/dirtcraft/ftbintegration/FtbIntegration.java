@@ -11,11 +11,9 @@ import net.dirtcraft.ftbintegration.data.sponge.PlayerSettingsImpl;
 import net.dirtcraft.ftbintegration.handlers.forge.ChunkEventsHandler;
 import net.dirtcraft.ftbintegration.handlers.forge.FTBPlayerDataHandler;
 import net.dirtcraft.ftbintegration.handlers.forge.SpongePermissionHandler;
-import net.dirtcraft.ftbintegration.handlers.sponge.BlockEventHandler;
-import net.dirtcraft.ftbintegration.handlers.sponge.EntityEventHandler;
-import net.dirtcraft.ftbintegration.handlers.sponge.NucleusHandler;
-import net.dirtcraft.ftbintegration.handlers.sponge.PlayerEventHandler;
+import net.dirtcraft.ftbintegration.handlers.sponge.*;
 import net.dirtcraft.ftbintegration.storage.Configuration;
+import net.dirtcraft.ftbintegration.storage.Database;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -54,6 +52,7 @@ public class FtbIntegration {
     private ConfigurationLoader<CommentedConfigurationNode> loader;
     private CommentedConfigurationNode node;
     private Configuration configuration;
+    private Database database;
 
     public FtbIntegration(){
         INSTANCE = this;
@@ -65,6 +64,7 @@ public class FtbIntegration {
         PermissionAPI.setPermissionHandler(SpongePermissionHandler.INSTANCE);
         PluginContainer container = Sponge.getPluginManager().getPlugin(MODID).orElse(()->MODID);
         this.loader = SpongeConfigManager.getPrivateRoot(container).getConfig();
+        database = new Database();
     }
 
     @EventHandler
@@ -76,6 +76,7 @@ public class FtbIntegration {
 
     @Listener
     public void onServerStarting(GameStartingServerEvent event) {
+        LuckPermHandler.register();
         loadConfig();
         IntegrationBase.registerCommands(this);
         EventManager manager = Sponge.getEventManager();
@@ -132,5 +133,9 @@ public class FtbIntegration {
 
     public Configuration getConfig(){
         return configuration;
+    }
+
+    public Database getDatabase() {
+        return database;
     }
 }

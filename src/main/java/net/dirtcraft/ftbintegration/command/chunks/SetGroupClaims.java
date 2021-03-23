@@ -15,8 +15,8 @@ public class SetGroupClaims implements CommandExecutor {
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
         String group = args.requireOne("group-id");
-        String value = args.requireOne("value");
-        SpongePermissionHandler.INSTANCE.setGroupMeta(group, Permission.CHUNK_CLAIM_META, value);
+        int value = args.requireOne("value");
+        SpongePermissionHandler.INSTANCE.setGroupMeta(group, Permission.CHUNK_CLAIM_META, String.valueOf(value));
         return CommandResult.success();
     }
 }

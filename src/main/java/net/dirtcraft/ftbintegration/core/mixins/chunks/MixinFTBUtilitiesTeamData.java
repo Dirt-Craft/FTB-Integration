@@ -36,7 +36,7 @@ public abstract class MixinFTBUtilitiesTeamData extends TeamData {
             this.cachedMaxClaimChunks = 0;
 
             for (ForgePlayer player : team.getMembers()) {
-                cachedMaxClaimChunks += ((ChunkPlayerInfo)player).getClaims();
+                cachedMaxClaimChunks += ((ChunkPlayerInfo)player).getTotalClaims();
             }
 
             return this.cachedMaxClaimChunks;
@@ -58,7 +58,7 @@ public abstract class MixinFTBUtilitiesTeamData extends TeamData {
             this.cachedMaxChunkloaderChunks = 0;
 
             for (ForgePlayer player : team.getMembers()) {
-                cachedMaxChunkloaderChunks += ((ChunkPlayerInfo)player).getLoaders();
+                cachedMaxChunkloaderChunks += ((ChunkPlayerInfo)player).getTotalLoaders();
             }
 
             return this.cachedMaxChunkloaderChunks;

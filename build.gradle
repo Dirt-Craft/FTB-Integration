@@ -42,6 +42,7 @@ dependencies {
     compile 'org.spongepowered:mixin:0.8'
     compile 'net.luckperms:api:5.2'
     compile 'io.github.nucleuspowered:nucleus-api:1.9.1-S7.1'
+    compile 'com.github.Dirt-Craft:Dirt-Database-Lib:deploy-SNAPSHOT'
 }
 
 jar {

@@ -4,6 +4,7 @@ import net.dirtcraft.ftbintegration.FtbIntegration;
 import net.dirtcraft.ftbintegration.command.badge.BadgeBase;
 import net.dirtcraft.ftbintegration.command.chunks.ChunksBase;
 import net.dirtcraft.ftbintegration.command.restrictions.RestrictBase;
+import net.dirtcraft.ftbintegration.command.user.UserBase;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.Pair;
 import net.dirtcraft.ftbintegration.utility.Switcher;
@@ -18,14 +19,14 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.dirtcraft.ftbintegration.utility.SpongeHelper.*;
+import static net.dirtcraft.ftbintegration.utility.SpongeHelper.formatCommand;
+import static net.dirtcraft.ftbintegration.utility.SpongeHelper.formatText;
 
 public class IntegrationBase implements CommandExecutor {
     public static final String ALIAS = "ftbi";
@@ -57,6 +58,7 @@ public class IntegrationBase implements CommandExecutor {
                 .executor(new IntegrationBase());
 
         commandMap = Stream.of(
+                new Pair<>(UserBase.getCommand(), UserBase.ALIASES),
                 new Pair<>(ChunksBase.getCommand(), ChunksBase.ALIASES),
                 new Pair<>(BadgeBase.getCommand(), BadgeBase.ALIASES),
                 new Pair<>(RestrictBase.getCommand(), RestrictBase.ALIASES),

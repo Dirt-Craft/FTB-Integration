@@ -2,13 +2,25 @@ package net.dirtcraft.ftbintegration.core.api;
 
 public interface ChunkPlayerInfo {
 
-    int getClaims();
+    int getTotalClaims();
 
-    int getLoaders();
+    int getTotalLoaders();
 
-    void setClaims(int amount);
+    int getAddClaims();
 
-    void setLoaders(int amount);
+    int getAddLoaders();
 
-    void loadChunkData();
+    int getBaseClaims();
+
+    int getBaseLoaders();
+
+    void setBaseChunks();
+
+    void setBaseChunks(int claims, int loaders);
+
+    void setExtraChunks(int claims, int loaders);
+
+    void modifyExtraChunks(int claims, int loaders);
+
+    void recalculateTeamChunks();
 }

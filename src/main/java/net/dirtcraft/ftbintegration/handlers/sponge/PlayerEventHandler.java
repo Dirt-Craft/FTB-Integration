@@ -28,7 +28,6 @@ package net.dirtcraft.ftbintegration.handlers.sponge;
 
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.flowpowered.math.vector.Vector3d;
-import net.dirtcraft.ftbintegration.core.api.ChunkPlayerInfo;
 import net.dirtcraft.ftbintegration.core.api.DebugPlayerInfo;
 import net.dirtcraft.ftbintegration.core.mixins.badges.FTBUtilitiesUniverseDataAccessor;
 import net.dirtcraft.ftbintegration.data.PlayerData;
@@ -91,9 +90,6 @@ public class PlayerEventHandler {
                 .createFrom(event.getTargetEntity()).get();
         event.getTargetEntity().offer(settings);
         if (data.getBadge() != null) FTBUtilitiesUniverseDataAccessor.getBADGE_CACHE().put(event.getTargetEntity().getUniqueId(), data.getBadge());
-        ChunkPlayerInfo info = (ChunkPlayerInfo)data.getForgePlayer();
-        info.loadChunkData();
-        ((DebugPlayerInfo)data.getForgePlayer()).updateLastSeenMs();
     }
 
     @Listener(order = Order.POST)

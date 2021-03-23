@@ -1,31 +1,43 @@
 package net.dirtcraft.ftbintegration.core;
 
-import net.minecraft.launchwrapper.LaunchClassLoader;
+import net.dirtcraft.ftbintegration.FtbIntegration;
 import net.minecraftforge.common.ForgeVersion;
-import net.minecraftforge.fml.relauncher.CoreModManager;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.launch.MixinBootstrap;
-import org.spongepowered.asm.mixin.Mixins;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion(ForgeVersion.mcVersion)
 public class MixinLoader implements IFMLLoadingPlugin {
+    public static final Logger LOG = LogManager.getLogger(FtbIntegration.MODID);
+    List<ModPatch> modPatches = new ArrayList<>();
 
-    public MixinLoader()
-    {
+    public MixinLoader() {
+        ModPatch.builder()
+                .setName("Pneumatic-Craft")
+                .setConfig("mixins.patches.pneumaticcraft.json")
+                .addRequiredMod("\\Qpneumaticcraft-repressurized-1.12.2-\\E.*\\.jar")
+                .build(modPatches);
+        ModPatch.builder()
+                .setName("FTB-Utilities")
+                .setConfig("mixins.ftbutilities.json")
+                .addRequiredMod("\\QFTBLib-\\E\\d.*\\.jar")
+                .addRequiredMod("\\QFTBUtilities-\\E\\d.*\\.jar")
+                .build(modPatches);
+
+
         MixinBootstrap.init();
         for (File file : new File("mods").listFiles()){
-            if (!file.getName().startsWith("FTBUtilities") && !file.getName().startsWith("FTBLib")) continue;
-            try {
-                loadModJar(file);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
+            for (ModPatch patch : modPatches) patch.checkRequirements(file);
         }
-        Mixins.addConfiguration("mixins.ftbutilities.json");
+
+        for (ModPatch patch : modPatches) patch.tryApply();
     }
 
     @Override
@@ -57,10 +69,5 @@ public class MixinLoader implements IFMLLoadingPlugin {
     public String getAccessTransformerClass()
     {
         return null;
-    }
-
-    public void loadModJar(File jar) throws Exception {
-        ((LaunchClassLoader) this.getClass().getClassLoader()).addURL(jar.toURI().toURL());
-        CoreModManager.getReparseableCoremods().add(jar.getName());
     }
 }

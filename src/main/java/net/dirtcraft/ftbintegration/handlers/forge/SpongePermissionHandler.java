@@ -68,8 +68,7 @@ public enum SpongePermissionHandler implements IPermissionHandler {
         return DefaultPermissionHandler.INSTANCE.getNodeDescription(node);
     }
 
-    public String getMeta(UUID uuid, String key){
-        User user = lp.getUserManager().getUser(uuid);
+    public String getMeta(User user, String key){
         if (user == null) return null;
         else return user.getCachedData()
                 .getMetaData()
@@ -78,7 +77,19 @@ public enum SpongePermissionHandler implements IPermissionHandler {
 
     public <T> T getMetaOrDefault(UUID uuid, String key, Function<String, T> mapper, T def){
         try {
-            String val = getMeta(uuid, key);
+            User user = lp.getUserManager().getUser(uuid);
+            if (user == null) return def;
+            String val = getMeta(user, key);
+            if (val == null) return def;
+            else return mapper.apply(val);
+        } catch (Exception e){
+            return def;
+        }
+    }
+
+    public <T> T getMetaOrDefault(User user, String key, Function<String, T> mapper, T def){
+        try {
+            String val = getMeta(user, key);
             if (val == null) return def;
             else return mapper.apply(val);
         } catch (Exception e){

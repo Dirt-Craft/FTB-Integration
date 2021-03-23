@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.5.7",
+  "package": "net.dirtcraft.ftbintegration.core.mixins.patches",
+  "refmap": "mixins.ftbutilities.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "server": [
+    "bypass.pneumaticcraft.MixinTileEntitySecurityStation"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -5,9 +5,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.profile.GameProfileManager;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
@@ -18,7 +21,11 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.common.bridge.OwnershipTrackedBridge;
 import org.spongepowered.common.bridge.world.LocationBridge;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -93,5 +100,31 @@ public class SpongeHelper {
                             .orElse("None.");
                     player.sendMessage(formatText("&7Owner: &d%s\n&8Notifier: &5%s", owner, notifier));
                 }).submit(FtbIntegration.INSTANCE);
+    }
+
+    @Nonnull
+    public static CommandResult showCommandUsage(CommandSource src, String alias, Map<CommandSpec, String[]> commandMap) throws CommandException {
+        return showCommandUsage(src, alias, commandMap, true);
+    }
+
+    @Nonnull
+    public static CommandResult showCommandUsage(CommandSource src, String alias, Map<CommandSpec, String[]> commandMap, boolean suggest) throws CommandException {
+        Switcher<String> s = new Switcher<>("&3", "&b");
+        List<Text> message = new ArrayList<>();
+        commandMap.forEach((cmd, aliases)->{
+            if (!cmd.testPermission(src) || aliases.length == 0) return;
+            if (!suggest) message.add(formatCommand(alias, aliases[0], s.get()));
+            else message.add(formatCommandSuggest(src, cmd, alias, aliases[0], s.get()));
+        });
+        if (message.isEmpty()) message.add(formatText("%sYou have no available commands.", s.get()));
+        message.add(0, formatText("&6Available subcommands:", FtbIntegration.NAME, FtbIntegration.VERSION));
+        src.sendMessages(message);
+        return CommandResult.success();
+    }
+
+    public static void logFailure(CommandSource source, User target, String type, int amount) {
+        //todo probably log to a file or something i guess?
+        String output = String.format("Failed operation %s (%d, %s) by %s", type, amount, target.getName(), source.getName());
+        System.out.println(output);
     }
 }
