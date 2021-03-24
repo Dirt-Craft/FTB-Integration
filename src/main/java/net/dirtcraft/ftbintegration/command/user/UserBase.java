@@ -1,7 +1,7 @@
 package net.dirtcraft.ftbintegration.command.user;
 
 import net.dirtcraft.ftbintegration.command.IntegrationBase;
-import net.dirtcraft.ftbintegration.command.chunks.*;
+import net.dirtcraft.ftbintegration.command.chunks.Balance;
 import net.dirtcraft.ftbintegration.command.user.claim.ClaimBase;
 import net.dirtcraft.ftbintegration.command.user.loader.LoaderBase;
 import net.dirtcraft.ftbintegration.storage.Permission;

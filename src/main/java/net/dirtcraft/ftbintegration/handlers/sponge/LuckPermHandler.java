@@ -11,12 +11,12 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.event.EventBus;
 import net.luckperms.api.event.node.NodeAddEvent;
-import net.luckperms.api.event.node.NodeMutateEvent;
 import net.luckperms.api.event.node.NodeRemoveEvent;
 import net.luckperms.api.event.player.PlayerLoginProcessEvent;
 import net.luckperms.api.model.PermissionHolder;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
+import net.luckperms.api.model.user.UserManager;
 import net.luckperms.api.node.Node;
 import net.luckperms.api.node.NodeType;
 
@@ -27,7 +27,8 @@ import java.util.function.Consumer;
 public enum LuckPermHandler {
     INSTANCE;
 
-    private final LuckPerms api = LuckPermsProvider.get();
+    private static final LuckPerms api = LuckPermsProvider.get();
+    private static final UserManager userManager = api.getUserManager();
     private Database database;
     private Universe universe;
     private String regex;
@@ -108,6 +109,11 @@ public enum LuckPermHandler {
         int baseClaim = handler.getMetaOrDefault(user, Permission.CHUNK_CLAIM_META, Integer::valueOf, info.getBaseClaims());
         int baseLoad = handler.getMetaOrDefault(user, Permission.CHUNK_LOADER_META, Integer::valueOf, info.getBaseLoaders());
         info.setBaseChunks(baseClaim, baseLoad);
+    }
+
+    public static void setPlayerBaseChunkData(ChunkPlayerInfo info, org.spongepowered.api.entity.living.player.User user){
+        User lpUser = userManager.getUser(user.getUniqueId());
+        setPlayerBaseChunkData(info, lpUser);
     }
 
     private void setAdditionalChunkData(ChunkPlayerInfo info, User user) {

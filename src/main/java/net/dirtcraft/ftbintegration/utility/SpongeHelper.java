@@ -1,6 +1,7 @@
 package net.dirtcraft.ftbintegration.utility;
 
 import net.dirtcraft.ftbintegration.FtbIntegration;
+import net.dirtcraft.ftbintegration.storage.Permission;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.Sponge;
@@ -8,6 +9,9 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandArgs;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -120,6 +124,16 @@ public class SpongeHelper {
         message.add(0, formatText("&6Available subcommands:", FtbIntegration.NAME, FtbIntegration.VERSION));
         src.sendMessages(message);
         return CommandResult.success();
+    }
+
+    public static User targetOrSelf(CommandSource src, @Nonnull CommandContext args,@Nonnull String permission) throws CommandException {
+        if (!(src instanceof User) && !args.hasAny("target")) {
+            throw new CommandException(Text.of("You must be a player or specify a target."));
+        } else if (args.hasAny("target") && !src.hasPermission(permission)) {
+            throw new CommandException(Text.of("You do not have permission to modify others claims."));
+        }
+        //noinspection ConstantConditions
+        return args.<User>getOne("target").orElseGet(() -> (User) src);
     }
 
     public static void logFailure(CommandSource source, User target, String type, int amount) {
