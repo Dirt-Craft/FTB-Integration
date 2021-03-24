@@ -11,9 +11,13 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.event.EventBus;
 import net.luckperms.api.event.node.NodeAddEvent;
+import net.luckperms.api.event.node.NodeMutateEvent;
+import net.luckperms.api.event.node.NodeRemoveEvent;
 import net.luckperms.api.event.player.PlayerLoginProcessEvent;
+import net.luckperms.api.model.PermissionHolder;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.Node;
 import net.luckperms.api.node.NodeType;
 
 import java.util.Collection;
@@ -26,6 +30,7 @@ public enum LuckPermHandler {
     private final LuckPerms api = LuckPermsProvider.get();
     private Database database;
     private Universe universe;
+    private String regex;
 
     public static void register(){
         INSTANCE.registerHandlers();
@@ -34,17 +39,37 @@ public enum LuckPermHandler {
     private void registerHandlers(){
         EventBus eventBus = api.getEventBus();
         eventBus.subscribe(NodeAddEvent.class, this::onNodeAdd);
+        eventBus.subscribe(NodeRemoveEvent.class, this::onNodeRemove);
         eventBus.subscribe(PlayerLoginProcessEvent.class, this::onPlayerLogin);
     }
 
+    public void onNodeRemove(NodeRemoveEvent event){
+        onNodeModify(event.getTarget(), event.getNode());
+    }
+
     public void onNodeAdd(NodeAddEvent event) {
-        if (event.getTarget() instanceof User && event.getNode().getType() == NodeType.INHERITANCE) {
-            User user = (User) event.getTarget();
+        onNodeModify(event.getTarget(), event.getNode());
+    }
+
+    private String getMetaRegex(){
+        if (regex == null){
+            String base = Permission.CLAIMS_BASE;
+            String claim = Permission.CHUNK_CLAIM_META.substring(base.length()+1);
+            String loader = Permission.CHUNK_LOADER_META.substring(base.length()+1);
+            base = base.replaceAll("\\.", "\\\\?.");
+            this.regex = String.format("%s\\?.(%s|%s)\\?.\\d+", base, claim, loader);
+        }
+        return regex;
+    }
+
+    private void onNodeModify(PermissionHolder target, Node node) {
+        if (target instanceof User && node.getType() == NodeType.INHERITANCE) {
+            User user = (User) target;
             ForgePlayer player = getPlayer(user);
             if (player instanceof ChunkPlayerInfo) setPlayerBaseChunkData((ChunkPlayerInfo) player, user);
-        } else if (event.getTarget() instanceof Group && event.getNode().getType() == NodeType.META) {
-            final String key = event.getNode().getKey();
-            if (!key.startsWith(Permission.CHUNK_CLAIM_META) && !key.startsWith(Permission.CHUNK_LOADER_META)) return;
+        } else if (target instanceof Group && node.getType() == NodeType.META) {
+            final String key = node.getKey().replaceAll("\\\\", "");
+            if (key.matches(getMetaRegex())) return;
             getPlayers().stream()
                     .filter(ForgePlayer::isOnline)
                     .filter(ChunkPlayerInfo.class::isInstance)
@@ -78,8 +103,7 @@ public enum LuckPermHandler {
         if (clazz.isInstance(obj)) exec.accept(clazz.cast(obj));
     }
 
-    private void setPlayerBaseChunkData(ChunkPlayerInfo info, User user){
-        if (database == null) database = new Database();
+    public static void setPlayerBaseChunkData(ChunkPlayerInfo info, User user){
         SpongePermissionHandler handler = SpongePermissionHandler.INSTANCE;
         int baseClaim = handler.getMetaOrDefault(user, Permission.CHUNK_CLAIM_META, Integer::valueOf, info.getBaseClaims());
         int baseLoad = handler.getMetaOrDefault(user, Permission.CHUNK_LOADER_META, Integer::valueOf, info.getBaseLoaders());
@@ -87,6 +111,7 @@ public enum LuckPermHandler {
     }
 
     private void setAdditionalChunkData(ChunkPlayerInfo info, User user) {
+        if (database == null) database = new Database();
         try {
             Optional<Database.ChunkData> optData = database.getChunkData(user.getUniqueId());
             if (optData.isPresent()) {

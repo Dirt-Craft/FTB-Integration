@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 public class Permission {
     private static final String BASE = "ftbintegration";
-    private static final String CLAIMS_BASE = resolvePermission(BASE, "claims");
+    public static final String CLAIMS_BASE = resolvePermission(BASE, "claims");
     private static final String FLAG_BASE =  resolvePermission(CLAIMS_BASE, "flags");
     private static final String BADGE_BASE = resolvePermission(BASE, "badges");
     private static final String CONFIG_BASE = resolvePermission(BASE, "config");
