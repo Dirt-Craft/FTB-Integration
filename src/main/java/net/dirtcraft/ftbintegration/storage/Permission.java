@@ -27,8 +27,9 @@ public class Permission {
     public static final String DEBUG = resolvePermission(CLAIMS_BASE, "debug");
 
     //Claim Nodes
-    public static final String CLAIM_CHUNK = resolvePermission(CLAIMS_BASE, "claim", "base");
-    public static final String CLAIM_OTHER = resolvePermission(CLAIMS_BASE, "claim", "others");
+    public static final String CLAIM_BASE = resolvePermission(CLAIMS_BASE, "claim");
+    public static final String CLAIM_CHUNK = resolvePermission(CLAIM_BASE, "base");
+    public static final String CLAIM_OTHER = resolvePermission(CLAIM_BASE, "others");
     public static final String FLAG_MOB_SPAWN = resolvePermission(FLAG_BASE, "mobspawn");
 
     //Badge Nodes
@@ -101,7 +102,7 @@ public class Permission {
 
 
     public static String resolveClaimDimension(String world){
-        return resolvePermission(CLAIM_CHUNK, world);
+        return resolvePermission(CLAIM_BASE, world);
     }
 
     public static String resolveBlockEdit(Block block){

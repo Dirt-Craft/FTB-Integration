@@ -7,6 +7,8 @@ import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.data.PlayerDataManager;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
+import net.dirtcraft.ftbintegration.utility.SpongeHelper;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -22,19 +24,17 @@ public class ChunkEventsHandler {
         if (profile.getId() == null) return;
         PlayerData data = PlayerDataManager.getInstance().get(profile);
         if (data == null) return;
-        Player player = data.getUser()
-                .flatMap(User::getPlayer)
-                .orElse(null);
-        if (player == null) return;
 
         int dim = claimChunkEvent.getChunkDimPos().dim;
-        net.minecraft.world.World[] worlds = FMLCommonHandler.instance().getMinecraftServerInstance().worlds;
-        net.minecraft.world.World dimension = worlds.length < dim? null : worlds[dim];
-        World world = dimension == null? null: (World) dimension;
-        if (world == null) return;
+        net.minecraft.world.World world = DimensionManager.getWorld(dim);
+        if (!(world instanceof World)) return;
 
-        String permission = Permission.resolveClaimDimension(world.getName());
-        if (!player.hasPermission(permission)) claimChunkEvent.setCanceled(true);
+        if (!data.canClaimInDimension((World) world)) {
+            claimChunkEvent.setCanceled(true);
+            data.getUser().flatMap(User::getPlayer).ifPresent(player -> {
+                player.sendMessage(SpongeHelper.formatText("&cYou are not allowed to claim in &6\"&7%s&6\"&c dimension.", ((World) world).getName()));
+            });
+        }
     }
 
     @SubscribeEvent

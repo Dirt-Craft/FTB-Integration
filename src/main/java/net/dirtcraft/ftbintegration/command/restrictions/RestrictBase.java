@@ -18,8 +18,10 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,6 +31,23 @@ public class RestrictBase implements CommandExecutor {
     public static final String[] ALIASES = new String[]{"restrict", "r"};
     private static Map<CommandSpec, String[]> commandMap;
     public static CommandSpec getCommand(){
+        CommandSpec dimList = CommandSpec.builder()
+                .permission(Permission.RESTRICT_MODIFY)
+                .executor(new ListDimensions())
+                .build();
+
+        CommandSpec dimAdd = CommandSpec.builder()
+                .arguments(GenericArguments.optional(GenericArguments.world(Text.of("world"))))
+                .permission(Permission.RESTRICT_MODIFY)
+                .executor(new AddDimension())
+                .build();
+
+        CommandSpec dimRem = CommandSpec.builder()
+                .arguments(GenericArguments.optional(GenericArguments.world(Text.of("world"))))
+                .permission(Permission.RESTRICT_MODIFY)
+                .executor(new RemoveDimension())
+                .build();
+
         CommandSpec itemBlacklist = CommandSpec.builder()
                 .arguments(GenericArguments.optional(GenericArguments.catalogedElement(Text.of("item-id"), ItemType.class)))
                 .permission(Permission.RESTRICT_MODIFY)
@@ -84,6 +103,9 @@ public class RestrictBase implements CommandExecutor {
                 .executor(new RestrictBase());
 
         commandMap = Stream.of(
+                new Pair<>(dimList, new String[]{"listdims", "ldims", "listworlds", "worlds"}),
+                new Pair<>(dimAdd, new String[]{"adddim", "addworld", "adim", "aworld"}),
+                new Pair<>(dimRem, new String[]{"removedim", "removeworld", "rdim", "rworld"}),
                 new Pair<>(itemBlacklist, new String[]{"blacklistitem", "bitem"}),
                 new Pair<>(itemRemove, new String[]{"removeitem", "ritem"}),
                 new Pair<>(itemList, new String[]{"listitem", "litem"}),

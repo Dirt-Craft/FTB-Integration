@@ -5,10 +5,14 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.world.World;
 
 import java.util.HashSet;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @ConfigSerializable
@@ -27,6 +31,13 @@ public class Configuration {
             comment = "Blocks allowed to be interacted with in others claims without explicit permission.")
     private final HashSet<BlockType> blockInteractWhitelist = new HashSet<>();
 
+    @Setting(value = "Dim-Claim-List",
+            comment = "A list of dims to be black or white listed.")
+    private final HashSet<UUID> dimClaimList = new HashSet<>();
+
+    @Setting(value = "Dim-Claim-List-Type", comment = "Determines if the dim-list is a blacklist or whitelist.")
+    private ListType dimListType = ListType.BLACKLIST;
+
     public Stream<ItemType> getItemBlacklist(){
         return itemBlacklist.stream();
     }
@@ -37,6 +48,17 @@ public class Configuration {
 
     public Stream<BlockType> getEditWhitelist(){
         return blockEditWhitelist.stream();
+    }
+
+    public Stream<World> getDimensions(){
+        return dimClaimList.stream()
+                .map(Sponge.getServer()::getWorld)
+                .filter(Optional::isPresent)
+                .map(Optional::get);
+    }
+
+    public ListType getDimListType(){
+        return dimListType;
     }
 
     public boolean isBlockEditAllowed(Block block) {
@@ -51,12 +73,17 @@ public class Configuration {
         return !itemBlacklist.contains(item);
     }
 
+    public boolean isClaimingAllowed(World world) {
+        return dimClaimList.contains(world.getUniqueId()) ^ dimListType == ListType.BLACKLIST;
+    }
+
     public boolean addItemBlacklist(Item item){
         boolean r = itemBlacklist.add((ItemType) item);
         plugin.saveConfig();
         return r;
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls") //Mixins
     public boolean removeItemBlacklist(Item item){
         boolean r = itemBlacklist.remove(item);
         plugin.saveConfig();
@@ -69,6 +96,7 @@ public class Configuration {
         return r;
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls") //Mixins
     public boolean removeEditWhitelist(Block block){
         boolean r = blockEditWhitelist.remove(block);
         plugin.saveConfig();
@@ -81,9 +109,32 @@ public class Configuration {
         return r;
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls") //Mixins
     public boolean removeInteractWhitelist(Block block){
         boolean r = blockInteractWhitelist.remove(block);
         plugin.saveConfig();
         return r;
+    }
+
+    public boolean listDimension(World world){
+        boolean r = dimClaimList.add(world.getUniqueId());
+        plugin.saveConfig();
+        return r;
+    }
+
+    public boolean delistDimension(World world){
+        boolean r = dimClaimList.remove(world.getUniqueId());
+        plugin.saveConfig();
+        return r;
+    }
+
+    public void setDimListType(ListType type){
+        this.dimListType = type;
+        plugin.saveConfig();
+    }
+
+    public enum ListType {
+        BLACKLIST,
+        WHITELIST
     }
 }

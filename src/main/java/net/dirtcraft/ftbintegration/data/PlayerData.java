@@ -154,6 +154,11 @@ public class PlayerData {
                 PERMS.hasPermission(gameProfile, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS, formatClaim(chunk));
     }
 
+    public boolean canClaimInDimension(World world) {
+        return canBypassClaims() || INTEGRATION.getConfig().isClaimingAllowed(world) ||
+                PERMS.hasPermission(gameProfile, Permission.resolveClaimDimension(world.getName()));
+    }
+
     public ForgePlayer getForgePlayer() {
         if (fPlayer == null) {
             fPlayer = user instanceof FakePlayer? Universe.get().getPlayer(ServerUtils.FAKE_PLAYER_PROFILE): Universe.get().getPlayer(gameProfile);
