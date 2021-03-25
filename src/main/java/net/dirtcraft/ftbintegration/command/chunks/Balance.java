@@ -22,7 +22,8 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.dirtcraft.ftbintegration.utility.SpongeHelper.*;
+import static net.dirtcraft.ftbintegration.utility.SpongeHelper.formatText;
+import static net.dirtcraft.ftbintegration.utility.SpongeHelper.logFailure;
 
 public class Balance implements CommandExecutor {
     @Nonnull

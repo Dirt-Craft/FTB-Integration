@@ -18,10 +18,8 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
-import java.awt.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -50,9 +50,10 @@ public class ListDimensions implements CommandExecutor {
     public Text getTitle(CommandContext args){
         Configuration configuration = FtbIntegration.INSTANCE.getConfig();
         String type = configuration.getDimListType() == Configuration.ListType.WHITELIST? "WhiteList":"Blacklist";
+        String color = configuration.getDimListType() == Configuration.ListType.WHITELIST? "&f":"&8";
         Configuration.ListType other = configuration.getDimListType() == Configuration.ListType.WHITELIST?
                 Configuration.ListType.BLACKLIST: Configuration.ListType.WHITELIST;
-        return SpongeHelper.formatText("&8 Dimension %s ", type).toBuilder()
+        return SpongeHelper.formatText("%s Dimension %s ", color, type).toBuilder()
                 .onHover(TextActions.showText(SpongeHelper.formatText("Click to toggle!")))
                 .onClick(TextActions.executeCallback(a->{
                     configuration.setDimListType(other);

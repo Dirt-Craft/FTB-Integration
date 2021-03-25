@@ -1,7 +1,6 @@
 package net.dirtcraft.ftbintegration.command.chunks;
 
 import net.dirtcraft.ftbintegration.command.IntegrationBase;
-import net.dirtcraft.ftbintegration.command.user.claim.ClaimBase;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.Pair;
 import net.dirtcraft.ftbintegration.utility.SpongeHelper;
