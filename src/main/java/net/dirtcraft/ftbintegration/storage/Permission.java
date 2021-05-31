@@ -31,6 +31,8 @@ public class Permission {
     public static final String CLAIM_CHUNK = resolvePermission(CLAIM_BASE, "base");
     public static final String CLAIM_OTHER = resolvePermission(CLAIM_BASE, "others");
     public static final String FLAG_MOB_SPAWN = resolvePermission(FLAG_BASE, "mobspawn");
+    public static final String FLAG_EJECT_SPAWN = resolvePermission(FLAG_BASE, "ejectspawn");
+    public static final String FLAG_ENTRY = resolvePermission(FLAG_BASE, "entry");
 
     //Badge Nodes
     public static final String STAFF_BADGE = resolvePermission(BADGE_BASE, "staff");

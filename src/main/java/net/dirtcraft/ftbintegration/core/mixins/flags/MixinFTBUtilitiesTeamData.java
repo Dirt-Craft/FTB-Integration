@@ -1,5 +1,6 @@
 package net.dirtcraft.ftbintegration.core.mixins.flags;
 
+import com.feed_the_beast.ftblib.lib.EnumTeamStatus;
 import com.feed_the_beast.ftblib.lib.config.ConfigGroup;
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftblib.lib.data.TeamData;
@@ -26,5 +27,6 @@ public abstract class MixinFTBUtilitiesTeamData extends TeamData {
         FlagTeamInfo team = (FlagTeamInfo)this.team;
 
         group.addBool("block_mob_spawns", team::blockMobSpawns, team::setBlockMobSpawns, false);
+        group.addEnum("allow_entry", team::allowEntry, team::setAllowEntryRank, EnumTeamStatus.NAME_MAP);
     }
 }

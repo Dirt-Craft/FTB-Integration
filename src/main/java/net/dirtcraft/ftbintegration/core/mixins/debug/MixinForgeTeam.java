@@ -85,11 +85,19 @@ public abstract class MixinForgeTeam extends FinalIDObject implements DebugTeamI
         if (this instanceof FlagTeamInfo){
             FlagTeamInfo flagTeamInfo = (FlagTeamInfo) this;
             String mobSpawn = String.valueOf(!flagTeamInfo.blockMobSpawns());
+            String entry = flagTeamInfo.allowEntry().getName();
+            String ejectSpawn = String.valueOf(flagTeamInfo.ejectEntrantSpawn());
             textComponent.appendText("\n")
                     .appendText("Flags:")
                     .appendText("\n")
                     .appendText(" - Mob Spawn: ")
-                    .appendText(mobSpawn);
+                    .appendText(mobSpawn)
+                    .appendText("\n")
+                    .appendText(" - Entry Rank: ")
+                    .appendText(entry)
+                    .appendText("\n")
+                    .appendText(" - Eject To Spawn: ")
+                    .appendText(ejectSpawn);
         }
         return textComponent;
     }

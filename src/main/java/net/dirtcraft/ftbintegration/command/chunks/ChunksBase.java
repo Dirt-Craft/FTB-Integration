@@ -1,9 +1,11 @@
 package net.dirtcraft.ftbintegration.command.chunks;
 
+import com.feed_the_beast.ftblib.lib.EnumTeamStatus;
 import net.dirtcraft.ftbintegration.command.IntegrationBase;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.Pair;
 import net.dirtcraft.ftbintegration.utility.SpongeHelper;
+import net.minecraft.entity.EnumCreatureType;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -40,6 +42,20 @@ public class ChunksBase implements CommandExecutor {
                 .executor(new ToggleSpawns())
                 .build();
 
+        CommandSpec toggleEntry = CommandSpec.builder()
+                .permission(Permission.FLAG_ENTRY)
+                .arguments(GenericArguments.string(Text.of("team-id")),
+                        GenericArguments.enumValue(Text.of("value"), EnumTeamStatus.class))
+                .executor(new ToggleEntry())
+                .build();
+
+        CommandSpec toggleEjectSpawn = CommandSpec.builder()
+                .permission(Permission.FLAG_EJECT_SPAWN)
+                .arguments(GenericArguments.string(Text.of("team-id")),
+                        GenericArguments.bool(Text.of("value")))
+                .executor(new ToggleEjectSpawn())
+                .build();
+
         CommandSpec claimChunks = CommandSpec.builder()
                 .permission(Permission.CLAIM_CHUNK)
                 .executor(new ClaimChunks())
@@ -67,6 +83,8 @@ public class ChunksBase implements CommandExecutor {
                 new Pair<>(pos2, new String[]{"pos2"}),
                 new Pair<>(setGroupClaims, new String[]{"setgroupclaims", "sgc"}),
                 new Pair<>(toggleSpawns, new String[]{"togglespawns", "ts"}),
+                new Pair<>(toggleEjectSpawn, new String[]{"toggleejectspawn", "tes"}),
+                new Pair<>(toggleEntry, new String[]{"toggleeject", "te"}),
                 new Pair<>(unclaimChunks, new String[]{"unclaim", "uc"}),
                 new Pair<>(claimChunks, new String[]{"claim", "c"})
         ).collect(Collectors.toMap(Pair::getKey, Pair::getValue, (a,b)->a, LinkedHashMap::new));
