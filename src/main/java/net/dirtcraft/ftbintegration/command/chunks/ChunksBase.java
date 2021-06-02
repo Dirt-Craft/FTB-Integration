@@ -83,8 +83,8 @@ public class ChunksBase implements CommandExecutor {
                 new Pair<>(pos2, new String[]{"pos2"}),
                 new Pair<>(setGroupClaims, new String[]{"setgroupclaims", "sgc"}),
                 new Pair<>(toggleSpawns, new String[]{"togglespawns", "ts"}),
-                new Pair<>(toggleEjectSpawn, new String[]{"toggleejectspawn", "tes"}),
-                new Pair<>(toggleEntry, new String[]{"toggleeject", "te"}),
+                new Pair<>(toggleEjectSpawn, new String[]{"setspawnexit", "sse"}),
+                new Pair<>(toggleEntry, new String[]{"setentry", "se", "allowentry", "ae"}),
                 new Pair<>(unclaimChunks, new String[]{"unclaim", "uc"}),
                 new Pair<>(claimChunks, new String[]{"claim", "c"})
         ).collect(Collectors.toMap(Pair::getKey, Pair::getValue, (a,b)->a, LinkedHashMap::new));

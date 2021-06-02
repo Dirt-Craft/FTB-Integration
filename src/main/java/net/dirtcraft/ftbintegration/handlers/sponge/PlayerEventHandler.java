@@ -33,6 +33,7 @@ import net.dirtcraft.ftbintegration.core.mixins.badges.FTBUtilitiesUniverseDataA
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.data.PlayerDataManager;
 import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
+import net.dirtcraft.ftbintegration.handlers.forge.ChunkEventsHandler;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
 import net.dirtcraft.ftbintegration.utility.SpongeHelper;
@@ -59,6 +60,7 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.HandInteractEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.filter.cause.Root;
@@ -81,6 +83,18 @@ public class PlayerEventHandler {
     private final PlayerDataManager manager = PlayerDataManager.getInstance();
     private int lastInteractItemPrimaryTick = -1;
     private int lastInteractItemSecondaryTick = -1;
+
+    @Listener
+    public void onTeleport(MoveEntityEvent.Teleport event) {
+        if (!(event.getTargetEntity() instanceof Player)) return;
+        Vector3d pos = event.getToTransform().getPosition();
+        Player player = (Player) event.getTargetEntity();
+        PlayerData data = PlayerData.get(player);
+        if (data.canBypassClaims()) return;
+        else if (!ChunkEventsHandler.canEnterChunk(pos.getFloorX() >> 4, pos.getFloorZ() >> 4, data.getForgePlayer(), ((EntityPlayerMP) player).dimension)) {
+            event.setCancelled(true);
+        }
+    }
 
     @Listener
     public void onLogin(ClientConnectionEvent.Join event){

@@ -1,7 +1,6 @@
 package net.dirtcraft.ftbintegration.handlers.forge;
 
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
-import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
@@ -12,13 +11,9 @@ import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.data.PlayerDataManager;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
 import net.dirtcraft.ftbintegration.utility.SpongeHelper;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.Teleporter;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -60,18 +55,36 @@ public class ChunkEventsHandler {
             FlagTeamInfo extTeam = (FlagTeamInfo) chunk.getTeam();
             EntityPlayerMP p = (EntityPlayerMP) player;
             if (extTeam.allowEntry(data.getForgePlayer()) || data.canBypassClaims()) data.setClaimStandingIn(chunk.getTeam());
-            else if (extTeam.ejectEntrantSpawn() || !canEnterChunk(event.getOldChunkX(), event.getOldChunkZ(), data.getForgePlayer(), p.dimension)){
+            else if (extTeam.ejectEntrantSpawn()){
+                Location<World> spawnLoc = player.getWorld().getSpawnLocation();
                 player.setLocation(player.getWorld().getSpawnLocation());
+                moveToValidChunk(spawnLoc.getBlockX() >> 4, spawnLoc.getBlockZ() >> 4, player, data.getForgePlayer(), p.dimension);
             } else {
-                int y = (int) p.posY;
-                int x = (event.getOldChunkX() << 4) + 8;
-                int z = (event.getOldChunkZ() << 4) + 8;
-                player.setLocation(player.getWorld().getLocation(x, y, z));
+                moveToValidChunk(event.getOldChunkX(), event.getOldChunkZ(), player, data.getForgePlayer(), p.dimension);
             }
         }
     }
 
-    private boolean canEnterChunk(int cx, int cz, ForgePlayer player, int world){
+    public static void moveToValidChunk(int originX, int originZ, Player p, ForgePlayer data, int world) {
+        ChunkPos exit = getEntryAllowedChunk(originX, originZ, data, world);
+        int x = (exit.x << 4) + 8;
+        int z = (exit.z << 4) + 8;
+        int y = p.getWorld().getHighestYAt(x, z);
+        p.setLocation(p.getWorld().getLocation(x, y, z));
+    }
+
+    private static ChunkPos getEntryAllowedChunk(int originX, int originZ, ForgePlayer player, int world) {
+        if (canEnterChunk(originX, originZ, player, world)) return new ChunkPos(originX, originZ);
+        for (int i = 1; i < 99; i++) {
+            if (canEnterChunk(originX + i, originZ, player, world)) return new ChunkPos(originX + i, originZ);
+            if (canEnterChunk(originX, originZ + i, player, world)) return new ChunkPos(originX, originZ + i);
+            if (canEnterChunk(originX - i, originZ, player, world)) return new ChunkPos(originX - i, originZ);
+            if (canEnterChunk(originX, originZ - i, player, world)) return new ChunkPos(originX, originZ - i);
+        }
+        return new ChunkPos(0,0);
+    }
+
+    public static boolean canEnterChunk(int cx, int cz, ForgePlayer player, int world){
         ClaimedChunk chunks = ClaimedChunks.instance.getChunk(new ChunkDimPos(cx, cz, world));
         return chunks == null || chunks.getTeam() instanceof FlagTeamInfo
                 && ((FlagTeamInfo) chunks.getTeam()).allowEntry(player);
