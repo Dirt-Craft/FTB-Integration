@@ -68,6 +68,22 @@ public class ChunksBase implements CommandExecutor {
                 .executor(new UnclaimChunks())
                 .build();
 
+        CommandSpec unclaimDim = CommandSpec.builder()
+                .permission(Permission.UNCLAIM_DIM)
+                .executor(new UnclaimDimension())
+                .build();
+
+        CommandSpec inactiveTeams = CommandSpec.builder()
+                .permission(Permission.DEBUG)
+                .executor(new GetInactiveTeams())
+                .build();
+
+        CommandSpec listChunks = CommandSpec.builder()
+                .permission(Permission.DEBUG)
+                .arguments(GenericArguments.string(Text.of("team-id")))
+                .executor(new ListChunks())
+                .build();
+
         CommandSpec setGroupClaims = CommandSpec.builder()
                 .permission(Permission.CHUNK_CLAIM_MODIFY_GROUP)
                 .arguments(GenericArguments.string(Text.of("group-id")),
@@ -86,6 +102,9 @@ public class ChunksBase implements CommandExecutor {
                 new Pair<>(toggleEjectSpawn, new String[]{"setspawnexit", "sse"}),
                 new Pair<>(toggleEntry, new String[]{"setentry", "se", "allowentry", "ae"}),
                 new Pair<>(unclaimChunks, new String[]{"unclaim", "uc"}),
+                new Pair<>(unclaimDim, new String[]{"unclaimdim", "ucd"}),
+                new Pair<>(inactiveTeams, new String[]{"inactiveteams", "it"}),
+                new Pair<>(listChunks, new String[]{"list", "l"}),
                 new Pair<>(claimChunks, new String[]{"claim", "c"})
         ).collect(Collectors.toMap(Pair::getKey, Pair::getValue, (a,b)->a, LinkedHashMap::new));
         commandMap.forEach(base::child);

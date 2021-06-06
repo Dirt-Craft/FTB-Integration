@@ -1,0 +1,35 @@
+=========
+Build 1.0.0 -> 1.0.7
+    initial release
+    Adds better handlers to FTB:U
+    Adds debug mode w/ team, last-seen, flags & owner info
+    Adds toggle to ignore claim (Persists)
+    Added some commands that do stuff (Check command guide lmao)
+    Ability to set FTB Badges via command
+    Ability to toggle spawning in a claim
+    Ability to toggle entry into a claim
+    Ability to set denied users to outside the claim or spawn
+    Custom permission handler piping to LP
+    Exposed Chunk / Loader limits to LP metadata
+    Added DB for additional claim chunks in addition to meta-based
+    Wand-like selection and claiming / unclaiming
+    Probably some more stuff i missed. WHO KNOWS?!
+
+=========
+Build 1.0.8
+    Badge set feedback
+    Unclaim Dimension command
+    Command to fetch inactive teams
+    Command to fetch chunks of a team
+    Logic to ignore interacts on husky crate blocks (>V2.0.0)
+
+=========
+Future Ideas
+    Perhaps a spawn handler to limit entities per chunk and use meta etc.
+    Allow the mod to be used without FTB-U clientside effectively, etc.
+    SkyClaims Integration
+    GP-like visualizations
+
+
+
+

@@ -29,6 +29,7 @@ public class Permission {
     //Claim Nodes
     public static final String CLAIM_BASE = resolvePermission(CLAIMS_BASE, "claim");
     public static final String CLAIM_CHUNK = resolvePermission(CLAIM_BASE, "base");
+    public static final String UNCLAIM_DIM = resolvePermission(CLAIM_BASE, "dimension");
     public static final String CLAIM_OTHER = resolvePermission(CLAIM_BASE, "others");
     public static final String FLAG_MOB_SPAWN = resolvePermission(FLAG_BASE, "mobspawn");
     public static final String FLAG_EJECT_SPAWN = resolvePermission(FLAG_BASE, "ejectspawn");
@@ -79,6 +80,8 @@ public class Permission {
 
     Flags:
      - ftbintegration.claims.flags.mobspawn
+
+ftbintegration.claims.claim.dimension
 
     Config:
      - ftbintegration.config.restrict.modify

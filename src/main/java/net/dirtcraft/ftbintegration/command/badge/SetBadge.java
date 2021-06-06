@@ -3,6 +3,7 @@ package net.dirtcraft.ftbintegration.command.badge;
 import net.dirtcraft.ftbintegration.core.mixins.badges.FTBUtilitiesUniverseDataAccessor;
 import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
 import net.dirtcraft.ftbintegration.storage.Permission;
+import net.dirtcraft.ftbintegration.utility.SpongeHelper;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -10,6 +11,7 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -29,6 +31,7 @@ public class SetBadge implements CommandExecutor {
         String badge = args.requireOne("badge");
         target.offer(PlayerSettings.GET_BADGE, badge);
         FTBUtilitiesUniverseDataAccessor.getBADGE_CACHE().put(target.getUniqueId(), badge);
+        src.sendMessages(SpongeHelper.formatText("&aSuccessfully set %s badge to %s", src == target? "your" : (target.getName() + "'s"), badge));
         return CommandResult.success();
     }
 }

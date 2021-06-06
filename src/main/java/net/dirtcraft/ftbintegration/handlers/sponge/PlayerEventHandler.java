@@ -36,6 +36,7 @@ import net.dirtcraft.ftbintegration.data.sponge.PlayerSettings;
 import net.dirtcraft.ftbintegration.handlers.forge.ChunkEventsHandler;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
+import net.dirtcraft.ftbintegration.utility.CrateHelper;
 import net.dirtcraft.ftbintegration.utility.SpongeHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -159,6 +160,7 @@ public class PlayerEventHandler {
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onPlayerInteractBlockPrimary(InteractBlockEvent.Primary.MainHand event, @First Player player) {
+        if (CrateHelper.INSTANCE.isHuskyCrate(event.getTargetBlock().getLocation().orElse(null))) return;
         final BlockSnapshot clickedBlock = event.getTargetBlock();
         final HandType handType = event.getHandType();
         final ItemStack itemInHand = player.getItemInHand(handType).orElse(ItemStack.empty());
@@ -187,6 +189,7 @@ public class PlayerEventHandler {
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onPlayerInteractBlockSecondary(InteractBlockEvent.Secondary event, @First Player player) {
+        if (CrateHelper.INSTANCE.isHuskyCrate(event.getTargetBlock().getLocation().orElse(null))) return;
         final BlockSnapshot clickedBlock = event.getTargetBlock();
         final HandType handType = event.getHandType();
         final ItemStack itemInHand = player.getItemInHand(handType).orElse(ItemStack.empty());
