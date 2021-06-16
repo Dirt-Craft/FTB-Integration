@@ -2,7 +2,6 @@ package net.dirtcraft.ftbintegration.handlers.sponge;
 
 import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
-import com.google.common.collect.Sets;
 import net.dirtcraft.ftbintegration.core.api.FlagTeamInfo;
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.utility.CauseContextHelper;
@@ -25,16 +24,21 @@ import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class EntityEventHandler {
-    private final HashSet<EntityType> ALWAYS_SPAWN = Sets.newHashSet(
-            EntityTypes.ARMOR_STAND,
-            EntityTypes.PLAYER,
-            EntityTypes.ITEM,
-            EntityTypes.FALLING_BLOCK,
-            EntityTypes.ITEM_FRAME
+
+    private final Collection<EntityMatcher> entityWhitelist = Arrays.asList(
+            new EntityTypeMatcher(EntityTypes.ARMOR_STAND),
+            new EntityTypeMatcher(EntityTypes.PLAYER),
+            new EntityTypeMatcher(EntityTypes.ITEM),
+            new EntityTypeMatcher(EntityTypes.FALLING_BLOCK),
+            new EntityTypeMatcher(EntityTypes.ITEM_FRAME),
+            new EntityTypeIdMatcher("appliedenergistics2:appeng.entity.entitychargedquartz")
     );
 
     @Listener(order = Order.FIRST, beforeModifications = true)
@@ -73,10 +77,14 @@ public class EntityEventHandler {
     }
 
     @Listener
-    public void onEntitySpawn(SpawnEntityEvent event){
+    public void onEntitySpawn(SpawnEntityEvent event) {
         HashMap<ClaimedChunk, Boolean> spawnMap = new HashMap<>();
         event.filterEntities(entity -> {
-            if (ALWAYS_SPAWN.contains(entity.getType())) return true;
+            final boolean whitelistedEntity = entityWhitelist.stream()
+                    .anyMatch(matcher -> matcher.matches(entity));
+            if (whitelistedEntity) {
+                return true;
+            }
             ClaimedChunk chunk = ClaimedChunkHelper.getChunk(entity.getLocation());
             if (chunk == null) return true;
             else if (spawnMap.containsKey(chunk)) return spawnMap.get(chunk);
@@ -85,5 +93,38 @@ public class EntityEventHandler {
             spawnMap.put(chunk, !blockSpawn);
             return !blockSpawn;
         });
+    }
+
+    private interface EntityMatcher {
+
+        boolean matches(final Entity entity);
+    }
+
+    private static class EntityTypeMatcher implements EntityMatcher {
+
+        private final EntityType entityType;
+
+        public EntityTypeMatcher(final EntityType entityType) {
+            this.entityType = entityType;
+        }
+
+        @Override
+        public boolean matches(final Entity entity) {
+            return Objects.equals(entityType, entity.getType());
+        }
+    }
+
+    private static class EntityTypeIdMatcher implements EntityMatcher {
+
+        private final String id;
+
+        public EntityTypeIdMatcher(final String id) {
+            this.id = id;
+        }
+
+        @Override
+        public boolean matches(final Entity entity) {
+            return Objects.equals(id, entity.getType().getId());
+        }
     }
 }
