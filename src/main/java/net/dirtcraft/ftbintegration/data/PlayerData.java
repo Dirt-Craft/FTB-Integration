@@ -15,8 +15,10 @@ import net.dirtcraft.ftbintegration.handlers.forge.SpongePermissionHandler;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.util.FakePlayer;
+import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
@@ -45,6 +47,8 @@ public class PlayerData {
 
     private boolean bypassClaims;
     private boolean debugClaims;
+    private boolean teamChat;
+    private boolean teamSpy;
 
     private ChunkDimPos primaryChunkPos;
     private ChunkDimPos secondaryChunkPos;
@@ -134,6 +138,11 @@ public class PlayerData {
 
     }
 
+    public boolean hasSpawningPermission(Entity entity, ClaimedChunk chunk) {
+        return canBypassClaims() ||
+                PERMS.hasPermission(gameProfile, Permission.resolveSpawn(entity), formatClaim(chunk));
+    }
+
     public boolean hasBlockEditingPermission(Block block, ClaimedChunk chunk) {
         return canBypassClaims() || INTEGRATION.getConfig().isBlockEditAllowed(block) ||
                 PERMS.hasPermission(gameProfile, Permission.resolveBlockEdit(block), formatClaim(chunk));
@@ -190,12 +199,17 @@ public class PlayerData {
         return debugClaims;
     }
 
+
     public @Nullable String getBadge(){
         if (user.get(PlayerSettings.GET_BADGE).filter(url->!url.equalsIgnoreCase("")).isPresent()){
             return user.get(PlayerSettings.GET_BADGE).orElse(null);
         }
         if (!user.hasPermission(Permission.STAFF_BADGE)) return null;
         return "https://i.imgur.com/G0pEx1j.png";
+    }
+
+    public boolean isFake(){
+        return user instanceof FakePlayer;
     }
 
     private String formatClaim(ClaimedChunk chunk){
@@ -206,5 +220,9 @@ public class PlayerData {
         if (team == null) return "wilderness";
         else if (team.owner == null) return "server";
         else return ((AccessorFinalIDObject)team).getTeamIdString();
+    }
+
+    private void d(){
+
     }
 }

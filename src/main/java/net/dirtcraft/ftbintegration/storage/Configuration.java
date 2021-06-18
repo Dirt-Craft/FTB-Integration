@@ -19,6 +19,9 @@ import java.util.stream.Stream;
 public class Configuration {
     private final FtbIntegration plugin = FtbIntegration.INSTANCE;
 
+    @Setting(value = "enable-logging", comment = "enable logging for some events!")
+    private boolean logging = false;
+
     @Setting(value = "Use-Blacklisted-Items",
             comment = "Items not allowed to be used in others claims without permission.")
     private final HashSet<ItemType> itemBlacklist = new HashSet<>();
@@ -74,7 +77,10 @@ public class Configuration {
     }
 
     public boolean isClaimingAllowed(World world) {
-        return dimClaimList.contains(world.getUniqueId()) ^ dimListType == ListType.BLACKLIST;
+        UUID uuid = world.getUniqueId();
+        boolean isListed = dimClaimList.contains(uuid);
+        boolean isBlacklist = dimListType == ListType.BLACKLIST;
+        return isListed ^ isBlacklist;
     }
 
     public boolean addItemBlacklist(Item item){
@@ -131,6 +137,15 @@ public class Configuration {
     public void setDimListType(ListType type){
         this.dimListType = type;
         plugin.saveConfig();
+    }
+
+    public void setLogging(boolean b){
+        this.logging = b;
+        plugin.saveConfig();
+    }
+
+    public boolean shouldLog(){
+        return logging;
     }
 
     public enum ListType {

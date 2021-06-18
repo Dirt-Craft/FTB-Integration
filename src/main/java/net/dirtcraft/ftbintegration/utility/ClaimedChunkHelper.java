@@ -72,6 +72,12 @@ public class ClaimedChunkHelper {
         return blockBlockInteractions(player, location);
     }
 
+    public static boolean blockSpawning(PlayerData player, ClaimedChunk chunk, Entity entity) {
+        return player != null && chunk != null
+                && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getEditBlocksStatus())
+                && !player.hasSpawningPermission(entity, chunk);
+    }
+
     public static boolean blockBlockEditing(PlayerData player, ClaimedChunk chunk, Location<World> location) {
         return player != null && chunk != null
                 && !chunk.getTeam().hasStatus(player.getForgePlayer(), chunk.getData().getEditBlocksStatus())

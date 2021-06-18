@@ -6,6 +6,9 @@ import net.dirtcraft.ftbintegration.core.api.FlagTeamInfo;
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.utility.CauseContextHelper;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.init.Blocks;
+import net.minecraftforge.common.util.FakePlayer;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
@@ -32,13 +35,13 @@ import java.util.stream.Collectors;
 
 public class EntityEventHandler {
 
+    //Add shit here instead of adding mod deps for whatever we want to not clear by default i guess.
+    //todo make it config  based.
     private final Collection<EntityMatcher> entityWhitelist = Arrays.asList(
             new EntityTypeMatcher(EntityTypes.ARMOR_STAND),
             new EntityTypeMatcher(EntityTypes.PLAYER),
-            new EntityTypeMatcher(EntityTypes.ITEM),
             new EntityTypeMatcher(EntityTypes.FALLING_BLOCK),
-            new EntityTypeMatcher(EntityTypes.ITEM_FRAME),
-            new EntityTypeIdMatcher("appliedenergistics2:appeng.entity.entitychargedquartz")
+            new EntityTypeMatcher(EntityTypes.ITEM_FRAME)
     );
 
     @Listener(order = Order.FIRST, beforeModifications = true)
@@ -78,20 +81,20 @@ public class EntityEventHandler {
 
     @Listener
     public void onEntitySpawn(SpawnEntityEvent event) {
-        HashMap<ClaimedChunk, Boolean> spawnMap = new HashMap<>();
+        User cause = CauseContextHelper.getEventUser(event);
         event.filterEntities(entity -> {
-            final boolean whitelistedEntity = entityWhitelist.stream()
-                    .anyMatch(matcher -> matcher.matches(entity));
-            if (whitelistedEntity) {
-                return true;
-            }
+            if (entity instanceof EntityItem) return true; //Bypass for all item entites, and that which extend it.
+
             ClaimedChunk chunk = ClaimedChunkHelper.getChunk(entity.getLocation());
             if (chunk == null) return true;
-            else if (spawnMap.containsKey(chunk)) return spawnMap.get(chunk);
+
+            PlayerData data = PlayerData.getOrCreate(cause);
+            if (ClaimedChunkHelper.blockSpawning(data, chunk, entity)) return false;
+
             ForgeTeam team = chunk.getTeam();
-            boolean blockSpawn = team instanceof FlagTeamInfo && ((FlagTeamInfo) team).blockMobSpawns();
-            spawnMap.put(chunk, !blockSpawn);
-            return !blockSpawn;
+            if (team instanceof FlagTeamInfo && !((FlagTeamInfo) team).blockMobSpawns()) return true;
+
+            return entityWhitelist.stream().anyMatch(matcher -> matcher.matches(entity));
         });
     }
 

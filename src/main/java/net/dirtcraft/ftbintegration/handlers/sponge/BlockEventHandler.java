@@ -31,6 +31,7 @@ import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.utility.CauseContextHelper;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
+import net.dirtcraft.ftbintegration.utility.LoggingUtils;
 import net.minecraft.block.BlockBasePressurePlate;
 import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.item.EntityItem;
@@ -115,7 +116,8 @@ public class BlockEventHandler {
 
         final boolean isForgePlayerBreak = context.containsKey(EventContextKeys.PLAYER_BREAK);
         if (isForgePlayerBreak && !hasFakePlayer && source instanceof Player) {
-            if (handlePlayerBreak(event.getLocations(), playerData)){
+            if (handlePlayerBreak(event.getLocations(), playerData)) {
+                LoggingUtils.logFailure(event.getCause(), sourceLocation, "beh_1");
                 event.setCancelled(true);
             }
         } else if (sourceLocation != null || user != null) {
@@ -142,6 +144,7 @@ public class BlockEventHandler {
 
                 //Don't cancel any related events if it's a leaf
                 if (location.getBlockType() == BlockTypes.LEAVES || location.getBlockType() ==  BlockTypes.LEAVES2) return;
+                LoggingUtils.logFailure(event.getCause(), sourceLocation, "beh_2");
                 event.setCancelled(true);
                 return;
             }
@@ -295,7 +298,7 @@ public class BlockEventHandler {
             final List<Location<World>> filteredLocations = new ArrayList<>();
             for (Location<World> location : event.getAffectedLocations()) {
                 ClaimedChunk chunk = ClaimedChunkHelper.getChunk(location);
-                if (!chunk.hasExplosions() || ClaimedChunkHelper.blockBlockEditing(playerData, chunk, location)) {
+                if (chunk != null && !chunk.hasExplosions() || ClaimedChunkHelper.blockBlockEditing(playerData, chunk, location)) {
                     filteredLocations.add(location);
                 }
             }
@@ -327,6 +330,7 @@ public class BlockEventHandler {
 
             PlayerData playerData = PlayerData.getOrCreate(user);
             if (ClaimedChunkHelper.blockBlockEditing(playerData, location)) {
+                LoggingUtils.logFailure(event.getCause(), location, targetClaim, "beh_3");
                 event.setCancelled(true);
                 return;
             }
@@ -364,6 +368,7 @@ public class BlockEventHandler {
             if (user == null && ClaimedChunkHelper.isSameTeam(sourceClaim, targetClaim)) return;
 
             if (ClaimedChunkHelper.blockBlockEditing(playerData, targetClaim, location)) {
+                LoggingUtils.logFailure(event.getCause(), location, targetClaim, "beh_4");
                 event.setCancelled(true);
                 return;
             }

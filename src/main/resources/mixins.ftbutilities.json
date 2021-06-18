@@ -16,7 +16,8 @@
     "flags.MixinForgeTeam",
     "flags.MixinFTBUtilitiesTeamData",
     "generic.AccessorClaimedChunks",
-    "generic.AccessorFinalIDObject"
+    "generic.AccessorFinalIDObject",
+    "chat.MixinForgeTeam"
   ],
   "injectors": {
     "defaultRequire": 1

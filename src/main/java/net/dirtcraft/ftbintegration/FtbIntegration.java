@@ -23,6 +23,8 @@ import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.key.Key;
@@ -44,6 +46,7 @@ import static net.minecraftforge.fml.common.Mod.EventHandler;
         acceptableRemoteVersions = "*",
         dependencies = "required-after:ftbutilities")
 public class FtbIntegration {
+    public static final Logger LOG = LogManager.getLogger(FtbIntegration.MODID);
     public static final String MODID = "ftb-integration";
     public static final String NAME = "FTB Utilities Sponge Integration";
     public static final String VERSION = "@VERSION@";

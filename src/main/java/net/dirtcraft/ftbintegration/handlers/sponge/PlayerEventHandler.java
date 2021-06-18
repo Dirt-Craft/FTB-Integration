@@ -91,7 +91,8 @@ public class PlayerEventHandler {
         Vector3d pos = event.getToTransform().getPosition();
         Player player = (Player) event.getTargetEntity();
         PlayerData data = PlayerData.get(player);
-        if (data.canBypassClaims()) return;
+        if (data == null) System.out.printf("%s null? onTeleport Hander - FTBI\n", player.getName());
+        else if (data.canBypassClaims()) return;
         else if (!ChunkEventsHandler.canEnterChunk(pos.getFloorX() >> 4, pos.getFloorZ() >> 4, data.getForgePlayer(), ((EntityPlayerMP) player).dimension)) {
             event.setCancelled(true);
         }

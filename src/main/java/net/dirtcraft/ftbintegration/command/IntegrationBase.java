@@ -3,6 +3,7 @@ package net.dirtcraft.ftbintegration.command;
 import net.dirtcraft.ftbintegration.FtbIntegration;
 import net.dirtcraft.ftbintegration.command.badge.BadgeBase;
 import net.dirtcraft.ftbintegration.command.chunks.ChunksBase;
+import net.dirtcraft.ftbintegration.command.debug.DebugBase;
 import net.dirtcraft.ftbintegration.command.restrictions.RestrictBase;
 import net.dirtcraft.ftbintegration.command.user.UserBase;
 import net.dirtcraft.ftbintegration.storage.Permission;
@@ -33,6 +34,12 @@ public class IntegrationBase implements CommandExecutor {
     private static Map<CommandSpec, String[]> commandMap;
 
     public static void registerCommands(FtbIntegration plugin){
+        CommandSpec team = CommandSpec.builder()
+                .permission(Permission.CHAT_USE)
+                .arguments(GenericArguments.optional(GenericArguments.remainingJoinedStrings(Text.of("message"))))
+                .executor(new TeamChat())
+                .build();
+
         CommandSpec debug = CommandSpec.builder()
                 .permission(Permission.DEBUG)
                 .arguments(GenericArguments.optional(GenericArguments.player(Text.of("target"))))
@@ -62,11 +69,13 @@ public class IntegrationBase implements CommandExecutor {
                 new Pair<>(ChunksBase.getCommand(), ChunksBase.ALIASES),
                 new Pair<>(BadgeBase.getCommand(), BadgeBase.ALIASES),
                 new Pair<>(RestrictBase.getCommand(), RestrictBase.ALIASES),
+                new Pair<>(DebugBase.getCommand(), DebugBase.ALIASES),
                 new Pair<>(settings, new String[]{"settings", "s"}),
                 new Pair<>(reload, new String[]{"reload"})
         ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
         commandMap.forEach(base::child);
 
+        Sponge.getCommandManager().register(plugin, team, "tc", "teamchat");
         Sponge.getCommandManager().register(plugin, debug, "dc", "debugclaims");
         Sponge.getCommandManager().register(plugin, bypass, "ic", "ignoreclaims");
         Sponge.getCommandManager().register(plugin, base.build(), ALIAS, "ftbintegration");

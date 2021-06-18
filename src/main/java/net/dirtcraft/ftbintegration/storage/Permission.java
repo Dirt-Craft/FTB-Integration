@@ -3,6 +3,7 @@ package net.dirtcraft.ftbintegration.storage;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+import org.spongepowered.api.entity.Entity;
 
 import javax.annotation.Nullable;
 
@@ -63,6 +64,14 @@ public class Permission {
     public static final String RESTRICT_MODIFY = resolvePermission(RESTRICT_BASE, "modify");
     public static final String RESTRICT_VIEW = resolvePermission(RESTRICT_BASE, "view");
 
+    //DEV
+    public static final String LOG_MODIFY = resolvePermission(BASE, "dev", "logging");
+
+    //Chat
+    public static final String CHAT_BASE = resolvePermission(BASE, "chat");
+    public static final String CHAT_USE = resolvePermission(CHAT_BASE, "use");
+    public static final String CHAT_SPY = resolvePermission(CHAT_BASE, "spy");
+
     /* Permissions Quick-List
     Claiming In General:
      - ftbintegration.claims.claim.worldId
@@ -103,11 +112,19 @@ ftbintegration.claims.claim.dimension
      - ftbintegration.claims.chunks.modify.group
      - ftbintegration.claims.chunks.max
      - ftbintegration.claims.loaders.max
+
+     CHAT
+     - ftbintegration.chat.spy
+     - ftbintegration.chat.use
      */
 
 
     public static String resolveClaimDimension(String world){
         return resolvePermission(CLAIM_BASE, world);
+    }
+
+    public static String resolveSpawn(Entity entity){
+        return resolvePermission("ftbutilities.claims.entity.spawn");
     }
 
     public static String resolveBlockEdit(Block block){
