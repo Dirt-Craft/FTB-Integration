@@ -117,7 +117,7 @@ public class BlockEventHandler {
         final boolean isForgePlayerBreak = context.containsKey(EventContextKeys.PLAYER_BREAK);
         if (isForgePlayerBreak && !hasFakePlayer && source instanceof Player) {
             if (handlePlayerBreak(event.getLocations(), playerData)) {
-                LoggingUtils.logFailure(event.getCause(), sourceLocation, "beh_1");
+                LoggingUtils.logFailure(event, sourceLocation, "beh_1");
                 event.setCancelled(true);
             }
         } else if (sourceLocation != null || user != null) {
@@ -144,7 +144,7 @@ public class BlockEventHandler {
 
                 //Don't cancel any related events if it's a leaf
                 if (location.getBlockType() == BlockTypes.LEAVES || location.getBlockType() ==  BlockTypes.LEAVES2) return;
-                LoggingUtils.logFailure(event.getCause(), sourceLocation, "beh_2");
+                LoggingUtils.logFailure(event, sourceLocation, "beh_2");
                 event.setCancelled(true);
                 return;
             }
@@ -330,7 +330,7 @@ public class BlockEventHandler {
 
             PlayerData playerData = PlayerData.getOrCreate(user);
             if (ClaimedChunkHelper.blockBlockEditing(playerData, location)) {
-                LoggingUtils.logFailure(event.getCause(), location, targetClaim, "beh_3");
+                LoggingUtils.logFailure(event, location, targetClaim, "beh_3");
                 event.setCancelled(true);
                 return;
             }
@@ -368,7 +368,7 @@ public class BlockEventHandler {
             if (user == null && ClaimedChunkHelper.isSameTeam(sourceClaim, targetClaim)) return;
 
             if (ClaimedChunkHelper.blockBlockEditing(playerData, targetClaim, location)) {
-                LoggingUtils.logFailure(event.getCause(), location, targetClaim, "beh_4");
+                LoggingUtils.logFailure(event, location, targetClaim, "beh_4");
                 event.setCancelled(true);
                 return;
             }

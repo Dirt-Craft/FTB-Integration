@@ -5,7 +5,6 @@ import net.dirtcraft.ftbintegration.command.IntegrationBase;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.Pair;
 import net.dirtcraft.ftbintegration.utility.SpongeHelper;
-import net.minecraft.entity.EnumCreatureType;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;

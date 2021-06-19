@@ -8,6 +8,7 @@
   "server": [
     "badges.FTBUtilitiesUniverseDataAccessor",
     "bypass.MixinClaimedChunks",
+    "chat.MixinForgeTeam",
     "chunks.MixinForgePlayer",
     "chunks.MixinFTBUtilitiesTeamData",
     "debug.MixinForgePlayer",
@@ -16,8 +17,7 @@
     "flags.MixinForgeTeam",
     "flags.MixinFTBUtilitiesTeamData",
     "generic.AccessorClaimedChunks",
-    "generic.AccessorFinalIDObject",
-    "chat.MixinForgeTeam"
+    "generic.AccessorFinalIDObject"
   ],
   "injectors": {
     "defaultRequire": 1

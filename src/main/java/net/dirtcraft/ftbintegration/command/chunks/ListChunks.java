@@ -1,16 +1,8 @@
 package net.dirtcraft.ftbintegration.command.chunks;
 
-import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
-import com.feed_the_beast.ftblib.lib.data.ForgeTeam;
-import com.feed_the_beast.ftblib.lib.data.TeamType;
-import com.feed_the_beast.ftblib.lib.data.Universe;
-import com.feed_the_beast.ftblib.lib.math.ChunkDimPos;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunk;
 import com.feed_the_beast.ftbutilities.data.ClaimedChunks;
-import net.dirtcraft.ftbintegration.core.api.CompatClaimedChunks;
 import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorFinalIDObject;
-import net.dirtcraft.ftbintegration.data.PlayerData;
-import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.SpongeHelper;
 import net.dirtcraft.ftbintegration.utility.Switcher;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,12 +16,9 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.serializer.TextSerializers;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static net.dirtcraft.ftbintegration.utility.SpongeHelper.formatText;

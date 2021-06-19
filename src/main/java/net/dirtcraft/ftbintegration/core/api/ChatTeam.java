@@ -2,8 +2,8 @@ package net.dirtcraft.ftbintegration.core.api;
 
 import com.feed_the_beast.ftblib.lib.EnumTeamStatus;
 import net.dirtcraft.ftbintegration.storage.Permission;
-import net.dirtcraft.ftbintegration.utility.compat.NucleusHelper;
 import net.dirtcraft.ftbintegration.utility.SpongeHelper;
+import net.dirtcraft.ftbintegration.utility.compat.NucleusHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;

@@ -15,7 +15,6 @@ import net.dirtcraft.ftbintegration.handlers.forge.SpongePermissionHandler;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.util.FakePlayer;
 import org.spongepowered.api.entity.Entity;

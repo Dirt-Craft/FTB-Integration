@@ -11,7 +11,6 @@ import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.data.PlayerDataManager;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
 import net.dirtcraft.ftbintegration.utility.SpongeHelper;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraftforge.common.DimensionManager;

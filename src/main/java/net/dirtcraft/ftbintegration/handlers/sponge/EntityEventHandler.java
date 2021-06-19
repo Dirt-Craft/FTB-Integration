@@ -7,8 +7,6 @@ import net.dirtcraft.ftbintegration.data.PlayerData;
 import net.dirtcraft.ftbintegration.utility.CauseContextHelper;
 import net.dirtcraft.ftbintegration.utility.ClaimedChunkHelper;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Blocks;
-import net.minecraftforge.common.util.FakePlayer;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
@@ -29,9 +27,7 @@ import org.spongepowered.api.event.filter.cause.First;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class EntityEventHandler {
 

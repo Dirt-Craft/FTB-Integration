@@ -6,21 +6,30 @@ import net.dirtcraft.ftbintegration.core.mixins.generic.AccessorFinalIDObject;
 import net.minecraft.tileentity.TileEntity;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 public class LoggingUtils {
     private static Logger LOGGER = FtbIntegration.LOG;
 
-    public static void logFailure(Cause cause, Location<World> location, String id) {
+    public static void logFailure(Event event, Location<World> location, String id) {
         if (!FtbIntegration.INSTANCE.getConfig().shouldLog()) return;
-        LOGGER.info(String.format("Block event failed @ %s, team: %s via %s [%s]", getLocation(location), getTeam(ClaimedChunkHelper.getChunk(location)), getCause(cause), id));
+        LOGGER.info(String.format("Block event failed @ %s, team: %s via %s [%s || %s]",
+                getLocation(location),
+                getTeam(ClaimedChunkHelper.getChunk(location)),
+                getRepresentation(event.getCause().root()),
+                getRepresentation(CauseContextHelper.getEventUser(event)),
+                id));
     }
 
-    public static void logFailure(Cause cause, Location<World> location, ClaimedChunk chunk, String id) {
+    public static void logFailure(Event event, Location<World> location, ClaimedChunk chunk, String id) {
         if (!FtbIntegration.INSTANCE.getConfig().shouldLog()) return;
-        LOGGER.info(String.format("Block event failed @ %s, team: %s via %s [%s]", getLocation(location), getTeam(chunk), getCause(cause), id));
+        LOGGER.info(String.format("Block event failed @ %s, team: %s via %s [%s || %s]", getLocation(location),
+                getTeam(chunk),
+                getRepresentation(event.getCause().root()),
+                getRepresentation(CauseContextHelper.getEventUser(event)),
+                id));
     }
 
     private static String getLocation(Location<World> loc) {
@@ -32,8 +41,7 @@ public class LoggingUtils {
         else return ((AccessorFinalIDObject)chunk.getTeam()).getTeamIdString();
     }
 
-    private static String getCause(Cause cause) {
-        Object c = cause.root();
+    private static String getRepresentation(Object c) {
         if (c instanceof TileEntity) {
             TileEntity source = (TileEntity) c;
             return String.format("TE{%d. %d, %d}", source.getPos().getX(), source.getPos().getY(), source.getPos().getZ());
