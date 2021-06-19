@@ -24,6 +24,13 @@ Build 1.0.8
     Logic to ignore interacts on husky crate blocks (>V2.0.0)
 
 =========
+Build 1.1.0
+    ADDED: Team chat implemented "/teamchat <MSG>" "/tc <MSG>"
+    Fix for DE/AE2 items disappearing when mob-spawns are disabled - @k4su
+    Further tweaks to spawn handler (Armor-stands no longer bypass)
+    Debug stuff added, not really relevant to anyone but me lmao
+
+=========
 Future Ideas
     Perhaps a spawn handler to limit entities per chunk and use meta etc.
     Allow the mod to be used without FTB-U clientside effectively, etc.

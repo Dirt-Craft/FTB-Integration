@@ -14,6 +14,7 @@ import net.dirtcraft.ftbintegration.handlers.forge.SpongePermissionHandler;
 import net.dirtcraft.ftbintegration.handlers.sponge.*;
 import net.dirtcraft.ftbintegration.storage.Configuration;
 import net.dirtcraft.ftbintegration.storage.Database;
+import net.dirtcraft.ftbintegration.utility.compat.ChatCompatHelper;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -89,6 +90,7 @@ public class FtbIntegration {
                 new PlayerEventHandler(),
                 new EntityEventHandler()
         ).forEach(h->manager.registerListeners(this, h));
+        ChatCompatHelper.INSTANCE.registerListeners(this);
         MinecraftForge.EVENT_BUS.register(new ChunkEventsHandler());
     }
 

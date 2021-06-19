@@ -9,6 +9,7 @@ import net.dirtcraft.ftbintegration.command.user.UserBase;
 import net.dirtcraft.ftbintegration.storage.Permission;
 import net.dirtcraft.ftbintegration.utility.Pair;
 import net.dirtcraft.ftbintegration.utility.Switcher;
+import net.dirtcraft.ftbintegration.utility.compat.ChatCompatHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -75,7 +76,7 @@ public class IntegrationBase implements CommandExecutor {
         ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
         commandMap.forEach(base::child);
 
-        Sponge.getCommandManager().register(plugin, team, "tc", "teamchat");
+        if (ChatCompatHelper.INSTANCE.addCommand()) Sponge.getCommandManager().register(plugin, team, "tc", "teamchat");
         Sponge.getCommandManager().register(plugin, debug, "dc", "debugclaims");
         Sponge.getCommandManager().register(plugin, bypass, "ic", "ignoreclaims");
         Sponge.getCommandManager().register(plugin, base.build(), ALIAS, "ftbintegration");

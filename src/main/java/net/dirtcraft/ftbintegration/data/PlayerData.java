@@ -47,8 +47,6 @@ public class PlayerData {
 
     private boolean bypassClaims;
     private boolean debugClaims;
-    private boolean teamChat;
-    private boolean teamSpy;
 
     private ChunkDimPos primaryChunkPos;
     private ChunkDimPos secondaryChunkPos;

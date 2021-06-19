@@ -1,8 +1,9 @@
-package net.dirtcraft.ftbintegration.utility;
+package net.dirtcraft.ftbintegration.utility.compat;
 
 import io.github.nucleuspowered.nucleus.api.NucleusAPI;
 import io.github.nucleuspowered.nucleus.api.service.NucleusNicknameService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusUserPreferenceService;
+import net.dirtcraft.ftbintegration.utility.SpongeHelper;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 

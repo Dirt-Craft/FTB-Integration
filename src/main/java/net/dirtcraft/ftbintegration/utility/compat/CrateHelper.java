@@ -1,4 +1,4 @@
-package net.dirtcraft.ftbintegration.utility;
+package net.dirtcraft.ftbintegration.utility.compat;
 
 import com.codehusky.huskycrates.HuskyCrates;
 import org.spongepowered.api.world.Location;

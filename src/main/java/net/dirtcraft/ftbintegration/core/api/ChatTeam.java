@@ -2,7 +2,7 @@ package net.dirtcraft.ftbintegration.core.api;
 
 import com.feed_the_beast.ftblib.lib.EnumTeamStatus;
 import net.dirtcraft.ftbintegration.storage.Permission;
-import net.dirtcraft.ftbintegration.utility.NucleusHelper;
+import net.dirtcraft.ftbintegration.utility.compat.NucleusHelper;
 import net.dirtcraft.ftbintegration.utility.SpongeHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
@@ -55,7 +55,7 @@ public interface ChatTeam {
                             .concat(SpongeHelper.getText("&r: "))
                             .concat(original));
                 } else {
-                    member.sendMessage(SpongeHelper.formatText("&6[SocialSpy][%s -> TEAM]: %s", name.toPlain(), original.toPlain()));
+                    member.sendMessage(SpongeHelper.formatText("&7[SocialSpy]&6[%s -> TEAM]: %s", name.toPlain(), original.toPlain()));
                 }
             }
         }
