@@ -58,7 +58,7 @@ public class ClaimedChunkHelper {
             ClaimedChunk chunk = getChunk(target.getLocation());
             return owner == null || chunk == null
                     || chunk.getTeam().hasStatus(owner.getForgePlayer(), chunk.getData().getAttackEntitiesStatus())
-                    || owner.hasAnimalAttackPermission(chunk);
+                    || owner.hasAnimalAttackPermission(target, chunk);
         }
 
         return true;

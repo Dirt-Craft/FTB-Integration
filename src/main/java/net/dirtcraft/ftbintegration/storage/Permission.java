@@ -1,11 +1,13 @@
 package net.dirtcraft.ftbintegration.storage;
 
+import com.feed_the_beast.ftbutilities.FTBUtilitiesPermissions;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.spongepowered.api.entity.Entity;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 
 public class Permission {
     private static final String BASE = "ftbintegration";
@@ -124,7 +126,10 @@ ftbintegration.claims.claim.dimension
     }
 
     public static String resolveSpawn(Entity entity){
-        return resolvePermission("ftbutilities.claims.entity.spawn");
+        return resolvePermission("ftbutilities.claims.entity.spawn", formatEntity(entity));
+    }
+    public static String resolveAttack(Entity entity){
+        return resolvePermission(FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS, formatEntity(entity));
     }
 
     public static String resolveBlockEdit(Block block){
@@ -139,12 +144,20 @@ ftbintegration.claims.claim.dimension
         return resolvePermission("ftbutilities.claims.item", formatId(item));
     }
 
+    private static String formatEntity(Entity entity) {
+        return entity.getType().getId()
+                .toLowerCase(Locale.ENGLISH)
+                .replace(":", ".");
+    }
+
     private static String resolvePermission(String... node){
         return String.join(".", node);
     }
 
     private static String formatId(@Nullable IForgeRegistryEntry<?> item) {
         if (item == null || item.getRegistryName() == null) return "minecraft.air" ;
-        else return item.getRegistryName().toString().toLowerCase().replace(':', '.');
+        else return item.getRegistryName().toString()
+                .toLowerCase(Locale.ENGLISH)
+                .replace(':', '.');
     }
 }

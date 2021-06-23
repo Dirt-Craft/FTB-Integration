@@ -16,7 +16,7 @@ public class UltimateChatHandler {
 
     @Listener
     public void onChat(SendChannelMessageEvent event) {
-        if (!event.getChannel().matchChannel(channel)) return;
+        if (event.getChannel() == null || !event.getChannel().matchChannel(channel)) return;
         CommandSource p = event.getSender();
         PlayerData data;
         if (!(p instanceof Player) || (data = PlayerData.get((Player)p)) == null || !(data.getForgePlayer().team instanceof ChatTeam)) return;

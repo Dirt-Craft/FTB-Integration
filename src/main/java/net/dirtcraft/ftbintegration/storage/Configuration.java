@@ -7,6 +7,8 @@ import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.world.World;
 
@@ -21,6 +23,14 @@ public class Configuration {
 
     @Setting(value = "enable-logging", comment = "enable logging for some events!")
     private boolean logging = false;
+
+    @Setting(value = "Spawn-Entities",
+            comment = "Entities players may spawn in others claims.")
+    private final HashSet<EntityType> spawnWhitelist = new HashSet<>();
+
+    @Setting(value = "Attack-Entities",
+            comment = "Entities players may attack in others claims.")
+    private final HashSet<EntityType> attackWhiteList = new HashSet<>();
 
     @Setting(value = "Use-Blacklisted-Items",
             comment = "Items not allowed to be used in others claims without permission.")
@@ -62,6 +72,14 @@ public class Configuration {
 
     public ListType getDimListType(){
         return dimListType;
+    }
+
+    public boolean isSpawnAllowed(Entity entity) {
+        return spawnWhitelist.contains(entity.getType());
+    }
+
+    public boolean isAttackAllowed(Entity entity) {
+        return attackWhiteList.contains(entity.getType());
     }
 
     public boolean isBlockEditAllowed(Block block) {

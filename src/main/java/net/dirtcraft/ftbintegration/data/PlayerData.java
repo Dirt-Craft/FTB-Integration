@@ -17,9 +17,12 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.util.FakePlayer;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.living.Hostile;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.entity.projectile.Projectile;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.world.Location;
@@ -136,8 +139,16 @@ public class PlayerData {
     }
 
     public boolean hasSpawningPermission(Entity entity, ClaimedChunk chunk) {
-        return canBypassClaims() ||
+        return canBypassClaims() || entity instanceof Projectile ||
+                INTEGRATION.getConfig().isSpawnAllowed(entity) ||
                 PERMS.hasPermission(gameProfile, Permission.resolveSpawn(entity), formatClaim(chunk));
+    }
+
+    public boolean hasAnimalAttackPermission(Entity entity, ClaimedChunk chunk) {
+        if (entity.get(Keys.DISPLAY_NAME).isPresent()) return canBypassClaims();
+        return canBypassClaims() || entity instanceof Hostile ||
+                INTEGRATION.getConfig().isAttackAllowed(entity) ||
+                PERMS.hasPermission(gameProfile, Permission.resolveAttack(entity), formatClaim(chunk));
     }
 
     public boolean hasBlockEditingPermission(Block block, ClaimedChunk chunk) {
@@ -153,11 +164,6 @@ public class PlayerData {
     public boolean hasItemUsePermission(Item item, ClaimedChunk chunk) {
         return canBypassClaims() || INTEGRATION.getConfig().isItemUseAllowed(item) ||
                 PERMS.hasPermission(gameProfile, Permission.resolveItemUse(item), formatClaim(chunk));
-    }
-
-    public boolean hasAnimalAttackPermission(ClaimedChunk chunk) {
-        return canBypassClaims() ||
-                PERMS.hasPermission(gameProfile, FTBUtilitiesPermissions.CLAIMS_ATTACK_ANIMALS, formatClaim(chunk));
     }
 
     public boolean canClaimInDimension(World world) {

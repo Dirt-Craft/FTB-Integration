@@ -52,6 +52,7 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.living.Hostile;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
@@ -119,7 +120,7 @@ public class PlayerEventHandler {
     public void onPlayerInteractEntity(InteractEntityEvent.Primary event, @First Player player) {
         final Entity targetEntity = event.getTargetEntity();
         final Location<World> location = targetEntity.getLocation();
-        if (ClaimedChunkHelper.blockBlockInteractions(PlayerData.getOrCreate(player), location)) {
+        if (!(targetEntity instanceof Hostile) && ClaimedChunkHelper.blockBlockInteractions(PlayerData.getOrCreate(player), location)) {
             event.setCancelled(true);
         }
     }

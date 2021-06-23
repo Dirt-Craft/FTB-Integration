@@ -31,6 +31,12 @@ Build 1.1.0
     Debug stuff added, not really relevant to anyone but me lmao
 
 =========
+Build 1.1.1
+    Tweaks to allow entities to be damaged if they are hostile
+    More control over entity bypasses
+    Name tagged entities should not be attackable (hostile or whitelisted)
+
+=========
 Future Ideas
     Perhaps a spawn handler to limit entities per chunk and use meta etc.
     Allow the mod to be used without FTB-U clientside effectively, etc.
